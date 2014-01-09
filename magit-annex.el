@@ -38,8 +38,10 @@
 ;; Wiegley's git-annex.el [1], but also because there aren't too many
 ;; single letters available in the magit keymap.
 ;;
-;; There is also an option to run 'git annex merge' (under the merging
-;; menu).
+;; There are also options to run a few other git annex commands:
+;;
+;;   @y   Sync git annex
+;;   @    Merge git annex (under the merging menu)
 ;;
 ;; For other git annex commands (e.g., getting, copying, and unlocking
 ;; annexed files), see git-annex.el [1], which integrates nicely with
@@ -71,8 +73,14 @@
 (define-key magit-mode-map
   "@A" 'magit-annex-stage-all)
 
+(define-key magit-mode-map
+  "@y" 'magit-annex-sync)
+
 (magit-key-mode-insert-action 'dispatch
                               "@A" "Annex all" 'magit-annex-stage-all)
+
+(magit-key-mode-insert-action 'dispatch
+                              "@y" "Sync git annex" 'magit-annex-sync)
 
 (magit-key-mode-insert-action 'merging
                               "@" "Merge git annex branch" 'magit-annex-merge)
@@ -115,7 +123,13 @@ With a prefix argument, prompt for a file.
             (yes-or-no-p "Add all changes to annex?"))
     (magit-run-git "annex" "add" ".")))
 
-;;; Merging
+;;; Updating
+
+(defun magit-annex-sync ()
+  "Sync git-annex branch.
+\('git annex sync')"
+  (interactive)
+  (magit-run-git "annex" "sync"))
 
 (defun magit-annex-merge ()
   "Merge git annex branch.
