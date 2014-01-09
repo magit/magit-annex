@@ -23,8 +23,10 @@
 
 ;;; Commentary:
 ;;
-;; magit-annex provides the ability to add files to git annex using the
-;; magit interface.
+;; magit-annex adds a few git annex operations to the magit interface.
+;;
+;; The main feature is the ability to add files to the annex from the
+;; status buffer.
 ;;
 ;;   @a   Add a file to annex.
 ;;        Behaves similarly to staging a file with 's'.
@@ -35,6 +37,9 @@
 ;; '@' was chosen as a leading key mostly to be consistent with John
 ;; Wiegley's git-annex.el [1], but also because there aren't too many
 ;; single letters available in the magit keymap.
+;;
+;; There is also an option to run 'git annex merge' (under the merging
+;; menu).
 ;;
 ;; For other git annex commands (e.g., getting, copying, and unlocking
 ;; annexed files), see git-annex.el [1], which integrates nicely with
@@ -68,6 +73,9 @@
 
 (magit-key-mode-insert-action 'dispatch
                               "@A" "Annex all" 'magit-annex-stage-all)
+
+(magit-key-mode-insert-action 'merging
+                              "@" "Merge git annex branch" 'magit-annex-merge)
 
 ;;; Annexing
 
@@ -106,6 +114,14 @@ With a prefix argument, prompt for a file.
             (not (magit-anything-staged-p))
             (yes-or-no-p "Add all changes to annex?"))
     (magit-run-git "annex" "add" ".")))
+
+;;; Merging
+
+(defun magit-annex-merge ()
+  "Merge git annex branch.
+\('git annex merge')"
+  (interactive)
+  (magit-run-git "annex" "merge"))
 
 (provide 'magit-annex)
 
