@@ -42,6 +42,7 @@
 ;;
 ;;   @y   Sync git annex
 ;;   @    Merge git annex (under the merging menu)
+;;   @    Push git annex (under the pushing menu)
 ;;
 ;; For other git annex commands (e.g., getting, copying, and unlocking
 ;; annexed files), see git-annex.el [1], which integrates nicely with
@@ -84,6 +85,9 @@
 
 (magit-key-mode-insert-action 'merging
                               "@" "Merge git annex branch" 'magit-annex-merge)
+
+(magit-key-mode-insert-action 'pushing
+                              "@" "Push git annex branch" 'magit-annex-push)
 
 ;;; Annexing
 
@@ -136,6 +140,21 @@ With a prefix argument, prompt for a file.
 \('git annex merge')"
   (interactive)
   (magit-run-git "annex" "merge"))
+
+(defun magit-annex-push ()
+  "Push git annex branch to a remote repository.
+\('git push <remote> git-annex')"
+  ;; modified from `magit-push-tags'
+  (interactive)
+  (let* ((branch  "git-annex")
+        (remotes (magit-git-lines "remote"))
+        (remote  (or (and branch (magit-get-remote branch))
+                     (car (member  "origin" remotes))
+                     (and (= (length remotes) 1)
+                          (car remotes)))))
+    (when (or current-prefix-arg (not remote))
+      (setq remote (magit-read-remote "Push to remote")))
+    (magit-run-git-async "push" remote branch)))
 
 (provide 'magit-annex)
 
