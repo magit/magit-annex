@@ -57,7 +57,7 @@
 ;; Variables
 
 (defgroup magit-annex nil
-  "Add files to git annex from magit"
+  "Use git annex within magit"
   :prefix "magit-annex"
   :group 'magit)
 
