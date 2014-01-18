@@ -133,7 +133,7 @@ With a prefix argument, prompt for a file.
   "Sync git-annex branch.
 \('git annex sync')"
   (interactive)
-  (magit-run-git "annex" "sync"))
+  (magit-run-git-async "annex" "sync"))
 
 (defun magit-annex-merge ()
   "Merge git annex branch.
