@@ -41,8 +41,8 @@
 ;; There are also options to run a few other git annex commands:
 ;;
 ;;   @y   Sync git annex
-;;   @    Merge git annex (under the merging menu)
-;;   @    Push git annex (under the pushing menu)
+;;   m@   Merge git annex (under the merging menu)
+;;   P@   Push git annex (under the pushing menu)
 ;;
 ;; For other git annex commands (e.g., getting, copying, and unlocking
 ;; annexed files), see git-annex.el [1], which integrates nicely with
