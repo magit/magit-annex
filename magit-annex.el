@@ -66,6 +66,13 @@
   :group 'magit-annex
   :type 'boolean)
 
+(defcustom magit-annex-standard-options nil
+  "Call git annex with these options.
+These are placed after \"annex\" in the call, whereas values from
+`magit-git-standard-options' are placed after \"git\"."
+  :group 'magit-annex
+  :type '(repeat string))
+
 ;;; Keybindings
 
 (define-key magit-status-mode-map
@@ -88,6 +95,15 @@
 
 (magit-key-mode-insert-action 'pushing
                               "@" "Push git annex branch" 'magit-annex-push)
+;; Process calls
+
+(defun magit-annex-run (&rest args)
+  (apply #'magit-run-git
+         (append '("annex") magit-annex-standard-options args)))
+
+(defun magit-annex-run-async (&rest args)
+  (apply #'magit-run-git-async
+         (append '("annex") magit-annex-standard-options args)))
 
 ;;; Annexing
 
@@ -102,16 +118,16 @@ With a prefix argument, prompt for a file.
             (read-file-name "File to add to annex: " nil nil t)
                                (magit-get-top-dir)))))
   (if file
-      (magit-run-git "annex" "add" file)
+      (magit-annex-run "add" file)
     (magit-section-action (item info "annex-add")
       ((untracked file)
-       (magit-run-git "annex" "add"
+       (magit-annex-run "add"
                       (if (use-region-p)
                           (magit-region-siblings #'magit-section-info)
                         info)))
       ((untracked)
-       (magit-run-git "annex" "add" (magit-git-lines "ls-files" "--other"
-                                                     "--exclude-standard")))
+       (magit-annex-run "add" (magit-git-lines "ls-files" "--other"
+                                               "--exclude-standard")))
       ((unstaged)
        (magit-annex-stage-all))
       ((staged *)
@@ -125,7 +141,7 @@ With a prefix argument, prompt for a file.
   (when (or (not magit-annex-stage-all-confirm)
             (not (magit-anything-staged-p))
             (yes-or-no-p "Add all changes to annex?"))
-    (magit-run-git "annex" "add" ".")))
+    (magit-annex-run "add" ".")))
 
 ;;; Updating
 
@@ -133,13 +149,13 @@ With a prefix argument, prompt for a file.
   "Sync git-annex branch.
 \('git annex sync')"
   (interactive)
-  (magit-run-git-async "annex" "sync"))
+  (magit-annex-run-async "sync"))
 
 (defun magit-annex-merge ()
   "Merge git annex branch.
 \('git annex merge')"
   (interactive)
-  (magit-run-git "annex" "merge"))
+  (magit-annex-run "merge"))
 
 (defun magit-annex-push ()
   "Push git annex branch to a remote repository.
