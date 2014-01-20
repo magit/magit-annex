@@ -98,12 +98,12 @@ These are placed after \"annex\" in the call, whereas values from
 ;; Process calls
 
 (defun magit-annex-run (&rest args)
-  (apply #'magit-run-git
-         (append '("annex") magit-annex-standard-options args)))
+  (apply #'magit-run-git "annex"
+         (append magit-annex-standard-options args)))
 
 (defun magit-annex-run-async (&rest args)
-  (apply #'magit-run-git-async
-         (append '("annex") magit-annex-standard-options args)))
+  (apply #'magit-run-git-async "annex"
+         (append magit-annex-standard-options args)))
 
 ;;; Annexing
 
