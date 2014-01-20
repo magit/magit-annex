@@ -111,7 +111,7 @@ These are placed after \"annex\" in the call, whereas values from
   "Add the item at point to annex.
 With a prefix argument, prompt for a file.
 \('git annex add')"
-  ;; modified from `magit-stage-item'
+  ;; Modified from `magit-stage-item'.
   (interactive
    (when current-prefix-arg
      (list (file-relative-name
@@ -136,7 +136,7 @@ With a prefix argument, prompt for a file.
 (defun magit-annex-stage-all ()
   "Add all remaining changes in tracked files to staging area.
 \('git annex add .')"
-  ;; modified from `magit-stage-all'
+  ;; Modified from `magit-stage-all'.
   (interactive)
   (when (or (not magit-annex-stage-all-confirm)
             (not (magit-anything-staged-p))
@@ -160,7 +160,7 @@ With a prefix argument, prompt for a file.
 (defun magit-annex-push ()
   "Push git annex branch to a remote repository.
 \('git push <remote> git-annex')"
-  ;; modified from `magit-push-tags'
+  ;; Modified from `magit-push-tags'.
   (interactive)
   (let* ((branch  "git-annex")
         (remotes (magit-git-lines "remote"))
