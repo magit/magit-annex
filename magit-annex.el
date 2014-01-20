@@ -42,7 +42,8 @@
 ;;
 ;;   @y   Sync git annex
 ;;   m@   Merge git annex (under the merging menu)
-;;   P@   Push git annex (under the pushing menu)
+;;   P@g  Push git annex (under the pushing menu)
+;;   P@b  Push current branch and git annex (under the pushing menu)
 ;;
 ;; For other git annex commands (e.g., getting, copying, and unlocking
 ;; annexed files), see git-annex.el [1], which integrates nicely with
@@ -94,7 +95,13 @@ These are placed after \"annex\" in the call, whereas values from
                               "@" "Merge git annex branch" 'magit-annex-merge)
 
 (magit-key-mode-insert-action 'pushing
-                              "@" "Push git annex branch" 'magit-annex-push)
+                              "@g" "Push git annex branch" 'magit-annex-push)
+
+(magit-key-mode-insert-action 'pushing
+                              "@b" "Push current branch and git annex branch"
+                              'magit-annex-push-both)
+
+
 ;; Process calls
 
 (defun magit-annex-run (&rest args)
@@ -184,6 +191,13 @@ branch \"git-annex\"."
       (setq magit-custom-options (cons "-u" magit-custom-options))))
     (magit-run-git-async "push" "-v"
                          used-remote branch magit-custom-options)))
+
+(defun magit-annex-push-both (arg)
+  "Push current branch and git annex branch to a remote repository."
+  (interactive "P")
+  (magit-push-dwim arg)
+  (magit-process-wait)
+  (magit-annex-push arg))
 
 (provide 'magit-annex)
 
