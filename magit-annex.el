@@ -157,20 +157,33 @@ With a prefix argument, prompt for a file.
   (interactive)
   (magit-annex-run "merge"))
 
-(defun magit-annex-push ()
+(defun magit-annex-push (arg)
   "Push git annex branch to a remote repository.
-\('git push <remote> git-annex')"
-  ;; Modified from `magit-push-tags'.
-  (interactive)
+This behaves similarly to `magit-push-dwim' but always pushes the
+branch \"git-annex\"."
+  ;; Modified from `magit-push-tags' and `magit-push-dwim'.
+  (interactive "P")
   (let* ((branch  "git-annex")
-        (remotes (magit-git-lines "remote"))
-        (remote  (or (and branch (magit-get-remote branch))
-                     (car (member  "origin" remotes))
-                     (and (= (length remotes) 1)
-                          (car remotes)))))
-    (when (or current-prefix-arg (not remote))
-      (setq remote (magit-read-remote "Push to remote")))
-    (magit-run-git-async "push" remote branch)))
+         (auto-remote (magit-get-remote branch))
+         (used-remote (if (or arg (not auto-remote))
+                          (magit-read-remote
+                           (format "Push %s to remote" branch) auto-remote)
+                        auto-remote)))
+    (cond
+     ((equal auto-remote used-remote))
+     ((member "-u" magit-custom-options))
+     ((>= (prefix-numeric-value arg) 16)
+      (and (yes-or-no-p "Set upstream while pushing? ")
+           (setq magit-custom-options
+                 (cons "-u" magit-custom-options))))
+     ((eq magit-set-upstream-on-push 'refuse)
+      (error "Not pushing since no upstream has been set."))
+     ((or (eq magit-set-upstream-on-push 'dontask)
+          (and (eq magit-set-upstream-on-push t)
+               (yes-or-no-p "Set upstream while pushing? ")))
+      (setq magit-custom-options (cons "-u" magit-custom-options))))
+    (magit-run-git-async "push" "-v"
+                         used-remote branch magit-custom-options)))
 
 (provide 'magit-annex)
 
