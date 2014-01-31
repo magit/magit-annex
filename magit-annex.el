@@ -129,18 +129,18 @@ With a prefix argument, prompt for a file.
                                (magit-get-top-dir)))))
   (if file
       (magit-annex-run "add" file)
-    (magit-section-action (item info "annex-add")
-      ((untracked file)
+    (magit-section-action stage (info)
+      ([file untracked]
        (magit-annex-run "add"
                       (if (use-region-p)
-                          (magit-region-siblings #'magit-section-info)
+                          (magit-section-region-siblings #'magit-section-info)
                         info)))
-      ((untracked)
+      (untracked
        (magit-annex-run "add" (magit-git-lines "ls-files" "--other"
                                                "--exclude-standard")))
-      ((unstaged)
+      (unstaged
        (magit-annex-stage-all))
-      ((staged *)
+      ([* staged]
        (error "Already added to annex")))))
 
 (defun magit-annex-stage-all ()
