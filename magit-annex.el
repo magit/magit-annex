@@ -55,6 +55,7 @@
 
 (require 'magit)
 
+
 ;;; Variables
 
 (defgroup magit-annex nil
@@ -74,6 +75,7 @@ These are placed after \"annex\" in the call, whereas values from
   :group 'magit-annex
   :type '(repeat string))
 
+
 ;;; Keybindings
 
 (define-key magit-status-mode-map
@@ -101,6 +103,7 @@ These are placed after \"annex\" in the call, whereas values from
                               "@b" "Push current branch and git annex branch"
                               'magit-annex-push-both)
 
+
 ;;; Process calls
 
 (defun magit-annex-run (&rest args)
@@ -111,6 +114,7 @@ These are placed after \"annex\" in the call, whereas values from
   (apply #'magit-run-git-async "annex"
          (append magit-annex-standard-options args)))
 
+
 ;;; Annexing
 
 (defun magit-annex-stage-item (&optional file)
@@ -149,6 +153,7 @@ With a prefix argument, prompt for a file.
             (yes-or-no-p "Add all changes to annex?"))
     (magit-annex-run "add" ".")))
 
+
 ;;; Updating
 
 (defun magit-annex-sync ()
