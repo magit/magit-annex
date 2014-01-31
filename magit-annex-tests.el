@@ -19,9 +19,9 @@
   `(magit-tests--with-temp-dir
      (magit-call-git "init" ".")
      (magit-call-git "annex" "init" "test-repo")
-     ,@body
-     ;; Allow deletion of git annex objects.
-     (call-process "chmod" nil nil nil "-R" "777" ".")))
+     (unwind-protect
+         (progn ,@body)
+       (call-process "chmod" nil nil nil "-R" "777" "."))))
 
 (defmacro magit-tests--with-temp-bare-repo (&rest body)
   (declare (indent 0) (debug t))
@@ -41,8 +41,9 @@
          (magit-stage-item "file")
          (magit-call-git "commit" "-m" "normal commit")
          (magit-call-git "push")
-         ,@body
-         (call-process "chmod" nil nil nil "-R" "777" ".")))))
+         (unwind-protect
+             (progn ,@body)
+           (call-process "chmod" nil nil nil "-R" "777" "."))))))
 
 (defun magit-tests--modify-file (filename)
   (with-temp-file (expand-file-name filename)
