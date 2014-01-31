@@ -55,7 +55,7 @@
 
 (require 'magit)
 
-;; Variables
+;;; Variables
 
 (defgroup magit-annex nil
   "Use git annex within magit"
@@ -101,8 +101,7 @@ These are placed after \"annex\" in the call, whereas values from
                               "@b" "Push current branch and git annex branch"
                               'magit-annex-push-both)
 
-
-;; Process calls
+;;; Process calls
 
 (defun magit-annex-run (&rest args)
   (apply #'magit-run-git "annex"
