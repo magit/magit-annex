@@ -40,10 +40,10 @@
 ;;
 ;; There are also options to run a few other git annex commands:
 ;;
-;;   @y   Sync git annex
-;;   m@   Merge git annex (under the merging menu)
-;;   P@g  Push git annex (under the pushing menu)
-;;   P@b  Push current branch and git annex (under the pushing menu)
+;;   @y   Run `git annex sync'.
+;;   m@   Run `git annex merge' (under the merging menu).
+;;   P@g  Push git annex branch (under the pushing menu).
+;;   P@b  Push current and git annex branch (under the pushing menu).
 ;;
 ;; For other git annex commands (e.g., getting, copying, and unlocking
 ;; annexed files), see git-annex.el [1], which integrates nicely with
@@ -88,19 +88,19 @@ These are placed after \"annex\" in the call, whereas values from
   "@y" 'magit-annex-sync)
 
 (magit-key-mode-insert-action 'dispatch
-                              "@A" "Annex all" 'magit-annex-stage-all)
+                              "@A" "Annex add all" 'magit-annex-stage-all)
 
 (magit-key-mode-insert-action 'dispatch
-                              "@y" "Sync git annex" 'magit-annex-sync)
+                              "@y" "Annex sync" 'magit-annex-sync)
 
 (magit-key-mode-insert-action 'merging
-                              "@" "Merge git annex branch" 'magit-annex-merge)
+                              "@" "Annex merge" 'magit-annex-merge)
 
 (magit-key-mode-insert-action 'pushing
-                              "@g" "Push git annex branch" 'magit-annex-push)
+                              "@g" "Push git annex" 'magit-annex-push)
 
 (magit-key-mode-insert-action 'pushing
-                              "@b" "Push current branch and git annex branch"
+                              "@b" "Push current and git annex"
                               'magit-annex-push-both)
 
 
