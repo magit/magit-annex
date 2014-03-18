@@ -87,6 +87,8 @@ These are placed after \"annex\" in the call, whereas values from
 
 (magit-key-mode-generate 'git-annex)
 
+(define-key magit-mode-map "@" 'magit-key-mode-popup-git-annex)
+
 (magit-key-mode-insert-action 'dispatch
                               "@" "Annex" 'magit-key-mode-popup-git-annex)
 
