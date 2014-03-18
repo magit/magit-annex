@@ -84,6 +84,8 @@ These are placed after \"annex\" in the call, whereas values from
 (magit-key-mode-insert-action 'git-annex "@" "Add" #'magit-annex-stage-item)
 (magit-key-mode-insert-action 'git-annex "A" "Add all" #'magit-annex-stage-all)
 (magit-key-mode-insert-action 'git-annex "y" "Sync" #'magit-annex-sync)
+(magit-key-mode-insert-action 'git-annex "g" "get file" #'magit-annex-get)
+(magit-key-mode-insert-action 'git-annex "G" "get all" #'magit-annex-get-auto)
 (magit-key-mode-insert-switch 'git-annex "-c" "Content" "--content")
 (magit-key-mode-insert-switch 'git-annex "-f" "Fast" "--fast")
 
@@ -201,6 +203,20 @@ branch \"git-annex\"."
   (magit-push-dwim arg)
   (magit-process-wait)
   (magit-annex-push arg))
+
+;;; Getting content
+
+(defun magit-annex-get-all ()
+  "run git annex get --auto to get all needed files"
+  (interactive)
+  (magit-annex-run-async "get" "--auto" magit-custom-options))
+
+(defun magit-annex-get-file (file)
+  "get a file from where ever it is"
+  (interactive "ffile to get: ")
+  (setq file (expand-file-name file))
+  (let ((default-directory (file-name-directory file)))
+    (magit-annex-run-async "get" magit-custom-options (file-name-nondirectory file))))
 
 (provide 'magit-annex)
 
