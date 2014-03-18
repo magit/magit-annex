@@ -84,6 +84,8 @@ These are placed after \"annex\" in the call, whereas values from
 (magit-key-mode-insert-action 'git-annex "@" "Add" #'magit-annex-stage-item)
 (magit-key-mode-insert-action 'git-annex "A" "Add all" #'magit-annex-stage-all)
 (magit-key-mode-insert-action 'git-annex "y" "Sync" #'magit-annex-sync)
+(magit-key-mode-insert-switch 'git-annex "-c" "Content" "--content")
+(magit-key-mode-insert-switch 'git-annex "-f" "Fast" "--fast")
 
 (magit-key-mode-generate 'git-annex)
 
@@ -157,7 +159,7 @@ With a prefix argument, prompt for a file.
   "Sync git-annex branch.
 \('git annex sync')"
   (interactive)
-  (magit-annex-run-async "sync"))
+  (magit-annex-run-async "sync" magit-custom-options))
 
 (defun magit-annex-merge ()
   "Merge git annex branch.
