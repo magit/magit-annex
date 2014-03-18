@@ -78,20 +78,17 @@ These are placed after \"annex\" in the call, whereas values from
 
 ;;; Keybindings
 
-(define-key magit-status-mode-map
-  "@a" 'magit-annex-stage-item)
+(magit-key-mode-add-group 'git-annex)
 
-(define-key magit-mode-map
-  "@A" 'magit-annex-stage-all)
+(magit-key-mode-insert-action 'git-annex "a" "Add" #'magit-annex-stage-item)
+(magit-key-mode-insert-action 'git-annex "@" "Add" #'magit-annex-stage-item)
+(magit-key-mode-insert-action 'git-annex "A" "Add all" #'magit-annex-stage-all)
+(magit-key-mode-insert-action 'git-annex "y" "Sync" #'magit-annex-sync)
 
-(define-key magit-mode-map
-  "@y" 'magit-annex-sync)
-
-(magit-key-mode-insert-action 'dispatch
-                              "@A" "Annex add all" 'magit-annex-stage-all)
+(magit-key-mode-generate 'git-annex)
 
 (magit-key-mode-insert-action 'dispatch
-                              "@y" "Annex sync" 'magit-annex-sync)
+                              "@" "Annex" 'magit-key-mode-popup-git-annex)
 
 (magit-key-mode-insert-action 'merging
                               "@" "Annex merge" 'magit-annex-merge)
