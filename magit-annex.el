@@ -84,8 +84,8 @@ These are placed after \"annex\" in the call, whereas values from
 (magit-key-mode-insert-action 'git-annex "@" "Add" #'magit-annex-stage-item)
 (magit-key-mode-insert-action 'git-annex "A" "Add all" #'magit-annex-stage-all)
 (magit-key-mode-insert-action 'git-annex "y" "Sync" #'magit-annex-sync)
-(magit-key-mode-insert-action 'git-annex "g" "get file" #'magit-annex-get)
-(magit-key-mode-insert-action 'git-annex "G" "get all" #'magit-annex-get-auto)
+(magit-key-mode-insert-action 'git-annex "g" "get file" #'magit-annex-get-file)
+(magit-key-mode-insert-action 'git-annex "G" "get all" #'magit-annex-get-all)
 (magit-key-mode-insert-switch 'git-annex "-c" "Content" "--content")
 (magit-key-mode-insert-switch 'git-annex "-f" "Fast" "--fast")
 
