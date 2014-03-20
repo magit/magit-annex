@@ -24,30 +24,33 @@
 ;;; Commentary:
 ;;
 ;; magit-annex adds a few git annex operations to the magit interface.
+;; Most features are present under the annex popup menu, which is bound
+;; to "@". This key was chosen as a leading key mostly to be consistent
+;; with John Wiegley's git-annex.el [1], but also because there aren't
+;; too many single letters available in the magit keymap.
 ;;
-;; The main feature is the ability to add files to the annex from the
-;; status buffer.
-;;
-;;   @a   Add a file to annex.
+;; Adding files:
+;;   @a   Add a file in the status buffer to annex.
 ;;        Behaves similarly to staging a file with 's'.
-;;
 ;;   @A   Add all untracked files and unstaged changes to annex.
 ;;        Behaves similarly to staging all files with 'S'.
 ;;
-;; '@' was chosen as a leading key mostly to be consistent with John
-;; Wiegley's git-annex.el [1], but also because there aren't too many
-;; single letters available in the magit keymap.
+;; Managing file content:
+;;   @c   Copy a file.
+;;   @d   Drop a file.
+;;   @g   Get a file.
+;;   @G   Get all files (run with "auto" flag).
+;;   @m   Move a file.
+;;   @u   Unlock a file.
+;;   @l   Lock a file.
 ;;
-;; There are also options to run a few other git annex commands:
-;;
-;;   @y   Run `git annex sync'.
+;; Updating git annex:
 ;;   m@   Run `git annex merge' (under the merging menu).
 ;;   P@g  Push git annex branch (under the pushing menu).
 ;;   P@b  Push current and git annex branch (under the pushing menu).
+;;   @y   Run `git annex sync'.
 ;;
-;; For other git annex commands (e.g., getting, copying, and unlocking
-;; annexed files), see git-annex.el [1], which integrates nicely with
-;; dired.
+;; For working with git annex in dired, see git-annex.el [1].
 ;;
 ;; [1] https://github.com/jwiegley/git-annex-el
 
@@ -78,16 +81,31 @@ These are placed after \"annex\" in the call, whereas values from
 
 ;;; Keybindings
 
-(magit-key-mode-add-group 'git-annex)
+(defvar magit-annex-key-mode-group
+  '(git-annex
+    (man-page "git-annex")
+    (actions
+     ("a" "Add" magit-annex-stage-item)
+     ("@" "Add" magit-annex-stage-item)
+     ("A" "Add all" magit-annex-stage-all)
+     ("c" "Copy file" magit-annex-copy-file)
+     ("d" "Drop file" magit-annex-drop-file)
+     ("g" "Get file" magit-annex-get-file)
+     ("G" "Get all" magit-annex-get-all)
+     ("m" "Move file" magit-annex-move-file)
+     ("l" "Lock file" magit-annex-lock-file)
+     ("u" "Unlock file" magit-annex-unlock-file)
+     ("y" "Sync" magit-annex-sync))
+    (switches
+     ("-c" "Content" "--content")
+     ("-f" "Fast" "--fast")
+     ("-F" "Force" "--force"))
+    (arguments
+     ("=t" "To remote" "--to=" magit-read-remote)
+     ("=f" "From remote" "--from=" magit-read-remote)
+     ("=n" "Number of copies" "--numcopies=" read-from-minibuffer))))
 
-(magit-key-mode-insert-action 'git-annex "a" "Add" #'magit-annex-stage-item)
-(magit-key-mode-insert-action 'git-annex "@" "Add" #'magit-annex-stage-item)
-(magit-key-mode-insert-action 'git-annex "A" "Add all" #'magit-annex-stage-all)
-(magit-key-mode-insert-action 'git-annex "y" "Sync" #'magit-annex-sync)
-(magit-key-mode-insert-action 'git-annex "g" "get file" #'magit-annex-get-file)
-(magit-key-mode-insert-action 'git-annex "G" "get all" #'magit-annex-get-all)
-(magit-key-mode-insert-switch 'git-annex "-c" "Content" "--content")
-(magit-key-mode-insert-switch 'git-annex "-f" "Fast" "--fast")
+(add-to-list 'magit-key-mode-groups magit-annex-key-mode-group)
 
 (magit-key-mode-generate 'git-annex)
 
@@ -206,19 +224,29 @@ branch \"git-annex\"."
   (magit-process-wait)
   (magit-annex-push arg))
 
-;;; Getting content
+
+;;; Managing content
 
 (defun magit-annex-get-all ()
   "run git annex get --auto to get all needed files"
   (interactive)
   (magit-annex-run-async "get" "--auto" magit-custom-options))
 
-(defun magit-annex-get-file (file)
-  "get a file from where ever it is"
-  (interactive "ffile to get: ")
-  (setq file (expand-file-name file))
-  (let ((default-directory (file-name-directory file)))
-    (magit-annex-run-async "get" magit-custom-options (file-name-nondirectory file))))
+(defmacro magit-annex-file-action (command)
+  `(defun ,(intern (concat "magit-annex-" command "-file")) (file)
+     (interactive ,(format "fFile to %s: " command))
+     (setq file (expand-file-name file))
+     (let ((default-directory (file-name-directory file)))
+       (magit-annex-run-async ,command
+                              magit-custom-options
+                              (file-name-nondirectory file)))))
+
+(magit-annex-file-action "get")
+(magit-annex-file-action "drop")
+(magit-annex-file-action "copy")
+(magit-annex-file-action "move")
+(magit-annex-file-action "unlock")
+(magit-annex-file-action "lock")
 
 (provide 'magit-annex)
 
