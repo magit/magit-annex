@@ -78,16 +78,20 @@ These are placed after \"annex\" in the call, whereas values from
 
 ;;; Keybindings
 
-(magit-key-mode-add-group 'git-annex)
+(defvar magit-annex-key-mode-group
+  '(git-annex
+    (actions
+     ("a" "Add" magit-annex-stage-item)
+     ("@" "Add" magit-annex-stage-item)
+     ("A" "Add all" magit-annex-stage-all)
+     ("g" "Get file" magit-annex-get-file)
+     ("G" "Get all" magit-annex-get-all)
+     ("y" "Sync" magit-annex-sync))
+    (switches
+     ("-c" "Content" "--content")
+     ("-f" "Fast" "--fast"))))
 
-(magit-key-mode-insert-action 'git-annex "a" "Add" #'magit-annex-stage-item)
-(magit-key-mode-insert-action 'git-annex "@" "Add" #'magit-annex-stage-item)
-(magit-key-mode-insert-action 'git-annex "A" "Add all" #'magit-annex-stage-all)
-(magit-key-mode-insert-action 'git-annex "y" "Sync" #'magit-annex-sync)
-(magit-key-mode-insert-action 'git-annex "g" "get file" #'magit-annex-get-file)
-(magit-key-mode-insert-action 'git-annex "G" "get all" #'magit-annex-get-all)
-(magit-key-mode-insert-switch 'git-annex "-c" "Content" "--content")
-(magit-key-mode-insert-switch 'git-annex "-f" "Fast" "--fast")
+(add-to-list 'magit-key-mode-groups magit-annex-key-mode-group)
 
 (magit-key-mode-generate 'git-annex)
 
