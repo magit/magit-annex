@@ -41,6 +41,8 @@
 ;;   @g   Get a file.
 ;;   @G   Get all files (run with "auto" flag).
 ;;   @m   Move a file.
+;;   @u   Unlock a file.
+;;   @l   Lock a file.
 ;;
 ;; Updating git annex:
 ;;   m@   Run `git annex merge' (under the merging menu).
@@ -91,6 +93,8 @@ These are placed after \"annex\" in the call, whereas values from
      ("g" "Get file" magit-annex-get-file)
      ("G" "Get all" magit-annex-get-all)
      ("m" "Move file" magit-annex-move-file)
+     ("l" "Lock file" magit-annex-lock-file)
+     ("u" "Unlock file" magit-annex-unlock-file)
      ("y" "Sync" magit-annex-sync))
     (switches
      ("-c" "Content" "--content")
@@ -241,6 +245,8 @@ branch \"git-annex\"."
 (magit-annex-file-action "drop")
 (magit-annex-file-action "copy")
 (magit-annex-file-action "move")
+(magit-annex-file-action "unlock")
+(magit-annex-file-action "lock")
 
 (provide 'magit-annex)
 
