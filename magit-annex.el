@@ -36,8 +36,11 @@
 ;;        Behaves similarly to staging all files with 'S'.
 ;;
 ;; Managing file content:
+;;   @c   Copy a file.
+;;   @d   Drop a file.
 ;;   @g   Get a file.
 ;;   @G   Get all files (run with "auto" flag).
+;;   @m   Move a file.
 ;;
 ;; Updating git annex:
 ;;   m@   Run `git annex merge' (under the merging menu).
@@ -83,14 +86,19 @@ These are placed after \"annex\" in the call, whereas values from
      ("a" "Add" magit-annex-stage-item)
      ("@" "Add" magit-annex-stage-item)
      ("A" "Add all" magit-annex-stage-all)
+     ("c" "Copy file" magit-annex-copy-file)
+     ("d" "Drop file" magit-annex-drop-file)
      ("g" "Get file" magit-annex-get-file)
      ("G" "Get all" magit-annex-get-all)
+     ("m" "Move file" magit-annex-move-file)
      ("y" "Sync" magit-annex-sync))
     (switches
      ("-c" "Content" "--content")
      ("-f" "Fast" "--fast")
      ("-F" "Force" "--force"))
     (arguments
+     ("=t" "To remote" "--to=" magit-read-remote)
+     ("=f" "From remote" "--from=" magit-read-remote)
      ("=n" "Number of copies" "--numcopies=" read-from-minibuffer))))
 
 (add-to-list 'magit-key-mode-groups magit-annex-key-mode-group)
@@ -212,19 +220,27 @@ branch \"git-annex\"."
   (magit-process-wait)
   (magit-annex-push arg))
 
-;;; Getting content
+
+;;; Managing content
 
 (defun magit-annex-get-all ()
   "run git annex get --auto to get all needed files"
   (interactive)
   (magit-annex-run-async "get" "--auto" magit-custom-options))
 
-(defun magit-annex-get-file (file)
-  "get a file from where ever it is"
-  (interactive "ffile to get: ")
-  (setq file (expand-file-name file))
-  (let ((default-directory (file-name-directory file)))
-    (magit-annex-run-async "get" magit-custom-options (file-name-nondirectory file))))
+(defmacro magit-annex-file-action (command)
+  `(defun ,(intern (concat "magit-annex-" command "-file")) (file)
+     (interactive ,(format "fFile to %s: " command))
+     (setq file (expand-file-name file))
+     (let ((default-directory (file-name-directory file)))
+       (magit-annex-run-async ,command
+                              magit-custom-options
+                              (file-name-nondirectory file)))))
+
+(magit-annex-file-action "get")
+(magit-annex-file-action "drop")
+(magit-annex-file-action "copy")
+(magit-annex-file-action "move")
 
 (provide 'magit-annex)
 
