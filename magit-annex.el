@@ -24,30 +24,28 @@
 ;;; Commentary:
 ;;
 ;; magit-annex adds a few git annex operations to the magit interface.
+;; Most features are present under the annex popup menu, which is bound
+;; to "@". This key was chosen as a leading key mostly to be consistent
+;; with John Wiegley's git-annex.el [1], but also because there aren't
+;; too many single letters available in the magit keymap.
 ;;
-;; The main feature is the ability to add files to the annex from the
-;; status buffer.
-;;
-;;   @a   Add a file to annex.
+;; Adding files:
+;;   @a   Add a file in the status buffer to annex.
 ;;        Behaves similarly to staging a file with 's'.
-;;
 ;;   @A   Add all untracked files and unstaged changes to annex.
 ;;        Behaves similarly to staging all files with 'S'.
 ;;
-;; '@' was chosen as a leading key mostly to be consistent with John
-;; Wiegley's git-annex.el [1], but also because there aren't too many
-;; single letters available in the magit keymap.
+;; Managing file content:
+;;   @g   Get a file.
+;;   @G   Get all files (run with "auto" flag).
 ;;
-;; There are also options to run a few other git annex commands:
-;;
-;;   @y   Run `git annex sync'.
+;; Updating git annex:
 ;;   m@   Run `git annex merge' (under the merging menu).
 ;;   P@g  Push git annex branch (under the pushing menu).
 ;;   P@b  Push current and git annex branch (under the pushing menu).
+;;   @y   Run `git annex sync'.
 ;;
-;; For other git annex commands (e.g., getting, copying, and unlocking
-;; annexed files), see git-annex.el [1], which integrates nicely with
-;; dired.
+;; For working with git annex in dired, see git-annex.el [1].
 ;;
 ;; [1] https://github.com/jwiegley/git-annex-el
 
