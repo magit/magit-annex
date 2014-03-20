@@ -80,6 +80,7 @@ These are placed after \"annex\" in the call, whereas values from
 
 (defvar magit-annex-key-mode-group
   '(git-annex
+    (man-page "git-annex")
     (actions
      ("a" "Add" magit-annex-stage-item)
      ("@" "Add" magit-annex-stage-item)
