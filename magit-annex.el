@@ -90,7 +90,8 @@ These are placed after \"annex\" in the call, whereas values from
      ("y" "Sync" magit-annex-sync))
     (switches
      ("-c" "Content" "--content")
-     ("-f" "Fast" "--fast"))
+     ("-f" "Fast" "--fast")
+     ("-F" "Force" "--force"))
     (arguments
      ("=n" "Number of copies" "--numcopies=" read-from-minibuffer))))
 
