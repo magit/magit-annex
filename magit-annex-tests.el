@@ -59,6 +59,7 @@
 
 ;;; Test magit-annex
 
+
 ;; Annexing
 
 (ert-deftest magit-annex-add-file-to-annex ()
@@ -84,6 +85,7 @@
     (magit-annex-tests--should-have-item-title
      "file2" '(staged))))
 
+
 ;; Updating
 
 (ert-deftest magit-annex-sync-call ()
