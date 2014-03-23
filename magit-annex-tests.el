@@ -6,7 +6,7 @@
 
 ;;; Utilities (modified from magit-tests.el)
 
-(defmacro magit-tests--with-temp-dir (&rest body)
+(defmacro magit-annex-tests--with-temp-dir (&rest body)
   (declare (indent 0) (debug t))
   (let ((dir (gensym)))
     `(let ((,dir (file-name-as-directory (make-temp-file "dir" t))))
@@ -14,30 +14,30 @@
            (let ((default-directory ,dir)) ,@body)
          (delete-directory ,dir t)))))
 
-(defmacro magit-tests--with-temp-annex-repo (&rest body)
+(defmacro magit-annex-tests--with-temp-annex-repo (&rest body)
   (declare (indent 0) (debug t))
-  `(magit-tests--with-temp-dir
+  `(magit-annex-tests--with-temp-dir
      (magit-call-git "init" ".")
      (magit-call-git "annex" "init" "test-repo")
      (unwind-protect
          (progn ,@body)
        (call-process "chmod" nil nil nil "-R" "777" "."))))
 
-(defmacro magit-tests--with-temp-bare-repo (&rest body)
+(defmacro magit-annex-tests--with-temp-bare-repo (&rest body)
   (declare (indent 0) (debug t))
-  `(magit-tests--with-temp-dir
+  `(magit-annex-tests--with-temp-dir
      (magit-call-git "init" "--bare" ".")
      ,@body))
 
-(defmacro magit-tests--with-temp-clone (url &rest body)
+(defmacro magit-annex-tests--with-temp-clone (url &rest body)
   (declare (indent 1) (debug t))
   (let ((repo (gensym)))
     `(let ((,repo ,(or url 'default-directory)))
-       (magit-tests--with-temp-dir
+       (magit-annex-tests--with-temp-dir
          (magit-call-git "clone" ,repo ".")
          (magit-call-git "annex" "init" "test-repo")
          ;; Make a normal commit and push.
-         (magit-tests--modify-file "file")
+         (magit-annex-tests--modify-file "file")
          (magit-stage-item "file")
          (magit-call-git "commit" "-m" "normal commit")
          (magit-call-git "push")
@@ -45,11 +45,11 @@
              (progn ,@body)
            (call-process "chmod" nil nil nil "-R" "777" "."))))))
 
-(defun magit-tests--modify-file (filename)
+(defun magit-annex-tests--modify-file (filename)
   (with-temp-file (expand-file-name filename)
     (insert (symbol-name (gensym "content")))))
 
-(defun magit-tests--should-have-item-title (title section-path)
+(defun magit-annex-tests--should-have-item-title (title section-path)
   (magit-status default-directory)
   (should (member title
                   (mapcar 'magit-section-info
@@ -62,26 +62,26 @@
 ;; Annexing
 
 (ert-deftest magit-annex-add-file-to-annex ()
-  (magit-tests--with-temp-annex-repo
-    (magit-tests--modify-file "file")
+  (magit-annex-tests--with-temp-annex-repo
+    (magit-annex-tests--modify-file "file")
     (should (not (file-symlink-p "file")))
     (magit-annex-stage-item "file")
     (should (file-symlink-p "file"))
-    (magit-tests--should-have-item-title
+    (magit-annex-tests--should-have-item-title
      "file" '(staged))))
 
 (ert-deftest magit-annex-add-all-files-to-annex ()
-  (magit-tests--with-temp-annex-repo
-    (magit-tests--modify-file "file1")
-    (magit-tests--modify-file "file2")
+  (magit-annex-tests--with-temp-annex-repo
+    (magit-annex-tests--modify-file "file1")
+    (magit-annex-tests--modify-file "file2")
     (should (not (file-symlink-p "file1")))
     (let ((magit-annex-stage-all-confirm nil))
       (magit-annex-stage-all))
     (should (file-symlink-p "file1"))
     (should (file-symlink-p "file2"))
-    (magit-tests--should-have-item-title
+    (magit-annex-tests--should-have-item-title
      "file1" '(staged))
-    (magit-tests--should-have-item-title
+    (magit-annex-tests--should-have-item-title
      "file2" '(staged))))
 
 ;; Updating
@@ -97,9 +97,9 @@
     (magit-annex-merge)))
 
 (ert-deftest magit-annex-push-git-annex ()
-  (magit-tests--with-temp-bare-repo
-    (magit-tests--with-temp-clone default-directory
-      (magit-tests--modify-file "annex-file")
+  (magit-annex-tests--with-temp-bare-repo
+    (magit-annex-tests--with-temp-clone default-directory
+      (magit-annex-tests--modify-file "annex-file")
       (magit-annex-stage-item "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (let ((magit-set-upstream-on-push 'dontask))
@@ -109,9 +109,9 @@
       (should (magit-git-lines "diff" "origin/master")))))
 
 (ert-deftest magit-annex-push-current-and-git-annex ()
-  (magit-tests--with-temp-bare-repo
-    (magit-tests--with-temp-clone default-directory
-      (magit-tests--modify-file "annex-file")
+  (magit-annex-tests--with-temp-bare-repo
+    (magit-annex-tests--with-temp-clone default-directory
+      (magit-annex-tests--modify-file "annex-file")
       (magit-annex-stage-item "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (let ((magit-set-upstream-on-push 'dontask))
