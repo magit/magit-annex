@@ -12,7 +12,22 @@
     `(let ((,dir (file-name-as-directory (make-temp-file "dir" t))))
        (unwind-protect
            (let ((default-directory ,dir)) ,@body)
-         (delete-directory ,dir t)))))
+         (delete-directory ,dir t)
+         (magit-annex-tests--kill-magit-dir-buffer ,dir)
+         (magit-annex-tests--kill-magit-process-buffer)))))
+
+(defun magit-annex-tests--kill-magit-dir-buffer (dir)
+  (let ((dir-buffer
+         (get-buffer
+          (format "*magit: %s*"
+                  (file-name-nondirectory (directory-file-name dir))))))
+    (when dir-buffer
+      (kill-buffer dir-buffer))))
+
+(defun magit-annex-tests--kill-magit-process-buffer ()
+  (let ((process-buffer (get-buffer "*magit-process*")))
+    (when process-buffer
+      (kill-buffer process-buffer))))
 
 (defmacro magit-annex-tests--with-temp-annex-repo (&rest body)
   (declare (indent 0) (debug t))
