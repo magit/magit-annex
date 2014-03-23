@@ -136,11 +136,11 @@
       (magit-process-wait)
       (should (magit-git-lines "diff" "repo1/master"))
       (should-not (magit-git-lines "diff" "synced/master"))
-      (should (magit-git-lines "annex" "find")))
+      (should (magit-annex-present-files)))
     (let ((default-directory repo1))
       (magit-annex-merge)
       (magit-process-wait)
-      (should-not (magit-git-lines "annex" "find")))))
+      (should-not (magit-annex-present-files)))))
 
 (ert-deftest magit-annex-sync-content ()
   (magit-annex-tests--with-temp-annex-pair
@@ -153,11 +153,11 @@
         (magit-process-wait))
       (should (magit-git-lines "diff" "repo1/master"))
       (should-not (magit-git-lines "diff" "synced/master"))
-      (should (magit-git-lines "annex" "find")))
+      (should (magit-annex-present-files)))
     (let ((default-directory repo1))
       (magit-annex-merge)
       (magit-process-wait)
-      (should (magit-git-lines "annex" "find")))))
+      (should (magit-annex-present-files)))))
 
 (ert-deftest magit-annex-push-git-annex ()
   (magit-annex-tests--with-temp-bare-repo
@@ -201,7 +201,7 @@
       (magit-annex-get-all)
       (magit-process-wait)
       ;; Shouldn't be present because of --auto flag.
-      (should-not (magit-git-lines "annex" "find")))))
+      (should-not (magit-annex-present-files)))))
 
 (ert-deftest magit-annex-get-all-increase-numcopies ()
   (magit-annex-tests--with-temp-annex-pair
@@ -217,7 +217,7 @@
       (let ((magit-custom-options '("--numcopies=2")))
         (magit-annex-get-all)
         (magit-process-wait))
-      (should (equal (magit-git-lines "annex" "find")
+      (should (equal (magit-annex-present-files)
                      '("annex-file"))))))
 
 (ert-deftest magit-annex-get-file ()
@@ -231,10 +231,10 @@
     (let ((default-directory repo1))
       (magit-annex-merge)
       (magit-process-wait)
-      (should-not (magit-git-lines "annex" "find"))
+      (should-not (magit-annex-present-files))
       (magit-annex-get-file "annex-file")
       (magit-process-wait)
-      (should (equal (magit-git-lines "annex" "find")
+      (should (equal (magit-annex-present-files)
                      '("annex-file"))))))
 
 (ert-deftest magit-annex-drop-file ()
@@ -248,7 +248,7 @@
       (let ((magit-custom-options '("--force")))
         (magit-annex-drop-file "annex-file")
         (magit-process-wait))
-      (should-not (magit-git-lines "annex" "find")))))
+      (should-not (magit-annex-present-files)))))
 
 (ert-deftest magit-annex-move-file ()
   (magit-annex-tests--with-temp-annex-pair
@@ -261,10 +261,10 @@
       (let ((magit-custom-options '("--to=repo1")))
         (magit-annex-move-file "annex-file")
         (magit-process-wait))
-      (should-not (magit-git-lines "annex" "find")))
+      (should-not (magit-annex-present-files)))
     (let ((default-directory repo1))
       (magit-annex-merge)
-      (should (equal (magit-git-lines "annex" "find")
+      (should (equal (magit-annex-present-files)
                      '("annex-file"))))))
 
 (ert-deftest magit-annex-copy-file ()
@@ -278,11 +278,11 @@
       (let ((magit-custom-options '("--to=repo1")))
         (magit-annex-copy-file "annex-file")
         (magit-process-wait))
-      (should (equal (magit-git-lines "annex" "find")
+      (should (equal (magit-annex-present-files)
                      '("annex-file"))))
     (let ((default-directory repo1))
       (magit-annex-merge)
-      (should (equal (magit-git-lines "annex" "find")
+      (should (equal (magit-annex-present-files)
                      '("annex-file"))))))
 
 (ert-deftest magit-annex-unlock-lock-file ()
@@ -290,12 +290,12 @@
     (magit-annex-tests--modify-file "annex-file")
     (magit-annex-stage-item "annex-file")
     (magit-call-git "commit" "-m" "annex commit")
-    (should-not (magit-git-lines "diff-files" "--diff-filter=T" "--name-only"))
+    (should-not (magit-annex-unlocked-files))
     (magit-annex-unlock-file "annex-file")
     (magit-process-wait)
-    (should (equal (magit-git-lines "diff-files" "--diff-filter=T" "--name-only")
+    (should (equal (magit-annex-unlocked-files)
                    '("annex-file")))
     (let ((magit-custom-options '("--force")))
       (magit-annex-lock-file "annex-file")
         (magit-process-wait))
-    (should-not (magit-git-lines "diff-files" "--diff-filter=T" "--name-only"))))
+    (should-not (magit-annex-unlocked-files))))

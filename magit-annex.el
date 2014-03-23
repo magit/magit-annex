@@ -6,7 +6,7 @@
 ;; URL: https://github.com/kyleam/magit-annex
 ;; Keywords: magit git-annex
 ;; Version: 0.9.0
-;; Package-Requires: ((magit "1.2.0"))
+;; Package-Requires: ((cl-lib "0.3") (magit "1.2.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'magit)
 
 
@@ -77,6 +78,12 @@ These are placed after \"annex\" in the call, whereas values from
 `magit-git-standard-options' are placed after \"git\"."
   :group 'magit-annex
   :type '(repeat string))
+
+(defcustom magit-annex-limit-file-choices t
+  "Limit choices for file commands based on state of repo.
+For example, if locking a file, limit choices to unlocked files."
+  :group 'magit-annex
+  :type 'boolean)
 
 
 ;;; Keybindings
@@ -232,21 +239,78 @@ branch \"git-annex\"."
   (interactive)
   (magit-annex-run-async "get" "--auto" magit-custom-options))
 
-(defmacro magit-annex-file-action (command)
+(defmacro magit-annex-file-action (command file-read-func)
   `(defun ,(intern (concat "magit-annex-" command "-file")) (file)
-     (interactive ,(format "fFile to %s: " command))
+     (interactive (list (funcall ,file-read-func
+                                 ,(format "File to %s" command))))
      (setq file (expand-file-name file))
      (let ((default-directory (file-name-directory file)))
        (magit-annex-run-async ,command
                               magit-custom-options
                               (file-name-nondirectory file)))))
 
-(magit-annex-file-action "get")
-(magit-annex-file-action "drop")
-(magit-annex-file-action "copy")
-(magit-annex-file-action "move")
-(magit-annex-file-action "unlock")
-(magit-annex-file-action "lock")
+(magit-annex-file-action "get" 'magit-annex-read-absent-file)
+(magit-annex-file-action "drop" 'magit-annex-read-present-file-unless-from)
+(magit-annex-file-action "copy" 'magit-annex-read-present-file-unless-from)
+(magit-annex-file-action "move" 'magit-annex-read-present-file-unless-from)
+(magit-annex-file-action "unlock" 'magit-annex-read-present-file)
+(magit-annex-file-action "lock" 'magit-annex-read-unlocked-file)
+
+(defun magit-annex-read-annex-file (prompt)
+  (magit-annex-completing-file-read prompt 'magit-annex-files))
+
+(defun magit-annex-read-present-file (prompt)
+  (magit-annex-completing-file-read prompt 'magit-annex-present-files))
+
+(defun magit-annex-read-present-file-unless-from (prompt)
+  (magit-annex-completing-file-read prompt 'magit-annex-present-files t))
+
+(defun magit-annex-read-absent-file (prompt)
+  (magit-annex-completing-file-read prompt 'magit-annex-absent-files))
+
+(defun magit-annex-read-unlocked-file (prompt)
+  (magit-annex-completing-file-read prompt 'magit-annex-unlocked-files))
+
+(defun magit-annex-completing-file-read (prompt collector &optional no-from)
+  "Read an annex file name.
+If `magit-annex-limit-file-choices' is non-nil,
+`magit-completing-read' will be called with PROMPT and the result
+of the function COLLECTOR. Otherwise, `read-file-name' will be
+called with PROMPT.
+
+PROMPT should not contain a colon and trailing space because
+`magit-completing-read' appends these. If PROMPT is passed to
+`read-file-name', these will be added.
+
+A non-nil value for NO-FROM indicates that all annex files should
+be used, instead of the results from COLLECTOR, if the \"--from\"
+argument is used. This is appropriate for commands like \"drop\",
+where \"--from\" specifies to operate on a remote, making the
+local state of the annex files irrelevant."
+  (let ((non-magit-prompt (concat prompt ": ")))
+    (if (not magit-annex-limit-file-choices)
+        (read-file-name non-magit-prompt nil nil t)
+      (let* ((collector
+              (if (and no-from (magit-annex-from-in-options-p))
+                  (function magit-annex-files)
+                collector))
+             (collection (funcall collector)))
+        (magit-completing-read prompt collection)))))
+
+(defun magit-annex-from-in-options-p ()
+  (cl-some '(lambda (it) (string-match "--from=" it)) magit-custom-options))
+
+(defun magit-annex-files ()
+  (magit-git-lines "annex" "find" "--include" "*"))
+
+(defun magit-annex-present-files ()
+  (magit-git-lines "annex" "find"))
+
+(defun magit-annex-absent-files ()
+  (magit-git-lines "annex" "find" "--not" "--in=here"))
+
+(defun magit-annex-unlocked-files ()
+  (magit-git-lines "diff-files" "--diff-filter=T" "--name-only"))
 
 (provide 'magit-annex)
 
