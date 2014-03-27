@@ -102,6 +102,8 @@ For example, if locking a file, limit choices to unlocked files."
      ("m" "Move file" magit-annex-move-file)
      ("l" "Lock file" magit-annex-lock-file)
      ("u" "Unlock file" magit-annex-unlock-file)
+     (":" "Annex subcommand (from pwd)" magit-annex-command)
+     ("!" "Annex subcommand (from root)" magit-annex-command-topdir)
      ("y" "Sync" magit-annex-sync))
     (switches
      ("-c" "Content" "--content")
@@ -141,6 +143,31 @@ For example, if locking a file, limit choices to unlocked files."
 (defun magit-annex-run-async (&rest args)
   (apply #'magit-run-git-async "annex"
          (append magit-annex-standard-options args)))
+
+(defun magit-annex-command ()
+  "Execute a git annex subcommand asynchronously, displaying the output.
+With a prefix argument, run git annex from repository root."
+  (interactive)
+  (let ((args (magit-annex-command-read-args)))
+    (apply #'magit-git-command args)))
+
+(defun magit-annex-command-topdir ()
+  "Execute a git annex subcommand asynchronously, displaying the output.
+Run git annex in the root of the current repository."
+  (interactive)
+  (let ((args (magit-annex-command-read-args t)))
+    (apply #'magit-git-command args)))
+
+(defun magit-annex-command-read-args (&optional root)
+  ;; Modified from `magit-git-command-read-args'.
+  (let ((dir (if (or root current-prefix-arg)
+                 (or (magit-get-top-dir)
+                     (user-error "Not inside a Git repository"))
+               default-directory)))
+    (list (concat "annex " (read-string (format "Git annex subcommand (in %s): "
+                                                (abbreviate-file-name dir))
+                                        nil 'magit-git-command-history))
+          dir)))
 
 
 ;;; Annexing
