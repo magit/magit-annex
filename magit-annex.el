@@ -185,13 +185,13 @@ With a prefix argument, prompt for a file.
 ;;; Updating
 
 (defun magit-annex-sync ()
-  "Sync git-annex branch.
+  "Sync git-annex.
 \('git annex sync')"
   (interactive)
   (magit-annex-run-async "sync" magit-custom-options))
 
 (defun magit-annex-merge ()
-  "Merge git annex branch.
+  "Merge git annex.
 \('git annex merge')"
   (interactive)
   (magit-annex-run "merge"))
