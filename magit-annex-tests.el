@@ -104,7 +104,7 @@
   (magit-annex-tests--with-temp-annex-repo
     (magit-annex-tests--modify-file "file")
     (should (not (file-symlink-p "file")))
-    (magit-annex-stage-item "file")
+    (magit-annex-add "file")
     (should (file-symlink-p "file"))
     (magit-annex-tests--should-have-item-title
      "file" '(staged))))
@@ -114,8 +114,8 @@
     (magit-annex-tests--modify-file "file1")
     (magit-annex-tests--modify-file "file2")
     (should (not (file-symlink-p "file1")))
-    (let ((magit-annex-stage-all-confirm nil))
-      (magit-annex-stage-all))
+    (let ((magit-annex-add-all-confirm nil))
+      (magit-annex-add-all))
     (should (file-symlink-p "file1"))
     (should (file-symlink-p "file2"))
     (magit-annex-tests--should-have-item-title
@@ -130,7 +130,7 @@
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
       (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-stage-item "annex-file")
+      (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
@@ -146,7 +146,7 @@
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
       (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-stage-item "annex-file")
+      (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (let ((magit-custom-options '("--content")))
         (magit-annex-sync)
@@ -163,7 +163,7 @@
   (magit-annex-tests--with-temp-bare-repo
     (magit-annex-tests--with-temp-clone default-directory
       (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-stage-item "annex-file")
+      (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (let ((magit-set-upstream-on-push 'dontask))
         (magit-annex-push nil))
@@ -175,7 +175,7 @@
   (magit-annex-tests--with-temp-bare-repo
     (magit-annex-tests--with-temp-clone default-directory
       (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-stage-item "annex-file")
+      (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (let ((magit-set-upstream-on-push 'dontask))
         (magit-annex-push-both nil))
@@ -191,7 +191,7 @@
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
       (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-stage-item "annex-file")
+      (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait))
@@ -207,7 +207,7 @@
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
       (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-stage-item "annex-file")
+      (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait))
@@ -224,9 +224,9 @@
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
       (magit-annex-tests--modify-file "annex-file1")
-      (magit-annex-stage-item "annex-file1")
+      (magit-annex-add "annex-file1")
       (magit-annex-tests--modify-file "annex-file2")
-      (magit-annex-stage-item "annex-file2")
+      (magit-annex-add "annex-file2")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait))
@@ -243,7 +243,7 @@
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
       (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-stage-item "annex-file")
+      (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
@@ -256,9 +256,9 @@
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
       (magit-annex-tests--modify-file "annex-file1")
-      (magit-annex-stage-item "annex-file1")
+      (magit-annex-add "annex-file1")
       (magit-annex-tests--modify-file "annex-file2")
-      (magit-annex-stage-item "annex-file2")
+      (magit-annex-add "annex-file2")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
@@ -271,7 +271,7 @@
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
       (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-stage-item "annex-file")
+      (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
@@ -288,9 +288,9 @@
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
       (magit-annex-tests--modify-file "annex-file1")
-      (magit-annex-stage-item "annex-file1")
+      (magit-annex-add "annex-file1")
       (magit-annex-tests--modify-file "annex-file2")
-      (magit-annex-stage-item "annex-file2")
+      (magit-annex-add "annex-file2")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
@@ -307,7 +307,7 @@
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
       (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-stage-item "annex-file")
+      (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
@@ -325,9 +325,9 @@
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
       (magit-annex-tests--modify-file "annex-file1")
-      (magit-annex-stage-item "annex-file1")
+      (magit-annex-add "annex-file1")
       (magit-annex-tests--modify-file "annex-file2")
-      (magit-annex-stage-item "annex-file2")
+      (magit-annex-add "annex-file2")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
@@ -344,7 +344,7 @@
 (ert-deftest magit-annex-unlock-lock-file ()
   (magit-annex-tests--with-temp-annex-repo
     (magit-annex-tests--modify-file "annex-file")
-    (magit-annex-stage-item "annex-file")
+    (magit-annex-add "annex-file")
     (magit-call-git "commit" "-m" "annex commit")
     (should-not (magit-annex-unlocked-files))
     (magit-annex-unlock-file "annex-file")

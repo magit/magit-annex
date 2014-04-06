@@ -71,7 +71,7 @@
   :prefix "magit-annex"
   :group 'magit)
 
-(defcustom magit-annex-stage-all-confirm t
+(defcustom magit-annex-add-all-confirm t
   "Whether to require confirmation before adding all changes to annex"
   :group 'magit-annex
   :type 'boolean)
@@ -96,9 +96,9 @@ For example, if locking a file, limit choices to unlocked files."
   '(annex-dispatch
     (man-page "git-annex")
     (actions
-     ("a" "Add" magit-annex-stage-item)
-     ("@" "Add" magit-annex-stage-item)
-     ("A" "Add all" magit-annex-stage-all)
+     ("a" "Add" magit-annex-add)
+     ("@" "Add" magit-annex-add)
+     ("A" "Add all" magit-annex-add-all)
      ("f" "Action on file" magit-key-mode-popup-annex-file-action)
      ("e" "Action on every file" magit-key-mode-popup-annex-all-action)
      ("G" "Get all (auto)" magit-annex-get-all-auto)
@@ -223,7 +223,7 @@ Run git annex in the root of the current repository."
 
 ;;; Annexing
 
-(defun magit-annex-stage-item (&optional file)
+(defun magit-annex-add (&optional file)
   "Add the item at point to annex.
 With a prefix argument, prompt for a file.
 \('git annex add')"
@@ -245,16 +245,16 @@ With a prefix argument, prompt for a file.
        (magit-annex-run "add" (magit-git-lines "ls-files" "--other"
                                                "--exclude-standard")))
       (unstaged
-       (magit-annex-stage-all))
+       (magit-annex-add-all))
       ([* staged]
        (error "Already added to annex")))))
 
-(defun magit-annex-stage-all ()
+(defun magit-annex-add-all ()
   "Add all remaining changes in tracked files to staging area.
 \('git annex add .')"
   ;; Modified from `magit-stage-all'.
   (interactive)
-  (when (or (not magit-annex-stage-all-confirm)
+  (when (or (not magit-annex-add-all-confirm)
             (not (magit-anything-staged-p))
             (yes-or-no-p "Add all changes to annex?"))
     (magit-annex-run "add" ".")))
