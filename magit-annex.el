@@ -62,6 +62,7 @@
 
 (require 'cl-lib)
 (require 'magit)
+(require 'magit-popup)
 
 
 ;;; Variables
@@ -92,102 +93,85 @@ For example, if locking a file, limit choices to unlocked files."
 
 ;;; Popups
 
-(defvar magit-annex-key-mode-group-dispatch
-  '(annex-dispatch
-    (man-page "git-annex")
-    (actions
-     ("a" "Add" magit-annex-add)
-     ("@" "Add" magit-annex-add)
-     ("A" "Add all" magit-annex-add-all)
-     ("f" "Action on file" magit-key-mode-popup-annex-file-action)
-     ("e" "Action on every file" magit-key-mode-popup-annex-all-action)
-     ("G" "Get all (auto)" magit-annex-get-all-auto)
-     ("y" "Sync" magit-key-mode-popup-annex-syncing)
-     ("m" "Merge" magit-annex-merge)
-     ("P" "Pushing" magit-key-mode-popup-annex-pushing)
-     (":" "Annex subcommand (from pwd)" magit-annex-command)
-     ("!" "Running" magit-key-mode-popup-annex-running))))
-(add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-dispatch)
-(magit-key-mode-generate 'annex-dispatch)
+(magit-define-popup magit-annex-popup
+  "Popup console for git annex commands."
+  'magit-popups
+  :man-page "git-annex"
+  :actions  '((?a "Add" magit-annex-add)
+              (?@ "Add" magit-annex-add)
+              (?A "Add all" magit-annex-add-all)
+              (?f "Action on file" magit-annex-file-action-popup)
+              (?e "Action on every file" magit-annex-all-action-popup)
+              (?G "Get all (auto)" magit-annex-get-all-auto)
+              (?y "Sync" magit-annex-sync-popup)
+              (?m "Merge" magit-annex-merge)
+              (?P "Pushing" magit-annex-pushing-popup)
+              (?: "Annex subcommand (from pwd)" magit-annex-command)
+              (?! "Running" magit-annex-run-popup)))
 
-(define-key magit-mode-map "@" 'magit-key-mode-popup-annex-dispatch)
-(magit-key-mode-insert-action 'dispatch
-                              "@" "Annex" 'magit-key-mode-popup-annex-dispatch)
+(magit-define-popup magit-annex-file-action-popup
+  "Popup console for git annex file commands."
+  'magit-annex-popups
+  :man-page "git-annex"
+  :actions  '((?g "Get file" magit-annex-get-file)
+              (?d "Drop file" magit-annex-drop-file)
+              (?c "Copy file" magit-annex-copy-file)
+              (?m "Move file" magit-annex-move-file)
+              (?l "Lock file" magit-annex-lock-file)
+              (?u "Unlock file" magit-annex-unlock-file))
+  :switches '((?f "Fast" "--fast")
+              (?F "Force" "--force")
+              (?a "auto" "--auto"))
+  :options  '((?t "To remote" "--to=" magit-read-remote)
+              (?f "From remote" "--from=" magit-read-remote)
+              (?n "Number of copies" "--numcopies=" read-from-minibuffer)))
 
-(defvar magit-annex-key-mode-group-file-action
-  '(annex-file-action
-    (man-page "git-annex")
-    (actions
-     ("u" "Unlock file" magit-annex-unlock-file)
-     ("l" "Lock file" magit-annex-lock-file)
-     ("g" "Get file" magit-annex-get-file)
-     ("d" "Drop file" magit-annex-drop-file)
-     ("c" "Copy file" magit-annex-copy-file)
-     ("m" "Move file" magit-annex-move-file))
-    (switches
-     ("-f" "Fast" "--fast")
-     ("-F" "Force" "--force")
-     ("-a" "Auto" "--auto"))
-    (arguments
-     ("=t" "To remote" "--to=" magit-read-remote)
-     ("=f" "From remote" "--from=" magit-read-remote)
-     ("=n" "Number of copies" "--numcopies=" read-from-minibuffer))))
-(add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-file-action)
-(magit-key-mode-generate 'annex-file-action)
+(magit-define-popup magit-annex-all-action-popup
+  "Popup console for git annex content commands for all files."
+  'magit-annex-popups
+  :man-page "git-annex"
+  :actions  '((?g "Get" magit-annex-get-all)
+              (?d "Drop" magit-annex-drop-all)
+              (?c "Copy" magit-annex-copy-all)
+              (?m "Move" magit-annex-move-all))
+  :switches '((?f "Fast" "--fast")
+              (?F "Force" "--force")
+              (?a "auto" "--auto"))
+  :options  '((?t "To remote" "--to=" magit-read-remote)
+              (?f "From remote" "--from=" magit-read-remote)
+              (?n "Number of copies" "--numcopies=" read-from-minibuffer))
+  :default-arguments '("--auto"))
 
-(defvar magit-annex-key-mode-group-all-action
-  '(annex-all-action
-    (man-page "git-annex")
-    (actions
-     ("g" "Get all" magit-annex-get-all)
-     ("d" "Drop all" magit-annex-drop-all)
-     ("c" "Copy all" magit-annex-copy-all)
-     ("m" "Move all" magit-annex-move-all))
-    (switches
-     ("-f" "Fast" "--fast")
-     ("-F" "Force" "--force")
-     ("-a" "Auto" "--auto"))
-    (arguments
-     ("=t" "To remote" "--to=" magit-read-remote)
-     ("=f" "From remote" "--from=" magit-read-remote)
-     ("=n" "Number of copies" "--numcopies=" read-from-minibuffer))))
-(add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-all-action)
-(magit-key-mode-generate 'annex-all-action)
+(magit-define-popup magit-annex-sync-popup
+  "Popup console for git annex sync."
+  'magit-annex-popups
+  :man-page "git-annex"
+  :actions  '((?y "Sync" magit-annex-sync)
+              (?r "Sync remote" magit-annex-sync-remote))
+  :switches '((?c "Content" "--content")
+              (?f "Fast" "--fast")
+              (?F "Force" "--force")))
 
-(defvar magit-annex-key-mode-group-syncing
-  '(annex-syncing
-    (man-page "git-annex")
-    (actions
-     ("y" "Sync" magit-annex-sync)
-     ("r" "Sync remote" magit-annex-sync-remote))
-    (switches
-     ("-c" "Content" "--content")
-     ("-f" "Fast" "--fast")
-     ("-F" "Force" "--force"))))
-(add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-syncing)
-(magit-key-mode-generate 'annex-syncing)
+(magit-define-popup magit-annex-pushing-popup
+  "Popup console for git annex pushing."
+  'magit-annex-popups
+  :man-page "git-annex"
+  :actions  '((?g "Push git annex" magit-annex-push)
+              (?b "Push current and git anex" magit-annex-push-both))
+  :switches '((?f "Force" "--force")
+              (?d "Dry run" "-n")
+              (?u "Upstream" "-u")))
 
-(defvar magit-annex-key-mode-group-pushing
-  '(annex-pushing
-    (man-page "git-annex")
-    (actions
-     ("g" "Push" magit-annex-push)
-     ("b" "Push both" magit-annex-push-both))
-    (switches
-     ("-f" "Force" "--force")
-     ("-d" "Dry run" "-n")
-     ("-u" "Upstream" "-u"))))
-(add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-pushing)
-(magit-key-mode-generate 'annex-pushing)
+(magit-define-popup magit-annex-run-popup
+  "Popup console for running git annex commands."
+  'magit-annex-popups
+  :man-page "git-annex"
+  :actions '((?! "Annex subcommand (from root)" magit-annex-command-topdir)
+             (?: "Annex subcommand (from pwd)" magit-annex-command)))
 
-(defvar magit-annex-key-mode-group-running
-  '(annex-running
-    (man-page "git-annex")
-    (actions
-     (":" "Annex subcommand (from pwd)" magit-annex-command)
-     ("!" "Annex subcommand (from root)" magit-annex-command-topdir))))
-(add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-running)
-(magit-key-mode-generate 'annex-running)
+(define-key magit-mode-map "@" 'magit-annex-popup)
+(magit-define-popup-action 'magit-dispatch-popup
+  ?@ "Annex" 'magit-annex-popup)
 
 
 ;;; Process calls
@@ -232,7 +216,7 @@ Run git annex in the root of the current repository."
   "Add the item at point to annex.
 With a prefix argument, prompt for a file.
 \('git annex add')"
-  ;; Modified from `magit-stage-item'.
+  ;; Modified from `magit-stage'.
   (interactive
    (when current-prefix-arg
      (list (file-relative-name
@@ -240,12 +224,12 @@ With a prefix argument, prompt for a file.
                                (magit-get-top-dir)))))
   (if file
       (magit-annex-run "add" file)
-    (magit-section-action stage (info)
+    (magit-section-action stage (value)
       ([file untracked]
        (magit-annex-run "add"
                       (if (use-region-p)
-                          (magit-section-region-siblings #'magit-section-info)
-                        info)))
+                          (magit-section-region-siblings #'magit-section-value)
+                        value)))
       (untracked
        (magit-annex-run "add" (magit-git-lines "ls-files" "--other"
                                                "--exclude-standard")))
@@ -271,13 +255,13 @@ With a prefix argument, prompt for a file.
   "Sync git-annex.
 \('git annex sync')"
   (interactive)
-  (magit-annex-run-async "sync" magit-custom-options))
+  (magit-annex-run-async "sync" magit-current-popup-args))
 
 (defun magit-annex-sync-remote (remote)
   "Sync git-annex with REMOTE.
 \('git annex sync REMOTE')"
   (interactive (list (magit-read-remote "Remote")))
-  (magit-annex-run-async "sync" magit-custom-options remote))
+  (magit-annex-run-async "sync" magit-current-popup-args remote))
 
 (defun magit-annex-merge ()
   "Merge git annex.
@@ -299,19 +283,19 @@ branch \"git-annex\"."
                         auto-remote)))
     (cond
      ((equal auto-remote used-remote))
-     ((member "-u" magit-custom-options))
+     ((member "-u" magit-current-popup-args))
      ((>= (prefix-numeric-value arg) 16)
       (and (yes-or-no-p "Set upstream while pushing? ")
-           (setq magit-custom-options
-                 (cons "-u" magit-custom-options))))
+           (setq magit-current-popup-args
+                 (cons "-u" magit-current-popup-args))))
      ((eq magit-set-upstream-on-push 'refuse)
       (error "Not pushing since no upstream has been set."))
      ((or (eq magit-set-upstream-on-push 'dontask)
           (and (eq magit-set-upstream-on-push t)
                (yes-or-no-p "Set upstream while pushing? ")))
-      (setq magit-custom-options (cons "-u" magit-custom-options))))
+      (setq magit-current-popup-args (cons "-u" magit-current-popup-args))))
     (magit-run-git-async "push" "-v"
-                         used-remote branch magit-custom-options)))
+                         used-remote branch magit-current-popup-args)))
 
 (defun magit-annex-push-both (arg)
   "Push current branch and git annex branch to a remote repository."
@@ -331,12 +315,22 @@ branch \"git-annex\"."
 (defmacro magit-annex-all-action (command)
   `(defun ,(intern (concat "magit-annex-" command "-all")) ()
      (interactive)
-     (magit-annex-run-async ,command magit-custom-options)))
+     (magit-annex-run-async ,command magit-current-popup-args)))
 
 (magit-annex-all-action "get")
 (magit-annex-all-action "drop")
 (magit-annex-all-action "move")
 (magit-annex-all-action "copy")
+
+(defmacro magit-annex-all-content-action (command)
+  `(defun ,(intern (concat "magit-annex-" command "-all")) ()
+     (interactive)
+     (magit-annex-run-async ,command magit-current-popup-args)))
+
+(magit-annex-all-content-action "get")
+(magit-annex-all-content-action "drop")
+(magit-annex-all-content-action "move")
+(magit-annex-all-content-action "copy")
 
 (defmacro magit-annex-file-action (command file-read-func)
   `(defun ,(intern (concat "magit-annex-" command "-file")) (file)
@@ -345,7 +339,7 @@ branch \"git-annex\"."
      (setq file (expand-file-name file))
      (let ((default-directory (file-name-directory file)))
        (magit-annex-run-async ,command
-                              magit-custom-options
+                              magit-current-popup-args
                               (file-name-nondirectory file)))))
 
 (magit-annex-file-action "get" 'magit-annex-read-absent-file)
@@ -397,7 +391,7 @@ local state of the annex files irrelevant."
         (magit-completing-read prompt collection)))))
 
 (defun magit-annex-from-in-options-p ()
-  (cl-some '(lambda (it) (string-match "--from=" it)) magit-custom-options))
+  (cl-some '(lambda (it) (string-match "--from=" it)) magit-current-popup-args))
 
 (defun magit-annex-files ()
   (magit-git-lines "annex" "find" "--include" "*"))
