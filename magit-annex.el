@@ -49,9 +49,9 @@
 ;;   @em   Move all files.
 ;;
 ;; Updating git annex:
-;;   m@   Run `git annex merge' (under the merging menu).
-;;   P@g  Push git annex branch (under the pushing menu).
-;;   P@b  Push current and git annex branch (under the pushing menu).
+;;   @m   Run `git annex merge'.
+;;   @Pg  Push git annex branch.
+;;   @Pb  Push current and git annex branch.
 ;;   @y   Run `git annex sync'.
 ;;
 ;; For working with git annex in dired, see git-annex.el [1].
@@ -103,6 +103,8 @@ For example, if locking a file, limit choices to unlocked files."
      ("e" "Action on every file" magit-key-mode-popup-annex-all-action)
      ("G" "Get all (auto)" magit-annex-get-all-auto)
      ("y" "Sync" magit-key-mode-popup-annex-syncing)
+     ("m" "Merge" magit-annex-merge)
+     ("P" "Pushing" magit-key-mode-popup-annex-pushing)
      (":" "Annex subcommand (from pwd)" magit-annex-command)
      ("!" "Running" magit-key-mode-popup-annex-running))))
 (add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-dispatch)
@@ -165,6 +167,19 @@ For example, if locking a file, limit choices to unlocked files."
 (add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-syncing)
 (magit-key-mode-generate 'annex-syncing)
 
+(defvar magit-annex-key-mode-group-pushing
+  '(annex-pushing
+    (man-page "git-annex")
+    (actions
+     ("g" "Push" magit-annex-push)
+     ("b" "Push both" magit-annex-push-both))
+    (switches
+     ("-f" "Force" "--force")
+     ("-d" "Dry run" "-n")
+     ("-u" "Upstream" "-u"))))
+(add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-pushing)
+(magit-key-mode-generate 'annex-pushing)
+
 (defvar magit-annex-key-mode-group-running
   '(annex-running
     (man-page "git-annex")
@@ -173,16 +188,6 @@ For example, if locking a file, limit choices to unlocked files."
      ("!" "Annex subcommand (from root)" magit-annex-command-topdir))))
 (add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-running)
 (magit-key-mode-generate 'annex-running)
-
-(magit-key-mode-insert-action 'merging
-                              "@" "Annex merge" 'magit-annex-merge)
-
-(magit-key-mode-insert-action 'pushing
-                              "@g" "Push git annex" 'magit-annex-push)
-
-(magit-key-mode-insert-action 'pushing
-                              "@b" "Push current and git annex"
-                              'magit-annex-push-both)
 
 
 ;;; Process calls
