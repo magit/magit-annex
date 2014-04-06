@@ -187,7 +187,7 @@
 
 ;; Managing content
 
-(ert-deftest magit-annex-get-all ()
+(ert-deftest magit-annex-get-all-auto ()
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
       (magit-annex-tests--modify-file "annex-file")
@@ -198,27 +198,10 @@
     (let ((default-directory repo1))
       (magit-annex-merge)
       (magit-process-wait)
-      (magit-annex-get-all)
+      (magit-annex-get-all-auto)
       (magit-process-wait)
       ;; Shouldn't be present because of --auto flag.
       (should-not (magit-annex-present-files)))))
-
-(ert-deftest magit-annex-get-all-increase-numcopies ()
-  (magit-annex-tests--with-temp-annex-pair
-    (let ((default-directory repo2))
-      (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-stage-item "annex-file")
-      (magit-call-git "commit" "-m" "annex commit")
-      (magit-annex-sync)
-      (magit-process-wait))
-    (let ((default-directory repo1))
-      (magit-annex-merge)
-      (magit-process-wait)
-      (let ((magit-custom-options '("--numcopies=2")))
-        (magit-annex-get-all)
-        (magit-process-wait))
-      (should (equal (magit-annex-present-files)
-                     '("annex-file"))))))
 
 (ert-deftest magit-annex-get-file ()
   (magit-annex-tests--with-temp-annex-pair
@@ -237,6 +220,25 @@
       (should (equal (magit-annex-present-files)
                      '("annex-file"))))))
 
+(ert-deftest magit-annex-get-all ()
+  (magit-annex-tests--with-temp-annex-pair
+    (let ((default-directory repo2))
+      (magit-annex-tests--modify-file "annex-file1")
+      (magit-annex-stage-item "annex-file1")
+      (magit-annex-tests--modify-file "annex-file2")
+      (magit-annex-stage-item "annex-file2")
+      (magit-call-git "commit" "-m" "annex commit")
+      (magit-annex-sync)
+      (magit-process-wait))
+    (let ((default-directory repo1))
+      (magit-annex-merge)
+      (magit-process-wait)
+      (should-not (magit-annex-present-files))
+      (magit-annex-get-all)
+      (magit-process-wait)
+      (should (equal (magit-annex-present-files)
+                     '("annex-file1" "annex-file2"))))))
+
 (ert-deftest magit-annex-drop-file ()
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
@@ -247,6 +249,21 @@
       (magit-process-wait)
       (let ((magit-custom-options '("--force")))
         (magit-annex-drop-file "annex-file")
+        (magit-process-wait))
+      (should-not (magit-annex-present-files)))))
+
+(ert-deftest magit-annex-drop-drop-all ()
+  (magit-annex-tests--with-temp-annex-pair
+    (let ((default-directory repo2))
+      (magit-annex-tests--modify-file "annex-file1")
+      (magit-annex-stage-item "annex-file1")
+      (magit-annex-tests--modify-file "annex-file2")
+      (magit-annex-stage-item "annex-file2")
+      (magit-call-git "commit" "-m" "annex commit")
+      (magit-annex-sync)
+      (magit-process-wait)
+      (let ((magit-custom-options '("--force")))
+        (magit-annex-drop-all)
         (magit-process-wait))
       (should-not (magit-annex-present-files)))))
 
@@ -267,6 +284,25 @@
       (should (equal (magit-annex-present-files)
                      '("annex-file"))))))
 
+(ert-deftest magit-annex-move-all ()
+  (magit-annex-tests--with-temp-annex-pair
+    (let ((default-directory repo2))
+      (magit-annex-tests--modify-file "annex-file1")
+      (magit-annex-stage-item "annex-file1")
+      (magit-annex-tests--modify-file "annex-file2")
+      (magit-annex-stage-item "annex-file2")
+      (magit-call-git "commit" "-m" "annex commit")
+      (magit-annex-sync)
+      (magit-process-wait)
+      (let ((magit-custom-options '("--to=repo1")))
+        (magit-annex-move-all)
+        (magit-process-wait))
+      (should-not (magit-annex-present-files)))
+    (let ((default-directory repo1))
+      (magit-annex-merge)
+      (should (equal (magit-annex-present-files)
+                     '("annex-file1" "annex-file2"))))))
+
 (ert-deftest magit-annex-copy-file ()
   (magit-annex-tests--with-temp-annex-pair
     (let ((default-directory repo2))
@@ -284,6 +320,26 @@
       (magit-annex-merge)
       (should (equal (magit-annex-present-files)
                      '("annex-file"))))))
+
+(ert-deftest magit-annex-copy-all ()
+  (magit-annex-tests--with-temp-annex-pair
+    (let ((default-directory repo2))
+      (magit-annex-tests--modify-file "annex-file1")
+      (magit-annex-stage-item "annex-file1")
+      (magit-annex-tests--modify-file "annex-file2")
+      (magit-annex-stage-item "annex-file2")
+      (magit-call-git "commit" "-m" "annex commit")
+      (magit-annex-sync)
+      (magit-process-wait)
+      (let ((magit-custom-options '("--to=repo1")))
+        (magit-annex-copy-all)
+        (magit-process-wait))
+      (should (equal (magit-annex-present-files)
+                     '("annex-file1" "annex-file2"))))
+    (let ((default-directory repo1))
+      (magit-annex-merge)
+      (should (equal (magit-annex-present-files)
+                     '("annex-file1" "annex-file2"))))))
 
 (ert-deftest magit-annex-unlock-lock-file ()
   (magit-annex-tests--with-temp-annex-repo

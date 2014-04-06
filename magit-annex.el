@@ -36,13 +36,17 @@
 ;;        Behaves similarly to staging all files with 'S'.
 ;;
 ;; Managing file content:
-;;   @G   Get all files (run with "auto" flag).
 ;;   @fu   Unlock a file.
 ;;   @fl   Lock a file.
 ;;   @fg   Get a file.
 ;;   @fd   Drop a file.
 ;;   @fc   Copy a file.
 ;;   @fm   Move a file.
+;;
+;;   @eg   Get all files.
+;;   @ed   Drop all files.
+;;   @ec   Copy all files.
+;;   @em   Move all files.
 ;;
 ;; Updating git annex:
 ;;   m@   Run `git annex merge' (under the merging menu).
@@ -96,7 +100,8 @@ For example, if locking a file, limit choices to unlocked files."
      ("@" "Add" magit-annex-stage-item)
      ("A" "Add all" magit-annex-stage-all)
      ("f" "Action on file" magit-key-mode-popup-annex-file-action)
-     ("G" "Get all (auto)" magit-annex-get-all)
+     ("e" "Action on every file" magit-key-mode-popup-annex-all-action)
+     ("G" "Get all (auto)" magit-annex-get-all-auto)
      ("y" "Sync" magit-key-mode-popup-annex-syncing)
      (":" "Annex subcommand (from pwd)" magit-annex-command)
      ("!" "Running" magit-key-mode-popup-annex-running))))
@@ -127,6 +132,25 @@ For example, if locking a file, limit choices to unlocked files."
      ("=n" "Number of copies" "--numcopies=" read-from-minibuffer))))
 (add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-file-action)
 (magit-key-mode-generate 'annex-file-action)
+
+(defvar magit-annex-key-mode-group-all-action
+  '(annex-all-action
+    (man-page "git-annex")
+    (actions
+     ("g" "Get all" magit-annex-get-all)
+     ("d" "Drop all" magit-annex-drop-all)
+     ("c" "Copy all" magit-annex-copy-all)
+     ("m" "Move all" magit-annex-move-all))
+    (switches
+     ("-f" "Fast" "--fast")
+     ("-F" "Force" "--force")
+     ("-a" "Auto" "--auto"))
+    (arguments
+     ("=t" "To remote" "--to=" magit-read-remote)
+     ("=f" "From remote" "--from=" magit-read-remote)
+     ("=n" "Number of copies" "--numcopies=" read-from-minibuffer))))
+(add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-all-action)
+(magit-key-mode-generate 'annex-all-action)
 
 (defvar magit-annex-key-mode-group-syncing
   '(annex-syncing
@@ -294,10 +318,20 @@ branch \"git-annex\"."
 
 ;;; Managing content
 
-(defun magit-annex-get-all ()
+(defun magit-annex-get-all-auto ()
   "run git annex get --auto to get all needed files"
   (interactive)
   (magit-annex-run-async "get" "--auto"))
+
+(defmacro magit-annex-all-action (command)
+  `(defun ,(intern (concat "magit-annex-" command "-all")) ()
+     (interactive)
+     (magit-annex-run-async ,command magit-custom-options)))
+
+(magit-annex-all-action "get")
+(magit-annex-all-action "drop")
+(magit-annex-all-action "move")
+(magit-annex-all-action "copy")
 
 (defmacro magit-annex-file-action (command file-read-func)
   `(defun ,(intern (concat "magit-annex-" command "-file")) (file)
