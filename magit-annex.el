@@ -26,8 +26,8 @@
 ;; magit-annex adds a few git annex operations to the magit interface.
 ;; Most features are present under the annex popup menu, which is bound
 ;; to "@". This key was chosen as a leading key mostly to be consistent
-;; with John Wiegley's git-annex.el [1], but also because there aren't
-;; too many single letters available in the magit keymap.
+;; with John Wiegley's git-annex.el (which provides a dired interface to
+;; git annex) [1].
 ;;
 ;; Adding files:
 ;;   @a   Add a file in the status buffer to annex.
@@ -54,7 +54,10 @@
 ;;   @Pb  Push current and git annex branch.
 ;;   @y   Run `git annex sync'.
 ;;
-;; For working with git annex in dired, see git-annex.el [1].
+;; Enable magit-annex for all repos using `magit-mode-hook'.
+;;
+;;   (add-hook 'magit-mode-hook 'turn-on-magit-annex)
+;;
 ;;
 ;; [1] https://github.com/jwiegley/git-annex-el
 
@@ -169,10 +172,6 @@ For example, if locking a file, limit choices to unlocked files."
   :man-page "git-annex"
   :actions '((?! "Annex subcommand (from root)" magit-annex-command-topdir)
              (?: "Annex subcommand (from pwd)" magit-annex-command)))
-
-(define-key magit-mode-map "@" 'magit-annex-popup)
-(magit-define-popup-action 'magit-dispatch-popup
-  ?@ "Annex" 'magit-annex-popup)
 
 
 ;;; Process calls
@@ -405,6 +404,38 @@ local state of the annex files irrelevant."
 
 (defun magit-annex-unlocked-files ()
   (magit-git-lines "diff-files" "--diff-filter=T" "--name-only"))
+
+
+;;; Mode
+;; Modified from `magit-topgit-mode'.
+
+(defvar magit-annex-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "@" 'magit-annex-popup)
+    map))
+
+(defvar magit-annex-mode-lighter " Annex")
+
+;;;###autoload
+(define-minor-mode magit-annex-mode
+  "Git annex support for Magit."
+  :lighter magit-annex-mode-lighter
+  :keymap  magit-annex-mode-map
+  (or (derived-mode-p 'magit-mode)
+      (user-error "This mode only makes sense with Magit"))
+  (cond
+   (magit-annex-mode
+    (magit-define-popup-action 'magit-dispatch-popup
+      ?@ "Annex" 'magit-annex-popup))
+   (t
+    (magit-remove-popup-key 'magit-dispatch-popup :actions ?@)))
+  (when (called-interactively-p 'any)
+    (magit-refresh)))
+
+;;;###autoload
+(defun turn-on-magit-annex ()
+  "Unconditionally turn on `magit-annex-mode'."
+  (magit-annex-mode 1))
 
 (provide 'magit-annex)
 
