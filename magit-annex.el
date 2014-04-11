@@ -159,6 +159,7 @@ For example, if locking a file, limit choices to unlocked files."
   :actions  '((?g "Push git annex" magit-annex-push)
               (?b "Push current and git anex" magit-annex-push-both))
   :switches '((?f "Force" "--force")
+              (?h "Disable hooks" "--no-verify")
               (?d "Dry run" "-n")
               (?u "Set upstream" "-u")))
 
