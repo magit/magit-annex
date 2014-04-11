@@ -176,7 +176,7 @@ For example, if locking a file, limit choices to unlocked files."
     (switches
      ("-f" "Force" "--force")
      ("-d" "Dry run" "-n")
-     ("-u" "Upstream" "-u"))))
+     ("-u" "Set upstream" "-u"))))
 (add-to-list 'magit-key-mode-groups magit-annex-key-mode-group-pushing)
 (magit-key-mode-generate 'annex-pushing)
 
