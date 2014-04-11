@@ -160,7 +160,7 @@ For example, if locking a file, limit choices to unlocked files."
               (?b "Push current and git anex" magit-annex-push-both))
   :switches '((?f "Force" "--force")
               (?d "Dry run" "-n")
-              (?u "Upstream" "-u")))
+              (?u "Set upstream" "-u")))
 
 (magit-define-popup magit-annex-run-popup
   "Popup console for running git annex commands."
