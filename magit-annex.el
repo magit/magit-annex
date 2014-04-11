@@ -272,9 +272,9 @@ With a prefix argument, prompt for a file.
 
 (defun magit-annex-push (arg)
   "Push git annex branch to a remote repository.
-This behaves similarly to `magit-push-dwim' but always pushes the
+This behaves similarly to `magit-push' but always pushes the
 branch \"git-annex\"."
-  ;; Modified from `magit-push-tags' and `magit-push-dwim'.
+  ;; Modified from `magit-push-tags' and `magit-push'.
   (interactive "P")
   (let* ((branch  "git-annex")
          (auto-remote (magit-get-remote branch))
@@ -301,7 +301,7 @@ branch \"git-annex\"."
 (defun magit-annex-push-both (arg)
   "Push current branch and git annex branch to a remote repository."
   (interactive "P")
-  (magit-push-dwim arg)
+  (magit-push arg)
   (magit-process-wait)
   (magit-annex-push arg))
 
