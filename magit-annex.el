@@ -405,17 +405,6 @@ local state of the annex files irrelevant."
 (defun magit-annex-unlocked-files ()
   (magit-git-lines "diff-files" "--diff-filter=T" "--name-only"))
 
-
-;;; Mode
-;; Modified from `magit-topgit-mode'.
-
-(defvar magit-annex-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "@" 'magit-annex-popup)
-    map))
-
-(defvar magit-annex-mode-lighter " Annex")
-
 ;; Unused mode
 
 (defun magit-annex-addunused ()
@@ -526,6 +515,17 @@ Type \\[magit-annex-addunused] to add the unused data back into the index.
       (magit-insert-section it (unused-data (cons num key))
         (magit-insert (format "   %-3s   %s" num key))
         (forward-line)))))
+
+
+;;; Mode
+;; Modified from `magit-topgit-mode'.
+
+(defvar magit-annex-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "@" 'magit-annex-popup)
+    map))
+
+(defvar magit-annex-mode-lighter " Annex")
 
 ;;;###autoload
 (define-minor-mode magit-annex-mode
