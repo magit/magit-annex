@@ -423,11 +423,11 @@ local state of the annex files irrelevant."
   (interactive)
   (magit-section-action addunused (value)
     (unused-data
-     (let ((droped-num (if (use-region-p)
-                           (mapcar #'car
-                                   (magit-section-region-siblings #'magit-section-value))
-                    (list (car value)))))
-       (magit-annex-run "addunused" droped-num)))))
+     (let ((dropped-num (if (use-region-p)
+                            (mapcar #'car
+                                    (magit-section-region-siblings #'magit-section-value))
+                          (list (car value)))))
+       (magit-annex-run "addunused" dropped-num)))))
 
 (defun magit-annex-dropunused (&optional force)
   "Drop current unused data
@@ -436,15 +436,17 @@ with prefix-arg it will force the drop"
   (interactive "P")
   (magit-section-action drop (value)
     (unused-data
-     (let ((droped-num (if (use-region-p)
-                           (mapcar #'car
-                                   (magit-section-region-siblings #'magit-section-value))
-                    (list (car value)))))
-       (magit-annex-run "dropunused" (if force (cons "--force" droped-num)
-                                         droped-num))))
+     (let ((dropped-num (if (use-region-p)
+                            (mapcar #'car
+                                    (magit-section-region-siblings #'magit-section-value))
+                          (list (car value)))))
+       (magit-annex-run "dropunused" (if force
+                                         (cons "--force" dropped-num)
+                                       dropped-num))))
     (unused
-     (magit-annex-run "dropunused" (if force (cons "--force" "all")
-                                       "all")))))
+     (magit-annex-run "dropunused" (if force
+                                       (cons "--force" "all")
+                                     "all")))))
 
 (defcustom magit-annex-unused-sections-hook
   '(magit-annex-insert-unused-headers
