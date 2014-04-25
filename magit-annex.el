@@ -419,7 +419,7 @@ local state of the annex files irrelevant."
 ;; Unused mode
 
 (defun magit-annex-addunused ()
-  "Add annex unused data back into the worktree"
+  "Add annex unused data back into the index."
   (interactive)
   (magit-section-action addunused (value)
     (unused-data
@@ -430,7 +430,7 @@ local state of the annex files irrelevant."
        (magit-annex-run "addunused" dropped-num)))))
 
 (defun magit-annex-dropunused (&optional force)
-  "Drop current unused data
+  "Drop current unused data.
 
 with prefix-arg it will force the drop"
   (interactive "P")
@@ -469,10 +469,8 @@ with prefix-arg it will force the drop"
   "Mode for looking at unused data in annex.
 
 \\<magit-annex-unused-mode-map>\
-Type \\[magit-toggle-section] to expand or hide the section at point.
-Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the data at point.
 Type \\[magit-annex-dropunused] to drop data at point.
-Type \\[magit-annex-addunused] to add the unused data back into the work tree.
+Type \\[magit-annex-addunused] to add the unused data back into the index.
 \n\\{magit-annex-unused-mode-map}"
   :group 'magit-modes)
 
@@ -481,26 +479,30 @@ Type \\[magit-annex-addunused] to add the unused data back into the work tree.
 
 ;;;###autoload
 (defun magit-annex-unused ()
-  "Show unused annexed data"
+  "Show unused annexed data."
   (interactive)
   (magit-mode-setup magit-annex-unused-buffer-name nil
                     #'magit-annex-unused-mode
                     #'magit-annex-refresh-unused-buffer))
 
 (defun magit-annex-refresh-unused-buffer ()
+  "Refresh the content of the unused buffer."
   (magit-insert-section (unused)
     (run-hooks 'magit-annex-unused-sections-hook)))
 
 (defun magit-annex-insert-unused-headers ()
+  "Insert the headers in the unused buffer."
   (magit-insert-status-headers))
 
 (defun magit-annex-insert-unused-data ()
+  "Insert unused data intor the current buffer."
   (magit-insert-section (unused)
     (magit-insert-heading "Unused data:")
     (magit-git-wash #'magit-annex-wash-unused
       "annex" "unused" magit-refresh-args)))
 
 (defun magit-annex-wash-unused (&rest args)
+  "Convert the output of git annex unused into magit section."
   (when (not (looking-at "unused .*
 "))
     (error "check magit-process for error"))
@@ -516,6 +518,7 @@ Type \\[magit-annex-addunused] to add the unused data back into the work tree.
       (magit-wash-sequence #'magit-annex-wash-unused-line))))
 
 (defun magit-annex-wash-unused-line ()
+  "Make a magit section from description of unused data."
   (when (looking-at " *\\([0-9]+\\) *\\(.*\\)$")
     (let ((num (match-string 1))
           (key (match-string 2)))
