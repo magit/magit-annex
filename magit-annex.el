@@ -405,6 +405,117 @@ local state of the annex files irrelevant."
 (defun magit-annex-unlocked-files ()
   (magit-git-lines "diff-files" "--diff-filter=T" "--name-only"))
 
+;; Unused mode
+
+(defun magit-annex-addunused ()
+  "Add annex unused data back into the index."
+  (interactive)
+  (magit-section-action addunused (value)
+    (unused-data
+     (let ((dropped-num (if (use-region-p)
+                            (mapcar #'car
+                                    (magit-section-region-siblings #'magit-section-value))
+                          (list (car value)))))
+       (magit-annex-run "addunused" dropped-num)))))
+
+(defun magit-annex-dropunused (&optional force)
+  "Drop current unused data.
+
+with prefix-arg it will force the drop"
+  (interactive "P")
+  (magit-section-action drop (value)
+    (unused-data
+     (let ((dropped-num (if (use-region-p)
+                            (mapcar #'car
+                                    (magit-section-region-siblings #'magit-section-value))
+                          (list (car value)))))
+       (magit-annex-run "dropunused" (if force
+                                         (cons "--force" dropped-num)
+                                       dropped-num))))
+    (unused
+     (magit-annex-run "dropunused" (if force
+                                       (cons "--force" "all")
+                                     "all")))))
+
+(defcustom magit-annex-unused-sections-hook
+  '(magit-annex-insert-unused-headers
+    magit-insert-empty-line
+    magit-annex-insert-unused-data)
+  "Hook run to insert sections into the unused buffer."
+  :group 'magit-modes
+  :type 'hook)
+
+
+(defvar magit-annex-unused-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
+    (define-key map "s" #'magit-annex-addunused)
+    (define-key map "k" #'magit-annex-dropunused)
+    map)
+  "Keymap for `magit-annex-unused-mode'.")
+
+(define-derived-mode magit-annex-unused-mode magit-mode "Magit Annex Unused"
+  "Mode for looking at unused data in annex.
+
+\\<magit-annex-unused-mode-map>\
+Type \\[magit-annex-dropunused] to drop data at point.
+Type \\[magit-annex-addunused] to add the unused data back into the index.
+\n\\{magit-annex-unused-mode-map}"
+  :group 'magit-modes)
+
+(defvar magit-annex-unused-buffer-name "*magit-annex-unused*"
+  "Name of buffer used to display unused data in the annex store.")
+
+;;;###autoload
+(defun magit-annex-unused ()
+  "Show unused annexed data."
+  (interactive)
+  (magit-mode-setup magit-annex-unused-buffer-name nil
+                    #'magit-annex-unused-mode
+                    #'magit-annex-refresh-unused-buffer))
+
+(defun magit-annex-refresh-unused-buffer ()
+  "Refresh the content of the unused buffer."
+  (magit-insert-section (unused)
+    (run-hooks 'magit-annex-unused-sections-hook)))
+
+(defun magit-annex-insert-unused-headers ()
+  "Insert the headers in the unused buffer."
+  (magit-insert-status-headers))
+
+(defun magit-annex-insert-unused-data ()
+  "Insert unused data intor the current buffer."
+  (magit-insert-section (unused)
+    (magit-insert-heading "Unused data:")
+    (magit-git-wash #'magit-annex-wash-unused
+      "annex" "unused" magit-refresh-args)))
+
+(defun magit-annex-wash-unused (&rest args)
+  "Convert the output of git annex unused into magit section."
+  (when (not (looking-at "unused .*
+"))
+    (error "check magit-process for error"))
+  (delete-region (point) (match-end 0))
+  (if (not (looking-at ".*Some annexed data is no longer used by any files:
+ *NUMBER *KEY
+"))
+      (progn
+        (delete-region (point-min) (point-max))
+        (magit-insert "   nothing"))
+    (progn
+      (delete-region (point) (match-end 0))
+      (magit-wash-sequence #'magit-annex-wash-unused-line))))
+
+(defun magit-annex-wash-unused-line ()
+  "Make a magit section from description of unused data."
+  (when (looking-at " *\\([0-9]+\\) *\\(.*\\)$")
+    (let ((num (match-string 1))
+          (key (match-string 2)))
+      (delete-region (match-beginning 0) (match-end 0))
+      (magit-insert-section it (unused-data (cons num key))
+        (magit-insert (format "   %-3s   %s" num key))
+        (forward-line)))))
+
 
 ;;; Mode
 ;; Modified from `magit-topgit-mode'.
