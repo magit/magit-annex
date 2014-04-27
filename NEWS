@@ -1,5 +1,21 @@
 # -*- mode: org -*-
 
+* 0.10.0
+
+** Interface changes
+
+- Use popup menu for annex commands. Annex push and merge commands are
+  now under this menu.
+
+** New features
+
+- Add single-file content commands (copy, move, get, drop, unlock,
+  lock). File choices are limited based on state of local repo.
+- Add content commands for all files.
+- Add ability to input git annex subcommands.
+- Add ability to sync with specific remote.
+- Hook up popup help with git annex manual.
+
 * 0.9.0
 
 ** New features
