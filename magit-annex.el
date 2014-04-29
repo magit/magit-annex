@@ -171,8 +171,8 @@ For example, if locking a file, limit choices to unlocked files."
   '(annex-pushing
     (man-page "git-annex")
     (actions
-     ("g" "Push" magit-annex-push)
-     ("b" "Push both" magit-annex-push-both))
+     ("g" "Push git annex" magit-annex-push)
+     ("b" "Push current and git annex" magit-annex-push-both))
     (switches
      ("-f" "Force" "--force")
      ("-d" "Dry run" "-n")
