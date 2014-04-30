@@ -3,9 +3,10 @@
 ;; Copyright (C) 2013 Kyle Meyer <kyle@kyleam.com>
 
 ;; Author: Kyle Meyer <kyle@kyleam.com>
+;;         Rémi Vanicat <vanicat@debian.org>
 ;; URL: https://github.com/kyleam/magit-annex
 ;; Keywords: magit git-annex
-;; Version: 0.9.0
+;; Version: 0.10.0
 ;; Package-Requires: ((cl-lib "0.3") (magit "1.2.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
