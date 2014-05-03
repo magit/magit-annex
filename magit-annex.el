@@ -55,7 +55,16 @@
 ;;   @Pb  Push current and git annex branch.
 ;;   @y   Run `git annex sync'.
 ;;
-;; Enable magit-annex for all repos using `magit-mode-hook'.
+;; To enable the mode in a particular repository use:
+;;
+;;   cd /path/to/repository
+;;   git config --add magit.extension annex
+;;
+;; To enable the mode for repositories use:
+;;
+;;   git config --global --add magit.extension annex
+;;
+;; Or using `magit-mode-hook':
 ;;
 ;;   (add-hook 'magit-mode-hook 'turn-on-magit-annex)
 ;;
@@ -74,7 +83,7 @@
 (defgroup magit-annex nil
   "Use git annex within magit"
   :prefix "magit-annex"
-  :group 'magit)
+  :group 'magit-extensions)
 
 (defcustom magit-annex-add-all-confirm t
   "Whether to require confirmation before adding all changes to annex"
