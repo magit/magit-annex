@@ -45,7 +45,7 @@
        (magit-call-git "init" ".")
        (magit-call-git "annex" "init" "repo1")
        (magit-annex-tests--modify-file "file")
-       (magit-stage "file")
+       (magit-stage-file "file")
        (magit-call-git "commit" "-m" "normal commit")
        (magit-call-git "remote" "add" "repo2" repo2))
      (let ((default-directory repo2))
@@ -76,9 +76,10 @@
          (magit-call-git "annex" "init" "test-repo")
          ;; Make a normal commit and push.
          (magit-annex-tests--modify-file "file")
-         (magit-stage "file")
+         (magit-stage-file "file")
          (magit-call-git "commit" "-m" "normal commit")
          (magit-call-git "push")
+         (magit-call-git "push" "-u" "origin" "git-annex")
          (unwind-protect
              (progn ,@body)
            (call-process "chmod" nil nil nil "-R" "777" "."))))))
@@ -161,8 +162,7 @@
       (magit-annex-tests--modify-file "annex-file")
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
-      (let ((magit-set-upstream-on-push 'dontask))
-        (magit-annex-push nil))
+      (magit-annex-push nil)
       (magit-process-wait)
       ;; Only git annex should have been pushed.
       (should (magit-git-lines "diff" "origin/master")))))
@@ -173,8 +173,7 @@
       (magit-annex-tests--modify-file "annex-file")
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
-      (let ((magit-set-upstream-on-push 'dontask))
-        (magit-annex-push-both nil))
+      (magit-annex-push-both nil)
       (magit-process-wait)
       ;; Current branch should also have been pushed, so there should be
       ;; no differences.

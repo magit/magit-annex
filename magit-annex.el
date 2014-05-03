@@ -225,7 +225,7 @@ With a prefix argument, prompt for a file.
                                (magit-get-top-dir)))))
   (if file
       (magit-annex-run "add" file)
-    (magit-section-action stage (value)
+    (magit-section-case (value)
       ([file untracked]
        (magit-annex-run "add"
                       (if (use-region-p)
@@ -277,7 +277,7 @@ branch \"git-annex\"."
   ;; Modified from `magit-push-tags' and `magit-push'.
   (interactive "P")
   (let* ((branch  "git-annex")
-         (auto-remote (magit-get-remote branch))
+         (auto-remote (magit-get "branch" branch "remote"))
          (used-remote (if (or arg (not auto-remote))
                           (magit-read-remote
                            (format "Push %s to remote" branch) auto-remote)
