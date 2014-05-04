@@ -220,9 +220,9 @@ With a prefix argument, prompt for a file.
   ;; Modified from `magit-stage'.
   (interactive
    (when current-prefix-arg
-     (list (file-relative-name
-            (read-file-name "File to add to annex: " nil nil t)
-                               (magit-get-top-dir)))))
+     (list (magit-completing-read "Add file"
+                                  (nconc (magit-annex-unlocked-files)
+                                         (magit-untracked-files))))))
   (if file
       (magit-annex-run "add" file)
     (magit-section-case (value)
