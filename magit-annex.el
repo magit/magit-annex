@@ -232,8 +232,7 @@ With a prefix argument, prompt for a file.
                           (magit-section-region-siblings #'magit-section-value)
                         value)))
       (untracked
-       (magit-annex-run "add" (magit-git-lines "ls-files" "--other"
-                                               "--exclude-standard")))
+       (magit-annex-run "add" (magit-untracked-files)))
       ([file unstaged]
        (magit-annex-run "add"
                         (if (use-region-p)
