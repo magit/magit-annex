@@ -253,7 +253,7 @@ With a prefix argument, prompt for a file.
       (unstaged
        (magit-annex-add-all))
       ([* staged]
-       (error "Already added to annex")))))
+       (user-error "Already added to annex")))))
 
 (defun magit-annex-add-all ()
   "Add all remaining changes in tracked files to staging area.
@@ -306,7 +306,7 @@ branch \"git-annex\"."
            (setq magit-custom-options
                  (cons "-u" magit-custom-options))))
      ((eq magit-set-upstream-on-push 'refuse)
-      (error "Not pushing since no upstream has been set."))
+      (user-error "Not pushing since no upstream has been set."))
      ((or (eq magit-set-upstream-on-push 'dontask)
           (and (eq magit-set-upstream-on-push t)
                (yes-or-no-p "Set upstream while pushing? ")))
