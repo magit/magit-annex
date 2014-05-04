@@ -250,8 +250,13 @@ With a prefix argument, prompt for a file.
       (untracked
        (magit-annex-run "add" (magit-git-lines "ls-files" "--other"
                                                "--exclude-standard")))
+      ([diff unstaged]
+       (magit-annex-run "add"
+                        (if (use-region-p)
+                            (magit-section-region-siblings #'magit-section-info)
+                          info)))
       (unstaged
-       (magit-annex-add-all))
+       (magit-annex-run "add" (magit-annex-unlocked-files)))
       ([* staged]
        (user-error "Already added to annex")))))
 
