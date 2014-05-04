@@ -234,10 +234,15 @@ With a prefix argument, prompt for a file.
       (untracked
        (magit-annex-run "add" (magit-git-lines "ls-files" "--other"
                                                "--exclude-standard")))
+      ([file unstaged]
+       (magit-annex-run "add"
+                        (if (use-region-p)
+                            (magit-section-region-siblings #'magit-section-value)
+                          value)))
       (unstaged
-       (magit-annex-add-all))
+       (magit-annex-run "add" (magit-annex-unlocked-files)))
       ([* staged]
-       (error "Already added to annex")))))
+       (user-error "Already added to annex")))))
 
 (defun magit-annex-add-all ()
   "Add all remaining changes in tracked files to staging area.
@@ -290,7 +295,7 @@ branch \"git-annex\"."
            (setq magit-current-popup-args
                  (cons "-u" magit-current-popup-args))))
      ((eq magit-set-upstream-on-push 'refuse)
-      (error "Not pushing since no upstream has been set."))
+      (user-error "Not pushing since no upstream has been set."))
      ((or (eq magit-set-upstream-on-push 'dontask)
           (and (eq magit-set-upstream-on-push t)
                (yes-or-no-p "Set upstream while pushing? ")))
