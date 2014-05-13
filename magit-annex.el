@@ -225,19 +225,19 @@ With a prefix argument, prompt for a file.
                                          (magit-untracked-files))))))
   (if file
       (magit-annex-run "add" file)
-    (magit-section-case (value)
+    (magit-section-case
       ([file untracked]
        (magit-annex-run "add"
                       (if (use-region-p)
                           (magit-section-region-siblings #'magit-section-value)
-                        value)))
+                        (magit-section-value it))))
       (untracked
        (magit-annex-run "add" (magit-untracked-files)))
       ([file unstaged]
        (magit-annex-run "add"
                         (if (use-region-p)
                             (magit-section-region-siblings #'magit-section-value)
-                          value)))
+                          (magit-section-value it))))
       (unstaged
        (magit-annex-run "add" (magit-annex-unlocked-files)))
       ([* staged]
