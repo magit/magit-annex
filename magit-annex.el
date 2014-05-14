@@ -424,12 +424,12 @@ local state of the annex files irrelevant."
 (defun magit-annex-addunused ()
   "Add annex unused data back into the index."
   (interactive)
-  (magit-section-action addunused (value)
+  (magit-section-case
     (unused-data
      (let ((dropped-num (if (use-region-p)
                             (mapcar #'car
                                     (magit-section-region-siblings #'magit-section-value))
-                          (list (car value)))))
+                          (list (car (magit-section-value it))))))
        (magit-annex-run "addunused" dropped-num)))))
 
 (defun magit-annex-dropunused (&optional force)
@@ -437,12 +437,12 @@ local state of the annex files irrelevant."
 
 with prefix-arg it will force the drop"
   (interactive "P")
-  (magit-section-action drop (value)
+  (magit-section-case
     (unused-data
      (let ((dropped-num (if (use-region-p)
                             (mapcar #'car
                                     (magit-section-region-siblings #'magit-section-value))
-                          (list (car value)))))
+                          (list (car (magit-section-value it))))))
        (magit-annex-run "dropunused" (if force
                                          (cons "--force" dropped-num)
                                        dropped-num))))
