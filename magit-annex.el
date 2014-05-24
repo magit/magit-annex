@@ -419,6 +419,7 @@ local state of the annex files irrelevant."
 (defun magit-annex-unlocked-files ()
   (magit-git-lines "diff-files" "--diff-filter=T" "--name-only"))
 
+
 ;; Unused mode
 
 (defun magit-annex-addunused ()
