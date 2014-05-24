@@ -453,6 +453,18 @@ with prefix-arg it will force the drop"
                                        (cons "--force" "all")
                                      "all")))))
 
+(defun magit-annex-log-unused ()
+  "Display log for unused file.
+\('git log --stat -S<KEY>')"
+  (interactive)
+  (magit-section-case
+    (unused-data
+     (let ((key (cdr (magit-section-value it))))
+       (magit-mode-setup magit-log-buffer-name-format nil
+                         #'magit-log-mode
+                         #'magit-refresh-log-buffer
+                         'long "HEAD" (list "-S" key))))))
+
 (defcustom magit-annex-unused-sections-hook
   '(magit-annex-insert-unused-headers
     magit-insert-empty-line
@@ -467,6 +479,7 @@ with prefix-arg it will force the drop"
     (set-keymap-parent map magit-mode-map)
     (define-key map "s" #'magit-annex-addunused)
     (define-key map "k" #'magit-annex-dropunused)
+    (define-key map "l" #'magit-annex-log-unused)
     map)
   "Keymap for `magit-annex-unused-mode'.")
 
