@@ -119,6 +119,7 @@ For example, if locking a file, limit choices to unlocked files."
               (?y "Sync" magit-annex-sync-popup)
               (?m "Merge" magit-annex-merge)
               (?P "Pushing" magit-annex-pushing-popup)
+              (?u "Unused" magit-annex-unused)
               (?: "Annex subcommand (from pwd)" magit-annex-command)
               (?! "Running" magit-annex-run-popup)))
 
