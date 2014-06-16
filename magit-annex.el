@@ -183,14 +183,12 @@ For example, if locking a file, limit choices to unlocked files."
   :actions '((?! "Annex subcommand (from root)" magit-annex-command-topdir)
              (?: "Annex subcommand (from pwd)" magit-annex-command)))
 
-;;;###autoload (autoload 'magit-annex-popup "magit-annex" nil t)
-
 ;;;###autoload
 (eval-after-load 'magit
   '(progn
-     (define-key magit-mode-map "@" 'magit-annex-popup)
+     (define-key magit-mode-map "@" 'magit-annex-popup-or-init)
      (magit-define-popup-action 'magit-dispatch-popup
-       ?@ "Annex" 'magit-annex-popup)))
+       ?@ "Annex" 'magit-annex-popup-or-init)))
 
 
 
@@ -228,6 +226,29 @@ Run git annex in the root of the current repository."
                                                 (abbreviate-file-name dir))
                                         nil 'magit-git-command-history))
           dir)))
+
+
+;;; Initialization
+
+;;;###autoload
+(defun magit-annex-popup-or-init ()
+  (interactive)
+  (cond
+   ((magit-annex-inside-annexdir-p)
+    (magit-annex-popup))
+   ((y-or-n-p (format "No git annex repository in %s. Initialize one? "
+                      default-directory))
+    (call-interactively 'magit-annex-init))))
+
+;;;###autoload
+(defun magit-annex-init (&optional description)
+  "Initialize git annex repository.
+\('git annex init [DESCRIPTION]')"
+  (interactive "sDescription: ")
+  (magit-annex-run "init" description))
+
+(defun magit-annex-inside-annexdir-p ()
+  (file-exists-p (concat (magit-git-dir) "annex")))
 
 
 ;;; Annexing
