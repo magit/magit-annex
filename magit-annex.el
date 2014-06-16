@@ -55,18 +55,17 @@
 ;;   @Pb  Push current and git annex branch.
 ;;   @y   Run `git annex sync'.
 ;;
-;; To enable the mode in a particular repository use:
 ;;
-;;   cd /path/to/repository
-;;   git config --add magit.extension annex
+;; When magit-annex is installed from MELPA, no additional setup is
+;; needed. The magit-annex popup menu will be added under the main Magit
+;; popup menu (and loading of magit-annex will be deferred until the
+;; first time the magit-annex popup is called).
 ;;
-;; To enable the mode for repositories use:
+;; To use magit-annex from the source repository, put
 ;;
-;;   git config --global --add magit.extension annex
+;;   (require 'magit-annex)
 ;;
-;; Or using `magit-mode-hook':
-;;
-;;   (add-hook 'magit-mode-hook 'turn-on-magit-annex)
+;; in your initialization file.
 ;;
 ;;
 ;; [1] https://github.com/jwiegley/git-annex-el
@@ -183,6 +182,16 @@ For example, if locking a file, limit choices to unlocked files."
   :man-page "git-annex"
   :actions '((?! "Annex subcommand (from root)" magit-annex-command-topdir)
              (?: "Annex subcommand (from pwd)" magit-annex-command)))
+
+;;;###autoload (autoload 'magit-annex-popup "magit-annex" nil t)
+
+;;;###autoload
+(eval-after-load 'magit
+  '(progn
+     (define-key magit-mode-map "@" 'magit-annex-popup)
+     (magit-define-popup-action 'magit-dispatch-popup
+       ?@ "Annex" 'magit-annex-popup)))
+
 
 
 ;;; Process calls
@@ -544,38 +553,6 @@ Type \\[magit-annex-addunused] to add the unused data back into the index.
       (magit-insert-section it (unused-data (cons num key))
         (magit-insert (format "   %-3s   %s" num key))
         (forward-line)))))
-
-
-;;; Mode
-;; Modified from `magit-topgit-mode'.
-
-(defvar magit-annex-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "@" 'magit-annex-popup)
-    map))
-
-(defvar magit-annex-mode-lighter " Annex")
-
-;;;###autoload
-(define-minor-mode magit-annex-mode
-  "Git annex support for Magit."
-  :lighter magit-annex-mode-lighter
-  :keymap  magit-annex-mode-map
-  (or (derived-mode-p 'magit-mode)
-      (user-error "This mode only makes sense with Magit"))
-  (cond
-   (magit-annex-mode
-    (magit-define-popup-action 'magit-dispatch-popup
-      ?@ "Annex" 'magit-annex-popup))
-   (t
-    (magit-remove-popup-key 'magit-dispatch-popup :actions ?@)))
-  (when (called-interactively-p 'any)
-    (magit-refresh)))
-
-;;;###autoload
-(defun turn-on-magit-annex ()
-  "Unconditionally turn on `magit-annex-mode'."
-  (magit-annex-mode 1))
 
 (provide 'magit-annex)
 
