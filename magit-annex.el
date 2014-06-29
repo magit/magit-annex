@@ -241,6 +241,7 @@ Run git annex in the root of the current repository."
 
 ;;;###autoload
 (defun magit-annex-popup-or-init ()
+  "Call magit annex popup or offer to initialize non-annex repo."
   (interactive)
   (cond
    ((magit-annex-inside-annexdir-p)
@@ -486,8 +487,8 @@ local state of the annex files irrelevant."
 
 (defun magit-annex-dropunused (&optional force)
   "Drop current unused data.
-
-with prefix-arg it will force the drop"
+With prefix argument FORCE, pass \"--force\" flag to
+`git annex dropunused'."
   (interactive "P")
   (magit-section-case
     (unused-data
@@ -573,7 +574,7 @@ Type \\[magit-annex-addunused] to add the unused data back into the index.
   "Convert the output of git annex unused into magit section."
   (when (not (looking-at "unused .*
 "))
-    (error "check magit-process for error"))
+    (error "Check magit-process for error"))
   (delete-region (point) (match-end 0))
   (if (not (looking-at ".*Some annexed data is no longer used by any files:
  *NUMBER *KEY
