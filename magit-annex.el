@@ -419,4 +419,4 @@ local state of the annex files irrelevant."
 
 (provide 'magit-annex)
 
-;; magit-annex.el ends here
+;;; magit-annex.el ends here
