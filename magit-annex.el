@@ -73,7 +73,7 @@
   :group 'magit)
 
 (defcustom magit-annex-add-all-confirm t
-  "Whether to require confirmation before adding all changes to annex"
+  "Whether to require confirmation before adding all changes to annex."
   :group 'magit-annex
   :type 'boolean)
 
@@ -194,10 +194,19 @@ For example, if locking a file, limit choices to unlocked files."
 ;;; Process calls
 
 (defun magit-annex-run (&rest args)
+  "Call git annex synchronously in a separate process, and refresh.
+
+Before ARGS are passed to git annex,
+`magit-annex-standard-options' will be prepended.
+
+See `magit-run-git' for more details on the git call."
   (apply #'magit-run-git "annex"
          (append magit-annex-standard-options args)))
 
 (defun magit-annex-run-async (&rest args)
+  "Call git annex asynchronously with ARGS.
+See `magit-annex-run' and `magit-run-git-async' for more
+information."
   (apply #'magit-run-git-async "annex"
          (append magit-annex-standard-options args)))
 
@@ -231,7 +240,7 @@ Run git annex in the root of the current repository."
 
 (defun magit-annex-add (&optional file)
   "Add the item at point to annex.
-With a prefix argument, prompt for a file.
+With a prefix argument, prompt for FILE.
 \('git annex add')"
   ;; Modified from `magit-stage-item'.
   (interactive
@@ -293,8 +302,8 @@ With a prefix argument, prompt for a file.
 
 (defun magit-annex-push (arg)
   "Push git annex branch to a remote repository.
-This behaves similarly to `magit-push-dwim' but always pushes the
-branch \"git-annex\"."
+This behaves similarly to `magit-push-dwim' (including the
+meaning of ARG) but always pushes the branch \"git-annex\"."
   ;; Modified from `magit-push-tags' and `magit-push-dwim'.
   (interactive "P")
   (let* ((branch  "git-annex")
@@ -311,7 +320,7 @@ branch \"git-annex\"."
            (setq magit-custom-options
                  (cons "-u" magit-custom-options))))
      ((eq magit-set-upstream-on-push 'refuse)
-      (user-error "Not pushing since no upstream has been set."))
+      (user-error "Not pushing since no upstream has been set"))
      ((or (eq magit-set-upstream-on-push 'dontask)
           (and (eq magit-set-upstream-on-push t)
                (yes-or-no-p "Set upstream while pushing? ")))
@@ -320,7 +329,8 @@ branch \"git-annex\"."
                          used-remote branch magit-custom-options)))
 
 (defun magit-annex-push-both (arg)
-  "Push current branch and git annex branch to a remote repository."
+  "Push current branch and git annex branch to a remote repository.
+ARG is interpreted as in `magit-push-dwim'."
   (interactive "P")
   (magit-push-dwim arg)
   (magit-process-wait)
@@ -330,12 +340,13 @@ branch \"git-annex\"."
 ;;; Managing content
 
 (defun magit-annex-get-all-auto ()
-  "run git annex get --auto to get all needed files"
+  "Run `git annex get --auto'."
   (interactive)
   (magit-annex-run-async "get" "--auto"))
 
 (defmacro magit-annex-all-action (command)
   `(defun ,(intern (concat "magit-annex-" command "-all")) ()
+     ,(format "Run `git annex %s'." command)
      (interactive)
      (magit-annex-run-async ,command magit-custom-options)))
 
@@ -346,6 +357,9 @@ branch \"git-annex\"."
 
 (defmacro magit-annex-file-action (command file-read-func)
   `(defun ,(intern (concat "magit-annex-" command "-file")) (file)
+     ,(format "Run `git annex %s FILE'.
+If called interactively, FILE is retrieved with `%s'."
+              command (symbol-name (eval file-read-func)))
      (interactive (list (funcall ,file-read-func
                                  ,(format "File to %s" command))))
      (setq file (expand-file-name file))
@@ -362,18 +376,30 @@ branch \"git-annex\"."
 (magit-annex-file-action "lock" 'magit-annex-read-unlocked-file)
 
 (defun magit-annex-read-annex-file (prompt)
+  "Complete read for PROMPT with all annex files.
+See `magit-annex-completing-file-read' for more details."
   (magit-annex-completing-file-read prompt 'magit-annex-files))
 
 (defun magit-annex-read-present-file (prompt)
+  "Complete read for PROMPT with annex files present in current repo.
+See `magit-annex-completing-file-read' for more details."
   (magit-annex-completing-file-read prompt 'magit-annex-present-files))
 
 (defun magit-annex-read-present-file-unless-from (prompt)
+  "Complete read for PROMPT with annex files present in current repo.
+If \"--from\" is present in `magit-custom-options', fallback to
+all annex files. See `magit-annex-completing-file-read' for more
+details."
   (magit-annex-completing-file-read prompt 'magit-annex-present-files t))
 
 (defun magit-annex-read-absent-file (prompt)
+  "Complete read for PROMPT with annex files absent in current repo.
+See `magit-annex-completing-file-read' for more details."
   (magit-annex-completing-file-read prompt 'magit-annex-absent-files))
 
 (defun magit-annex-read-unlocked-file (prompt)
+  "Complete read for PROMPT with unlocked files.
+See `magit-annex-completing-file-read' for more details."
   (magit-annex-completing-file-read prompt 'magit-annex-unlocked-files))
 
 (defun magit-annex-completing-file-read (prompt collector &optional no-from)
@@ -406,15 +432,19 @@ local state of the annex files irrelevant."
   (cl-some '(lambda (it) (string-match "--from=" it)) magit-custom-options))
 
 (defun magit-annex-files ()
+  "Return all annex files."
   (magit-git-lines "annex" "find" "--include" "*"))
 
 (defun magit-annex-present-files ()
+  "Return annex files that are present in current repo."
   (magit-git-lines "annex" "find"))
 
 (defun magit-annex-absent-files ()
+  "Return annex files that are absent in current repo."
   (magit-git-lines "annex" "find" "--not" "--in=here"))
 
 (defun magit-annex-unlocked-files ()
+  "Return unlocked annex files."
   (magit-git-lines "diff-files" "--diff-filter=T" "--name-only"))
 
 (provide 'magit-annex)
