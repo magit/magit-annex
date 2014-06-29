@@ -367,16 +367,6 @@ branch \"git-annex\"."
 (magit-annex-all-action "move")
 (magit-annex-all-action "copy")
 
-(defmacro magit-annex-all-content-action (command)
-  `(defun ,(intern (concat "magit-annex-" command "-all")) ()
-     (interactive)
-     (magit-annex-run-async ,command magit-current-popup-args)))
-
-(magit-annex-all-content-action "get")
-(magit-annex-all-content-action "drop")
-(magit-annex-all-content-action "move")
-(magit-annex-all-content-action "copy")
-
 (defmacro magit-annex-file-action (command file-read-func)
   `(defun ,(intern (concat "magit-annex-" command "-file")) (file)
      (interactive (list (funcall ,file-read-func
