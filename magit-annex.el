@@ -49,6 +49,8 @@
 ;;   @ec   Copy all files.
 ;;   @em   Move all files.
 ;;
+;;   @u    Browse unused files.
+;;
 ;; Updating git annex:
 ;;   @m   Run `git annex merge'.
 ;;   @Pg  Push git annex branch.
