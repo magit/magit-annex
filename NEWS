@@ -1,5 +1,15 @@
 # -*- mode: org -*-
 
+* Unreleased
+
+** New features
+
+- Add a mode for browsing and managing unused files.
+
+** Other
+
+- Update for new Magit (2.1.0).
+
 * 0.10.0
 
 ** Interface changes
