@@ -540,6 +540,7 @@ With prefix argument FORCE, pass \"--force\" flag to
 \\<magit-annex-unused-mode-map>\
 Type \\[magit-annex-dropunused] to drop data at point.
 Type \\[magit-annex-addunused] to add the unused data back into the index.
+Type \\[magit-annex-log-unused] to show commit log for the unused file.
 \n\\{magit-annex-unused-mode-map}"
   :group 'magit-modes)
 
