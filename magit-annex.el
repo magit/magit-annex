@@ -520,7 +520,6 @@ With prefix argument FORCE, pass \"--force\" flag to
 
 (defcustom magit-annex-unused-sections-hook
   '(magit-annex-insert-unused-headers
-    magit-insert-empty-line
     magit-annex-insert-unused-data)
   "Hook run to insert sections into the unused buffer."
   :group 'magit-modes
