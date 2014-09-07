@@ -584,9 +584,8 @@ Type \\[magit-annex-log-unused] to show commit log for the unused file.
       (progn
         (delete-region (point-min) (point-max))
         (magit-insert "   nothing"))
-    (progn
-      (delete-region (point) (match-end 0))
-      (magit-wash-sequence #'magit-annex-wash-unused-line))))
+    (delete-region (point) (match-end 0))
+    (magit-wash-sequence #'magit-annex-wash-unused-line)))
 
 (defun magit-annex-wash-unused-line ()
   "Make a magit section from description of unused data."
