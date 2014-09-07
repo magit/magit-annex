@@ -545,14 +545,14 @@ Type \\[magit-annex-log-unused] to show commit log for the unused file.
 \n\\{magit-annex-unused-mode-map}"
   :group 'magit-modes)
 
-(defvar magit-annex-unused-buffer-name "*magit-annex-unused*"
-  "Name of buffer used to display unused data in the annex store.")
+(defvar magit-annex-unused-buffer-name-format "*magit-annex-unused: %a*"
+  "Name format for `magit-annex-unused-mode' buffers.")
 
 ;;;###autoload
 (defun magit-annex-unused ()
   "Show unused annexed data."
   (interactive)
-  (magit-mode-setup magit-annex-unused-buffer-name nil
+  (magit-mode-setup magit-annex-unused-buffer-name-format nil
                     #'magit-annex-unused-mode
                     #'magit-annex-refresh-unused-buffer))
 
