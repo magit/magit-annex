@@ -445,16 +445,21 @@ A non-nil value for NO-FROM indicates that all annex files should
 be used, instead of the results from COLLECTOR, if the \"--from\"
 argument is used. This is appropriate for commands like \"drop\",
 where \"--from\" specifies to operate on a remote, making the
-local state of the annex files irrelevant."
-  (let ((non-magit-prompt (concat prompt ": ")))
+local state of the annex files irrelevant.
+
+When called from `magit-annex-list-mode', the file for the
+current line will be used as the default completion value."
+  (let ((non-magit-prompt (concat prompt ": "))
+        (file-at-point (magit-annex-list-file-at-point)))
     (if (not magit-annex-limit-file-choices)
-        (read-file-name non-magit-prompt nil nil t)
+        (read-file-name non-magit-prompt nil nil t file-at-point)
       (let* ((collector
               (if (and no-from (magit-annex-from-in-options-p))
                   (function magit-annex-files)
                 collector))
              (collection (funcall collector)))
-        (magit-completing-read prompt collection)))))
+        (magit-completing-read prompt collection nil t nil nil
+                               file-at-point)))))
 
 (defun magit-annex-from-in-options-p ()
   (cl-some '(lambda (it) (string-match "--from=" it)) magit-current-popup-args))
@@ -612,6 +617,7 @@ Type \\[magit-annex-log-unused] to show commit log for the unused file.
 (defvar magit-annex-list-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
+    (define-key map "f" #'magit-annex-file-action-popup)
     map)
   "Keymap for `magit-annex-list-mode'.")
 
@@ -619,6 +625,8 @@ Type \\[magit-annex-log-unused] to show commit log for the unused file.
   "Mode for viewing on `git annex list' output.
 
 \\<magit-annex-list-mode-map>\
+Type \\[magit-annex-file-action-popup] to perform git annex action
+on the file at point.
 \n\\{magit-annex-list-mode-map}"
   :group 'magit-modes)
 
@@ -679,6 +687,9 @@ With prefix argument, limit the results to files in DIRECTORY."
       (magit-insert-section it (annex-list-file (cons locs file))
         (magit-insert (format "%s %s" locs file))
         (forward-line)))))
+
+(defun magit-annex-list-file-at-point ()
+  (cdr (magit-section-when annex-list-file)))
 
 (provide 'magit-annex)
 
