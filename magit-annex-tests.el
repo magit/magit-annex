@@ -13,18 +13,17 @@
            (let ((default-directory ,dir)) ,@body)
          (delete-directory ,dir t)
          (magit-annex-tests--kill-magit-dir-buffer ,dir)
-         (magit-annex-tests--kill-magit-process-buffer)))))
+         (magit-annex-tests--kill-magit-process-buffer ,dir)))))
 
 (defun magit-annex-tests--kill-magit-dir-buffer (dir)
   (let ((dir-buffer
          (get-buffer
-          (format "*magit: %s*"
-                  (file-name-nondirectory (directory-file-name dir))))))
+          (format "*magit: %s*" dir))))
     (when dir-buffer
       (kill-buffer dir-buffer))))
 
-(defun magit-annex-tests--kill-magit-process-buffer ()
-  (let ((process-buffer (get-buffer "*magit-process*")))
+(defun magit-annex-tests--kill-magit-process-buffer (dir)
+  (let ((process-buffer (get-buffer (format "*magit-process: %s*" dir))))
     (when process-buffer
       (kill-buffer process-buffer))))
 
@@ -59,7 +58,8 @@
        (delete-directory repo2 t)
        (magit-annex-tests--kill-magit-dir-buffer repo1)
        (magit-annex-tests--kill-magit-dir-buffer repo2)
-       (magit-annex-tests--kill-magit-process-buffer))))
+       (magit-annex-tests--kill-magit-process-buffer repo1)
+       (magit-annex-tests--kill-magit-process-buffer repo2))))
 
 (defmacro magit-annex-tests--with-temp-bare-repo (&rest body)
   (declare (indent 0) (debug t))
@@ -90,10 +90,10 @@
 
 (defun magit-annex-tests--should-have-section (type info)
   (magit-status default-directory)
-  (should (cl-find info
+  (message (buffer-string))
+  (should (--first (equal (magit-section-value it) info)
                    (magit-section-children
-                    (magit-find-section `((,type) (status))))
-                   :key 'magit-section-value :test 'equal)))
+                    (magit-get-section `((,type) (status)))))))
 
 ;;; Test magit-annex
 
