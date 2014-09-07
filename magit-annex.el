@@ -50,6 +50,7 @@
 ;;   @em   Move all files.
 ;;
 ;;   @u    Browse unused files.
+;;   @l    List annex files.
 ;;
 ;; Updating git annex:
 ;;   @m   Run `git annex merge'.
@@ -121,6 +122,7 @@ For example, if locking a file, limit choices to unlocked files."
               (?m "Merge" magit-annex-merge)
               (?P "Pushing" magit-annex-pushing-popup)
               (?u "Unused" magit-annex-unused)
+              (?l "List files" magit-annex-list-files)
               (?: "Annex subcommand (from pwd)" magit-annex-command)
               (?! "Running" magit-annex-run-popup)))
 
@@ -595,6 +597,87 @@ Type \\[magit-annex-log-unused] to show commit log for the unused file.
       (delete-region (match-beginning 0) (match-end 0))
       (magit-insert-section it (unused-data (cons num key))
         (magit-insert (format "   %-3s   %s" num key))
+        (forward-line)))))
+
+
+;; List mode
+
+(defcustom magit-annex-list-sections-hook
+  '(magit-annex-list-insert-headers
+    magit-annex-list-insert-files)
+  "Hook run to insert sections into a `magit-annex-list-mode' buffer."
+  :group 'magit-modes
+  :type 'hook)
+
+(defvar magit-annex-list-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
+    map)
+  "Keymap for `magit-annex-list-mode'.")
+
+(define-derived-mode magit-annex-list-mode magit-mode "Magit Annex List"
+  "Mode for viewing on `git annex list' output.
+
+\\<magit-annex-list-mode-map>\
+\n\\{magit-annex-list-mode-map}"
+  :group 'magit-modes)
+
+(defvar magit-annex-list-buffer-name-format "*magit-annex-list: %a*"
+  "Name format for `magit-annex-list-mode' buffers.")
+
+;;;###autoload
+(defun magit-annex-list-files (&optional directory)
+  "List annex files.
+With prefix argument, limit the results to files in DIRECTORY."
+  (interactive
+   (list (and current-prefix-arg
+              (let ((dir (read-directory-name "List annex files in: "
+                                              nil nil t))
+                    (top (magit-get-top-dir)))
+                (directory-file-name (file-relative-name dir top))))))
+  (magit-mode-setup magit-annex-list-buffer-name-format nil
+                    #'magit-annex-list-mode
+                    #'magit-annex-list-refresh-buffer directory))
+
+(defun magit-annex-list-refresh-buffer (&rest ignore)
+  "Refresh content of a `magit-annex-list-mode' buffer."
+  (magit-insert-section (annex-list-buffer)
+    (run-hooks 'magit-annex-list-sections-hook)))
+
+(defun magit-annex-list-insert-headers ()
+  "Insert headers for `magit-annex-list-mode' buffer."
+  (magit-insert-status-headers))
+
+(defun magit-annex-list-insert-files ()
+  "Insert output of `git annex list'."
+  (let* ((subdir (car magit-refresh-args))
+         (heading (if subdir
+                      (format "Annex files in %s:" subdir)
+                    "Annex files:")))
+    (magit-insert-section (annex-list-buffer)
+      (magit-insert-heading heading)
+      (magit-git-wash #'magit-annex-list-wash
+        "annex" "list" magit-refresh-args))))
+
+(defconst magit-annex-list-line-re "\\([_X]+\\) \\(.*\\)$")
+
+(defun magit-annex-list-wash (&rest args)
+  "Convert the output of `git annex list' into magit section."
+  (when (not (looking-at "here"))
+    (error "Check magit-process for error"))
+  (if (re-search-forward magit-annex-list-line-re nil t)
+      (progn (beginning-of-line)
+             (magit-wash-sequence #'magit-annex-list-wash-line))
+    (re-search-forward "^|+$")))
+
+(defun magit-annex-list-wash-line ()
+  "Convert file line of `git annex list' into magit section."
+  (when (looking-at magit-annex-list-line-re)
+    (let ((locs (match-string 1))
+          (file (match-string 2)))
+      (delete-region (match-beginning 0) (match-end 0))
+      (magit-insert-section it (annex-list-file (cons locs file))
+        (magit-insert (format "%s %s" locs file))
         (forward-line)))))
 
 (provide 'magit-annex)
