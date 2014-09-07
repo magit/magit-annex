@@ -566,7 +566,7 @@ Type \\[magit-annex-log-unused] to show commit log for the unused file.
   (magit-insert-status-headers))
 
 (defun magit-annex-insert-unused-data ()
-  "Insert unused data intor the current buffer."
+  "Insert unused data into the current buffer."
   (magit-insert-section (unused)
     (magit-insert-heading "Unused data:")
     (magit-git-wash #'magit-annex-wash-unused
