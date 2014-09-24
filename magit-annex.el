@@ -672,6 +672,8 @@ With prefix argument, limit the results to files in DIRECTORY."
 
 (defun magit-annex-list-wash (&rest args)
   "Convert the output of `git annex list' into magit section."
+  (when (looking-at "(merging .+)")
+    (delete-region (point) (1+ (match-end 0))))
   (when (not (looking-at "here"))
     (error "Check magit-process for error"))
   (if (re-search-forward magit-annex-list-line-re nil t)
