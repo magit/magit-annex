@@ -522,7 +522,7 @@ With prefix argument FORCE, pass \"--force\" flag to
      (let ((key (cdr (magit-section-value it))))
        (magit-mode-setup magit-log-buffer-name-format nil
                          #'magit-log-mode
-                         #'magit-refresh-log-buffer
+                         #'magit-log-refresh-buffer
                          'long "HEAD" (list "-S" key))))))
 
 (defcustom magit-annex-unused-sections-hook
