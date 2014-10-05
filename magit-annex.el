@@ -277,23 +277,22 @@ With a prefix argument, prompt for FILE.
                                          (magit-untracked-files))))))
   (if file
       (magit-annex-run "add" file)
-    (magit-section-case
-      ([file untracked]
-       (magit-annex-run "add"
-                      (if (use-region-p)
-                          (magit-section-region-siblings #'magit-section-value)
-                        (magit-section-value it))))
-      (untracked
-       (magit-annex-run "add" (magit-untracked-files)))
-      ([file unstaged]
-       (magit-annex-run "add"
-                        (if (use-region-p)
-                            (magit-section-region-siblings #'magit-section-value)
-                          (magit-section-value it))))
-      (unstaged
-       (magit-annex-run "add" (magit-annex-unlocked-files)))
-      ([* staged]
-       (user-error "Already added to annex")))))
+    (--when-let (magit-current-section)
+      (pcase (list (magit-diff-type) (magit-diff-scope))
+        (`(untracked file)
+         (magit-annex-run "add" (magit-section-value it)))
+        (`(untracked files)
+         (magit-annex-run "add" (magit-section-region-siblings
+                                 #'magit-section-value)))
+        (`(untracked list)
+         (magit-annex-run "add" (magit-untracked-files)))
+        (`(unstaged file)
+         (magit-annex-run "add" (magit-section-value it)))
+        (`(unstaged files)
+         (magit-annex-run "add" (magit-section-region-siblings
+                                 #'magit-section-value)))
+        (`(unstaged list)
+         (magit-annex-run "add" (magit-annex-unlocked-files)))))))
 
 (defun magit-annex-add-all ()
   "Add all untracked and modified files to annex.
