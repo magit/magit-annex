@@ -31,10 +31,8 @@
 ;; git annex) [1].
 ;;
 ;; Adding files:
-;;   @a   Add a file in the status buffer to annex.
-;;        Behaves similarly to staging a file with 's'.
-;;   @A   Add all untracked files and unstaged changes to annex.
-;;        Behaves similarly to staging all files with 'S'.
+;;   @a   Add a file to annex.
+;;   @A   Add all untracked and modified files to annex.
 ;;
 ;; Managing file content:
 ;;   @fu   Unlock a file.
@@ -298,7 +296,7 @@ With a prefix argument, prompt for FILE.
        (user-error "Already added to annex")))))
 
 (defun magit-annex-add-all ()
-  "Add all remaining changes in tracked files to staging area.
+  "Add all untracked and modified files to annex.
 \('git annex add .')"
   ;; Modified from `magit-stage-all'.
   (interactive)
