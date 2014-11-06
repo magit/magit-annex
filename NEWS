@@ -6,6 +6,8 @@
 
 - New mode `magit-annex-unused-mode' provides an interface for browsing
   and managing unused files.
+- New mode `magit-annex-list-mode' displays the output of
+  'git annex list'.
 
 ** Other
 
