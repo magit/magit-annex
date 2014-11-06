@@ -52,8 +52,6 @@
 ;;
 ;; Updating git annex:
 ;;   @m   Run `git annex merge'.
-;;   @Pg  Push git annex branch.
-;;   @Pb  Push current and git annex branch.
 ;;   @y   Run `git annex sync'.
 ;;
 ;;
@@ -118,7 +116,6 @@ For example, if locking a file, limit choices to unlocked files."
               (?G "Get all (auto)" magit-annex-get-all-auto)
               (?y "Sync" magit-annex-sync-popup)
               (?m "Merge" magit-annex-merge)
-              (?P "Pushing" magit-annex-pushing-popup)
               (?u "Unused" magit-annex-unused)
               (?l "List files" magit-annex-list-files)
               (?: "Annex subcommand (from pwd)" magit-annex-command)
@@ -166,17 +163,6 @@ For example, if locking a file, limit choices to unlocked files."
   :switches '((?c "Content" "--content")
               (?f "Fast" "--fast")
               (?F "Force" "--force")))
-
-(magit-define-popup magit-annex-pushing-popup
-  "Popup console for git annex pushing."
-  'magit-annex-popups
-  :man-page "git-annex"
-  :actions  '((?g "Push git annex" magit-annex-push)
-              (?b "Push current and git annex" magit-annex-push-both))
-  :switches '((?f "Force" "--force")
-              (?h "Disable hooks" "--no-verify")
-              (?d "Dry run" "-n")
-              (?u "Set upstream" "-u")))
 
 (magit-define-popup magit-annex-run-popup
   "Popup console for running git annex commands."
@@ -324,42 +310,6 @@ With a prefix argument, prompt for FILE.
 \('git annex merge')"
   (interactive)
   (magit-annex-run "merge"))
-
-(defun magit-annex-push (arg)
-  "Push git annex branch to a remote repository.
-This behaves similarly to `magit-push' (including the meaning of
-ARG) but always pushes the branch \"git-annex\"."
-  ;; Modified from `magit-push-tags' and `magit-push'.
-  (interactive "P")
-  (let* ((branch  "git-annex")
-         (auto-remote (magit-get "branch" branch "remote"))
-         (used-remote (if (or arg (not auto-remote))
-                          (magit-read-remote
-                           (format "Push %s to remote" branch) auto-remote)
-                        auto-remote)))
-    (cond
-     ((equal auto-remote used-remote))
-     ((member "-u" magit-current-popup-args))
-     ((>= (prefix-numeric-value arg) 16)
-      (and (yes-or-no-p "Set upstream while pushing? ")
-           (setq magit-current-popup-args
-                 (cons "-u" magit-current-popup-args))))
-     ((eq magit-set-upstream-on-push 'refuse)
-      (user-error "Not pushing since no upstream has been set"))
-     ((or (eq magit-set-upstream-on-push 'dontask)
-          (and (eq magit-set-upstream-on-push t)
-               (yes-or-no-p "Set upstream while pushing? ")))
-      (setq magit-current-popup-args (cons "-u" magit-current-popup-args))))
-    (magit-run-git-async "push" "-v"
-                         used-remote branch magit-current-popup-args)))
-
-(defun magit-annex-push-both (arg)
-  "Push current branch and git annex branch to a remote repository.
-ARG is interpreted as in `magit-push'."
-  (interactive "P")
-  (magit-push arg)
-  (magit-process-wait)
-  (magit-annex-push arg))
 
 
 ;;; Managing content

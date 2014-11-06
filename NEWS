@@ -9,6 +9,12 @@
 - New mode `magit-annex-list-mode' displays the output of
   'git annex list'.
 
+** Interface changes
+
+- The annex pushing menu has been removed. The 'git-annex' branch can be
+  pushed using main pushing menu in Magit 2.1.0, which makes it easy to
+  push branches without checking them out.
+
 ** Other
 
 - magit-annex has been updated for Magit version 2.1.0.

@@ -156,29 +156,6 @@
       (magit-process-wait)
       (should (magit-annex-present-files)))))
 
-(ert-deftest magit-annex-push-git-annex ()
-  (magit-annex-tests--with-temp-bare-repo
-    (magit-annex-tests--with-temp-clone default-directory
-      (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-add "annex-file")
-      (magit-call-git "commit" "-m" "annex commit")
-      (magit-annex-push nil)
-      (magit-process-wait)
-      ;; Only git annex should have been pushed.
-      (should (magit-git-lines "diff" "origin/master")))))
-
-(ert-deftest magit-annex-push-current-and-git-annex ()
-  (magit-annex-tests--with-temp-bare-repo
-    (magit-annex-tests--with-temp-clone default-directory
-      (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-add "annex-file")
-      (magit-call-git "commit" "-m" "annex commit")
-      (magit-annex-push-both nil)
-      (magit-process-wait)
-      ;; Current branch should also have been pushed, so there should be
-      ;; no differences.
-      (should (not (magit-git-lines "diff" "origin/master"))))))
-
 
 ;; Managing content
 
