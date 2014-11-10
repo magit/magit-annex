@@ -268,15 +268,13 @@ With a prefix argument, prompt for FILE.
         (`(untracked file)
          (magit-annex-run "add" (magit-section-value it)))
         (`(untracked files)
-         (magit-annex-run "add" (magit-section-region-siblings
-                                 #'magit-section-value)))
+         (magit-annex-run "add" (magit-region-values)))
         (`(untracked list)
          (magit-annex-run "add" (magit-untracked-files)))
         (`(unstaged file)
          (magit-annex-run "add" (magit-section-value it)))
         (`(unstaged files)
-         (magit-annex-run "add" (magit-section-region-siblings
-                                 #'magit-section-value)))
+         (magit-annex-run "add" (magit-region-values)))
         (`(unstaged list)
          (magit-annex-run "add" (magit-annex-unlocked-files)))))))
 
