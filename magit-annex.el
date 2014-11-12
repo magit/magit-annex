@@ -433,10 +433,8 @@ current line will be used as the default completion value."
   (interactive)
   (magit-section-case
     (unused-data
-     (let ((dropped-num (if (use-region-p)
-                            (mapcar #'car
-                                    (magit-section-region-siblings #'magit-section-value))
-                          (list (car (magit-section-value it))))))
+     (let ((dropped-num (or (mapcar #'car (magit-region-values))
+                            (list (car (magit-section-value it))))))
        (magit-annex-run "addunused" dropped-num)))))
 
 (defun magit-annex-dropunused (&optional force)
@@ -446,10 +444,8 @@ With prefix argument FORCE, pass \"--force\" flag to
   (interactive "P")
   (magit-section-case
     (unused-data
-     (let ((dropped-num (if (use-region-p)
-                            (mapcar #'car
-                                    (magit-section-region-siblings #'magit-section-value))
-                          (list (car (magit-section-value it))))))
+     (let ((dropped-num (or (mapcar #'car (magit-region-values))
+                            (list (car (magit-section-value it))))))
        (magit-annex-run "dropunused" (if force
                                          (cons "--force" dropped-num)
                                        dropped-num))))
