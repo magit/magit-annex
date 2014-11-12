@@ -407,7 +407,7 @@ current line will be used as the default completion value."
                                file-at-point)))))
 
 (defun magit-annex-from-in-options-p ()
-  (cl-some '(lambda (it) (string-match "--from=" it)) magit-current-popup-args))
+  (cl-some (lambda (it) (string-match "--from=" it)) magit-current-popup-args))
 
 (defun magit-annex-files ()
   "Return all annex files."
