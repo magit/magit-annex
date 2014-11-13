@@ -464,7 +464,7 @@ With prefix argument FORCE, pass \"--force\" flag to
        (magit-mode-setup magit-log-buffer-name-format nil
                          #'magit-log-mode
                          #'magit-log-refresh-buffer
-                         'long "HEAD" (list "-S" key))))))
+                         'verbose "HEAD" (list "-S" key))))))
 
 (defcustom magit-annex-unused-sections-hook
   '(magit-annex-insert-unused-headers
