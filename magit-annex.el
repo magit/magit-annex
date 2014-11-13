@@ -451,7 +451,7 @@ With prefix argument FORCE, pass \"--force\" flag to
                                        data-nums))))
     (unused
      (magit-annex-run "dropunused" (if force
-                                       (cons "--force" "all")
+                                       '("--force" "all")
                                      "all")))))
 
 (defun magit-annex-log-unused ()
