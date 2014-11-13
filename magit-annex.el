@@ -456,6 +456,10 @@ With prefix argument FORCE, pass \"--force\" flag to
 
 (defun magit-annex-log-unused ()
   "Display log for unused file.
+
+If an unused file is not at point, `magit-log-popup' will be
+called instead.
+
 \('git log --stat -S<KEY>')"
   (interactive)
   (magit-section-case
@@ -464,7 +468,8 @@ With prefix argument FORCE, pass \"--force\" flag to
        (magit-mode-setup magit-log-buffer-name-format nil
                          #'magit-log-mode
                          #'magit-log-refresh-buffer
-                         'verbose "HEAD" (list "-S" key))))))
+                         'verbose "HEAD" (list "-S" key))))
+    (t (magit-log-popup))))
 
 (defcustom magit-annex-unused-sections-hook
   '(magit-annex-insert-unused-headers
