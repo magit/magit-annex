@@ -291,17 +291,18 @@ With a prefix argument, prompt for FILE.
 
 ;;; Updating
 
-(defun magit-annex-sync ()
+(defun magit-annex-sync (&optional args)
   "Sync git-annex.
-\('git annex sync')"
-  (interactive)
-  (magit-annex-run-async "sync" magit-current-popup-args))
+\('git annex sync [ARGS]')"
+  (interactive (list (magit-annex-sync-arguments)))
+  (magit-annex-run-async "sync" args))
 
-(defun magit-annex-sync-remote (remote)
+(defun magit-annex-sync-remote (remote &optional args)
   "Sync git-annex with REMOTE.
-\('git annex sync REMOTE')"
-  (interactive (list (magit-read-remote "Remote")))
-  (magit-annex-run-async "sync" magit-current-popup-args remote))
+\('git annex sync [ARGS] REMOTE')"
+  (interactive (list (magit-read-remote "Remote")
+                     (magit-annex-sync-arguments)))
+  (magit-annex-run-async "sync" args remote))
 
 (defun magit-annex-merge ()
   "Merge git annex.
@@ -318,10 +319,10 @@ With a prefix argument, prompt for FILE.
   (magit-annex-run-async "get" "--auto"))
 
 (defmacro magit-annex-all-action (command)
-  `(defun ,(intern (concat "magit-annex-" command "-all")) ()
-     ,(format "Run `git annex %s'." command)
-     (interactive)
-     (magit-annex-run-async ,command magit-current-popup-args)))
+  `(defun ,(intern (concat "magit-annex-" command "-all")) (&optional args)
+     ,(format "Run `git annex %s [ARGS]'." command)
+     (interactive (list (magit-annex-all-action-arguments)))
+     (magit-annex-run-async ,command args)))
 
 (magit-annex-all-action "get")
 (magit-annex-all-action "drop")
@@ -329,16 +330,17 @@ With a prefix argument, prompt for FILE.
 (magit-annex-all-action "copy")
 
 (defmacro magit-annex-file-action (command file-read-func)
-  `(defun ,(intern (concat "magit-annex-" command "-file")) (file)
-     ,(format "Run `git annex %s FILE'.
+  `(defun ,(intern (concat "magit-annex-" command "-file")) (file &optional args)
+     ,(format "Run `git annex %s [ARGS] FILE'.
 If called interactively, FILE is retrieved with `%s'."
               command (symbol-name (eval file-read-func)))
      (interactive (list (funcall ,file-read-func
-                                 ,(format "File to %s" command))))
+                                 ,(format "File to %s" command))
+                        (magit-annex-file-action-arguments)))
      (setq file (expand-file-name file))
      (let ((default-directory (file-name-directory file)))
        (magit-annex-run-async ,command
-                              magit-current-popup-args
+                              args
                               (file-name-nondirectory file)))))
 
 (magit-annex-file-action "get" 'magit-annex-read-absent-file)
