@@ -333,9 +333,8 @@ With a prefix argument, prompt for FILE.
   `(defun ,(intern (concat "magit-annex-" command "-file")) (file &optional args)
      ,(format "Run `git annex %s [ARGS] FILE'.
 If called interactively, FILE is retrieved with `%s'."
-              command (symbol-name (eval file-read-func)))
-     (interactive (list (funcall ,file-read-func
-                                 ,(format "File to %s" command))
+              command (symbol-name file-read-func))
+     (interactive (list (,file-read-func ,(format "File to %s" command))
                         (magit-annex-file-action-arguments)))
      (setq file (expand-file-name file))
      (let ((default-directory (file-name-directory file)))
@@ -343,12 +342,12 @@ If called interactively, FILE is retrieved with `%s'."
                               args
                               (file-name-nondirectory file)))))
 
-(magit-annex-file-action "get" 'magit-annex-read-absent-file)
-(magit-annex-file-action "drop" 'magit-annex-read-present-file-unless-from)
-(magit-annex-file-action "copy" 'magit-annex-read-present-file-unless-from)
-(magit-annex-file-action "move" 'magit-annex-read-present-file-unless-from)
-(magit-annex-file-action "unlock" 'magit-annex-read-present-file)
-(magit-annex-file-action "lock" 'magit-annex-read-unlocked-file)
+(magit-annex-file-action "get" magit-annex-read-absent-file)
+(magit-annex-file-action "drop" magit-annex-read-present-file-unless-from)
+(magit-annex-file-action "copy" magit-annex-read-present-file-unless-from)
+(magit-annex-file-action "move" magit-annex-read-present-file-unless-from)
+(magit-annex-file-action "unlock" magit-annex-read-present-file)
+(magit-annex-file-action "lock" magit-annex-read-unlocked-file)
 
 (defun magit-annex-read-annex-file (prompt)
   "Complete read for PROMPT with all annex files.
