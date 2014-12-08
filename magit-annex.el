@@ -1,4 +1,4 @@
-;;; magit-annex.el --- Use git annex within magit
+;;; magit-annex.el --- Use git-annex within Magit
 
 ;; Copyright (C) 2013 Kyle Meyer <kyle@kyleam.com>
 
@@ -24,11 +24,11 @@
 
 ;;; Commentary:
 ;;
-;; magit-annex adds a few git annex operations to the magit interface.
-;; Most features are present under the annex popup menu, which is bound
-;; to "@".  This key was chosen as a leading key mostly to be consistent
-;; with John Wiegley's git-annex.el (which provides a dired interface to
-;; git annex) [1].
+;; Magit-annex adds a few git-annex operations to the Magit interface.
+;; Most features are present under the annex popup menu, which is
+;; bound to "@".  This key was chosen as a leading key mostly to be
+;; consistent with John Wiegley's git-annex.el (which provides a Dired
+;; interface to git-annex) [1].
 ;;
 ;; Adding files:
 ;;   @a   Add a file to annex.
@@ -50,17 +50,17 @@
 ;;   @u    Browse unused files.
 ;;   @l    List annex files.
 ;;
-;; Updating git annex:
+;; Updating:
 ;;   @m   Run `git annex merge'.
 ;;   @y   Run `git annex sync'.
 ;;
 ;;
-;; When magit-annex is installed from MELPA, no additional setup is
-;; needed.  The magit-annex popup menu will be added under the main Magit
-;; popup menu (and loading of magit-annex will be deferred until the
-;; first time the magit-annex popup is called).
+;; When Magit-annex is installed from MELPA, no additional setup is
+;; needed.  The annex popup menu will be added under the main Magit
+;; popup menu (and loading of Magit-annex will be deferred until the
+;; first time the annex popup is called).
 ;;
-;; To use magit-annex from the source repository, put
+;; To use Magit-annex from the source repository, put
 ;;
 ;;   (require 'magit-annex)
 ;;
@@ -79,7 +79,7 @@
 ;;; Variables
 
 (defgroup magit-annex nil
-  "Use git annex within magit"
+  "Use git-annex within Magit"
   :prefix "magit-annex"
   :group 'magit-extensions)
 
@@ -89,7 +89,7 @@
   :type 'boolean)
 
 (defcustom magit-annex-standard-options nil
-  "Call git annex with these options.
+  "Call git-annex with these options.
 These are placed after \"annex\" in the call, whereas values from
 `magit-git-standard-options' are placed after \"git\"."
   :group 'magit-annex
@@ -105,7 +105,7 @@ For example, if locking a file, limit choices to unlocked files."
 ;;; Popups
 
 (magit-define-popup magit-annex-popup
-  "Popup console for git annex commands."
+  "Popup console for git-annex commands."
   'magit-popups
   :man-page "git-annex"
   :actions  '((?a "Add" magit-annex-add)
@@ -122,7 +122,7 @@ For example, if locking a file, limit choices to unlocked files."
               (?! "Running" magit-annex-run-popup)))
 
 (magit-define-popup magit-annex-file-action-popup
-  "Popup console for git annex file commands."
+  "Popup console for git-annex file commands."
   'magit-annex-popups
   :man-page "git-annex"
   :actions  '((?g "Get file" magit-annex-get-file)
@@ -139,7 +139,7 @@ For example, if locking a file, limit choices to unlocked files."
               (?n "Number of copies" "--numcopies=" read-from-minibuffer)))
 
 (magit-define-popup magit-annex-all-action-popup
-  "Popup console for git annex content commands for all files."
+  "Popup console for git-annex content commands for all files."
   'magit-annex-popups
   :man-page "git-annex"
   :actions  '((?g "Get" magit-annex-get-all)
@@ -165,7 +165,7 @@ For example, if locking a file, limit choices to unlocked files."
               (?F "Force" "--force")))
 
 (magit-define-popup magit-annex-run-popup
-  "Popup console for running git annex commands."
+  "Popup console for running git-annex commands."
   'magit-annex-popups
   :man-page "git-annex"
   :actions '((?! "Annex subcommand (from root)" magit-annex-command-topdir)
@@ -183,9 +183,9 @@ For example, if locking a file, limit choices to unlocked files."
 ;;; Process calls
 
 (defun magit-annex-run (&rest args)
-  "Call git annex synchronously in a separate process, and refresh.
+  "Call git-annex synchronously in a separate process, and refresh.
 
-Before ARGS are passed to git annex,
+Before ARGS are passed to git-annex,
 `magit-annex-standard-options' will be prepended.
 
 See `magit-run-git' for more details on the git call."
@@ -193,22 +193,22 @@ See `magit-run-git' for more details on the git call."
          (append magit-annex-standard-options args)))
 
 (defun magit-annex-run-async (&rest args)
-  "Call git annex asynchronously with ARGS.
+  "Call git-annex asynchronously with ARGS.
 See `magit-annex-run' and `magit-run-git-async' for more
 information."
   (apply #'magit-run-git-async "annex"
          (append magit-annex-standard-options args)))
 
 (defun magit-annex-command ()
-  "Execute a git annex subcommand asynchronously, displaying the output.
-With a prefix argument, run git annex from repository root."
+  "Execute a git-annex subcommand asynchronously, displaying the output.
+With a prefix argument, run git-annex from repository root."
   (interactive)
   (let ((args (magit-annex-command-read-args)))
     (apply #'magit-git-command args)))
 
 (defun magit-annex-command-topdir ()
-  "Execute a git annex subcommand asynchronously, displaying the output.
-Run git annex in the root of the current repository."
+  "Execute a git-annex subcommand asynchronously, displaying the output.
+Run git-annex in the root of the current repository."
   (interactive)
   (let ((args (magit-annex-command-read-args t)))
     (apply #'magit-git-command args)))
@@ -219,7 +219,7 @@ Run git annex in the root of the current repository."
                  (or (magit-get-top-dir)
                      (user-error "Not inside a Git repository"))
                default-directory)))
-    (list (concat "annex " (read-string (format "Git annex subcommand (in %s): "
+    (list (concat "annex " (read-string (format "git-annex subcommand (in %s): "
                                                 (abbreviate-file-name dir))
                                         nil 'magit-git-command-history))
           dir)))
@@ -229,18 +229,18 @@ Run git annex in the root of the current repository."
 
 ;;;###autoload
 (defun magit-annex-popup-or-init ()
-  "Call magit annex popup or offer to initialize non-annex repo."
+  "Call Magit-annex popup or offer to initialize non-annex repo."
   (interactive)
   (cond
    ((magit-annex-inside-annexdir-p)
     (magit-annex-popup))
-   ((y-or-n-p (format "No git annex repository in %s.  Initialize one? "
+   ((y-or-n-p (format "No git-annex repository in %s.  Initialize one? "
                       default-directory))
     (call-interactively 'magit-annex-init))))
 
 ;;;###autoload
 (defun magit-annex-init (&optional description)
-  "Initialize git annex repository.
+  "Initialize git-annex repository.
 \('git annex init [DESCRIPTION]')"
   (interactive "sDescription: ")
   (magit-annex-run "init" description))
@@ -305,7 +305,7 @@ With a prefix argument, prompt for FILE.
   (magit-annex-run-async "sync" args remote))
 
 (defun magit-annex-merge ()
-  "Merge git annex.
+  "Merge git-annex.
 \('git annex merge')"
   (interactive)
   (magit-annex-run "merge"))
@@ -490,7 +490,7 @@ called instead.
     map)
   "Keymap for `magit-annex-unused-mode'.")
 
-(define-derived-mode magit-annex-unused-mode magit-mode "Magit Annex Unused"
+(define-derived-mode magit-annex-unused-mode magit-mode "Magit-annex Unused"
   "Mode for looking at unused data in annex.
 
 \\<magit-annex-unused-mode-map>\
@@ -528,7 +528,7 @@ Type \\[magit-annex-log-unused] to show commit log for the unused file.
       "annex" "unused" magit-refresh-args)))
 
 (defun magit-annex-wash-unused (&rest args)
-  "Convert the output of git annex unused into magit section."
+  "Convert the output of git-annex unused into Magit section."
   (when (not (looking-at "unused .*
 "))
     (error "Check magit-process for error"))
@@ -544,7 +544,7 @@ Type \\[magit-annex-log-unused] to show commit log for the unused file.
     (delete-region (point) (point-max))))
 
 (defun magit-annex-wash-unused-line ()
-  "Make a magit section from description of unused data."
+  "Make a Magit section from description of unused data."
   (when (looking-at " *\\([0-9]+\\) *\\(.*\\)$")
     (let ((num (match-string 1))
           (key (match-string 2)))
@@ -570,11 +570,11 @@ Type \\[magit-annex-log-unused] to show commit log for the unused file.
     map)
   "Keymap for `magit-annex-list-mode'.")
 
-(define-derived-mode magit-annex-list-mode magit-mode "Magit Annex List"
+(define-derived-mode magit-annex-list-mode magit-mode "Magit-annex List"
   "Mode for viewing on `git annex list' output.
 
 \\<magit-annex-list-mode-map>\
-Type \\[magit-annex-file-action-popup] to perform git annex action
+Type \\[magit-annex-file-action-popup] to perform git-annex action
 on the file at point.
 \n\\{magit-annex-list-mode-map}"
   :group 'magit-modes)
@@ -619,7 +619,7 @@ With prefix argument, limit the results to files in DIRECTORY."
 (defconst magit-annex-list-line-re "\\([_X]+\\) \\(.*\\)$")
 
 (defun magit-annex-list-wash (&rest args)
-  "Convert the output of `git annex list' into magit section."
+  "Convert the output of `git annex list' into Magit section."
   (when (looking-at "(merging .+)")
     (delete-region (point) (1+ (match-end 0))))
   (when (not (looking-at "here"))
@@ -630,7 +630,7 @@ With prefix argument, limit the results to files in DIRECTORY."
     (re-search-forward "^|+$")))
 
 (defun magit-annex-list-wash-line ()
-  "Convert file line of `git annex list' into magit section."
+  "Convert file line of `git annex list' into Magit section."
   (when (looking-at magit-annex-list-line-re)
     (let ((locs (match-string 1))
           (file (match-string 2)))
