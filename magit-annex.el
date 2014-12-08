@@ -31,8 +31,8 @@
 ;; interface to git-annex) [1].
 ;;
 ;; Adding files:
-;;   @a   Add a file to annex.
-;;   @A   Add all untracked and modified files to annex.
+;;   @a   Add a file to the annex.
+;;   @A   Add all untracked and modified files to the annex.
 ;;
 ;; Managing file content:
 ;;   @fu   Unlock a file.
@@ -84,7 +84,7 @@
   :group 'magit-extensions)
 
 (defcustom magit-annex-add-all-confirm t
-  "Whether to require confirmation before adding all changes to annex."
+  "Whether to confirm before adding all changes to the annex."
   :group 'magit-annex
   :type 'boolean)
 
@@ -279,13 +279,13 @@ With a prefix argument, prompt for FILE.
          (magit-annex-run "add" (magit-annex-unlocked-files)))))))
 
 (defun magit-annex-add-all ()
-  "Add all untracked and modified files to annex.
+  "Add all untracked and modified files to the annex.
 \('git annex add .')"
   ;; Modified from `magit-stage-all'.
   (interactive)
   (when (or (not magit-annex-add-all-confirm)
             (not (magit-anything-staged-p))
-            (yes-or-no-p "Add all changes to annex?"))
+            (yes-or-no-p "Add all changes to the annex?"))
     (magit-annex-run "add" ".")))
 
 
