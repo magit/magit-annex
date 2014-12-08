@@ -25,7 +25,7 @@
 ;;; Commentary:
 ;;
 ;; Magit-annex adds a few git-annex operations to the Magit interface.
-;; Most features are present under the annex popup menu, which is
+;; Annex commands are available under the annex popup menu, which is
 ;; bound to "@".  This key was chosen as a leading key mostly to be
 ;; consistent with John Wiegley's git-annex.el (which provides a Dired
 ;; interface to git-annex) [1].
