@@ -26,7 +26,7 @@
 ;;
 ;; magit-annex adds a few git annex operations to the magit interface.
 ;; Most features are present under the annex popup menu, which is bound
-;; to "@". This key was chosen as a leading key mostly to be consistent
+;; to "@".  This key was chosen as a leading key mostly to be consistent
 ;; with John Wiegley's git-annex.el (which provides a dired interface to
 ;; git annex) [1].
 ;;
@@ -56,7 +56,7 @@
 ;;
 ;;
 ;; When magit-annex is installed from MELPA, no additional setup is
-;; needed. The magit-annex popup menu will be added under the main Magit
+;; needed.  The magit-annex popup menu will be added under the main Magit
 ;; popup menu (and loading of magit-annex will be deferred until the
 ;; first time the magit-annex popup is called).
 ;;
@@ -234,7 +234,7 @@ Run git annex in the root of the current repository."
   (cond
    ((magit-annex-inside-annexdir-p)
     (magit-annex-popup))
-   ((y-or-n-p (format "No git annex repository in %s. Initialize one? "
+   ((y-or-n-p (format "No git annex repository in %s.  Initialize one? "
                       default-directory))
     (call-interactively 'magit-annex-init))))
 
@@ -362,7 +362,7 @@ See `magit-annex-completing-file-read' for more details."
 (defun magit-annex-read-present-file-unless-from (prompt)
   "Complete read for PROMPT with annex files present in current repo.
 If \"--from\" is present in `magit-custom-options', fallback to
-all annex files. See `magit-annex-completing-file-read' for more
+all annex files.  See `magit-annex-completing-file-read' for more
 details."
   (magit-annex-completing-file-read prompt 'magit-annex-present-files t))
 
@@ -380,18 +380,18 @@ See `magit-annex-completing-file-read' for more details."
   "Read an annex file name.
 If `magit-annex-limit-file-choices' is non-nil,
 `magit-completing-read' will be called with PROMPT and the result
-of the function COLLECTOR. Otherwise, `read-file-name' will be
+of the function COLLECTOR.  Otherwise, `read-file-name' will be
 called with PROMPT.
 
 PROMPT should not contain a colon and trailing space because
-`magit-completing-read' appends these. If PROMPT is passed to
+`magit-completing-read' appends these.  If PROMPT is passed to
 `read-file-name', these will be added.
 
 A non-nil value for NO-FROM indicates that all annex files should
 be used, instead of the results from COLLECTOR, if the \"--from\"
-argument is used. This is appropriate for commands like \"drop\",
-where \"--from\" specifies to operate on a remote, making the
-local state of the annex files irrelevant.
+argument is used.  This is appropriate for commands like
+\"drop\", where \"--from\" specifies to operate on a remote,
+making the local state of the annex files irrelevant.
 
 When called from `magit-annex-list-mode', the file for the
 current line will be used as the default completion value."
