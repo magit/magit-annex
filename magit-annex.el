@@ -1,4 +1,4 @@
-;;; magit-annex.el --- Use git-annex within Magit
+;;; magit-annex.el --- Control git-annex from Magit
 
 ;; Copyright (C) 2013 Kyle Meyer <kyle@kyleam.com>
 
@@ -79,7 +79,7 @@
 ;;; Variables
 
 (defgroup magit-annex nil
-  "Use git-annex within Magit"
+  "Control git-annex from Magit"
   :prefix "magit-annex"
   :group 'magit-extensions)
 
