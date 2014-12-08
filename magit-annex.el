@@ -332,7 +332,8 @@ With a prefix argument, prompt for FILE.
 (defmacro magit-annex-file-action (command file-read-func)
   `(defun ,(intern (concat "magit-annex-" command "-file")) (file &optional args)
      ,(format "Run `git annex %s [ARGS] FILE'.
-If called interactively, FILE is retrieved with `%s'."
+If called interactively, FILE is retrieved with
+`%s'."
               command (symbol-name file-read-func))
      (interactive (list (,file-read-func ,(format "File to %s" command))
                         (magit-annex-file-action-arguments)))
