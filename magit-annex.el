@@ -54,6 +54,13 @@
 ;;   @m   Run `git annex merge'.
 ;;   @y   Run `git annex sync'.
 ;;
+;; In the unused buffer
+;;   l    Show log for commits touching a file
+;;   RET  Open a file in Emacs
+;;   !    Open file with an external program
+;;   &    Open file asynchronously with an external program
+;;   k    Drop files
+;;   s    Add files back to the index
 ;;
 ;; When Magit-annex is installed from MELPA, no additional setup is
 ;; needed.  The annex popup menu will be added under the main Magit
@@ -473,6 +480,44 @@ called instead.
                          'verbose '("HEAD") (list "--stat" "-S" key))))
     (t (magit-log-popup))))
 
+(defun magit-annex--file-name-from-key (key)
+  (magit-git-string "annex" "examinekey" key
+                    "--format=.git/annex/objects/${hashdirmixed}${key}/${key}"))
+
+(defun magit-annex-open-unused ()
+  "Open an unused file in Emacs."
+  (interactive)
+  (magit-section-case
+    (unused-data
+     (let ((key (cdr (magit-section-value it))))
+       (find-file (magit-annex--file-name-from-key key))))))
+
+(declare-function dired-read-shell-command "dired-aux" (prompt arg files))
+
+(defun magit-annex--open-unused-externally (async)
+  (require 'dired-aux)
+  (magit-section-case
+    (unused-data
+     (let* ((key (cdr (magit-section-value it)))
+            (file (magit-annex--file-name-from-key key))
+            (command (dired-read-shell-command "open %s with " () (list file))))
+       (if (and async (not (string-match-p  "&[ \t]*\\'" command)))
+           (setq command (concat command " &")))
+       (dired-do-shell-command command () (list file))))))
+
+(defun magit-annex-open-unused-externally ()
+  "Open an unused file with an external application."
+  (interactive)
+  (magit-annex--open-unused-externally ()))
+
+(defun magit-annex-open-unused-externally-async ()
+  "Open an unused file with an external application.
+
+Like `magit-annex-open-unused-externally' but adds `&' at the end
+of COMMAND to execute it asynchronously"
+  (interactive)
+  (magit-annex--open-unused-externally t))
+
 (defcustom magit-annex-unused-sections-hook
   '(magit-annex-insert-unused-headers
     magit-annex-insert-unused-data)
@@ -484,6 +529,9 @@ called instead.
 (defvar magit-annex-unused-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
+    (define-key map (kbd "RET") #'magit-annex-open-unused)
+    (define-key map "!" #'magit-annex-open-unused-externally)
+    (define-key map "&" #'magit-annex-open-unused-externally-async)
     (define-key map "s" #'magit-annex-addunused)
     (define-key map "k" #'magit-annex-dropunused)
     (define-key map "l" #'magit-annex-log-unused)
