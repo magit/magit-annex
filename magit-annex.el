@@ -470,7 +470,7 @@ called instead.
        (magit-mode-setup magit-log-buffer-name-format nil
                          #'magit-log-mode
                          #'magit-log-refresh-buffer
-                         'verbose "HEAD" (list "--stat" "-S" key))))
+                         'verbose '("HEAD") (list "--stat" "-S" key))))
     (t (magit-log-popup))))
 
 (defcustom magit-annex-unused-sections-hook
