@@ -56,9 +56,7 @@
 ;;
 ;; In the unused buffer
 ;;   l    Show log for commits touching a file
-;;   RET  Open a file in Emacs
-;;   !    Open file with an external program
-;;   &    Open file asynchronously with an external program
+;;   RET  Open a file
 ;;   k    Drop files
 ;;   s    Add files back to the index
 ;;
@@ -107,6 +105,18 @@ These are placed after \"annex\" in the call, whereas values from
 For example, if locking a file, limit choices to unlocked files."
   :group 'magit-annex
   :type 'boolean)
+
+(defcustom magit-annex-unused-open-function nil
+  "Function used by `magit-annex-open-unused'.
+
+This function should take a single required argument, a file
+name.  If you have configured Org mode to open files on your
+system, consider using `org-open-file'.
+
+If nil, `magit-annex-open-unused' will prompt for the name of the
+program used to open the unused file."
+  :group 'magit-annex
+  :type 'function)
 
 
 ;;; Popups
@@ -484,39 +494,29 @@ called instead.
   (magit-git-string "annex" "examinekey" key
                     "--format=.git/annex/objects/${hashdirmixed}${key}/${key}"))
 
-(defun magit-annex-open-unused ()
-  "Open an unused file in Emacs."
-  (interactive)
-  (magit-section-case
-    (unused-data
-     (let ((key (cdr (magit-section-value it))))
-       (find-file (magit-annex--file-name-from-key key))))))
-
 (declare-function dired-read-shell-command "dired-aux" (prompt arg files))
 
-(defun magit-annex--open-unused-externally (async)
-  (require 'dired-aux)
+(defun magit-annex-open-unused (&optional in-emacs)
+  "Open an unused file.
+By default, prompt for a command to open the file.  If
+`magit-annex-unused-open-function' is non-nil, pass the file name
+to this function instead.  With prefix argument IN-EMACS, open
+the file within Emacs."
+  (interactive "P")
   (magit-section-case
     (unused-data
      (let* ((key (cdr (magit-section-value it)))
-            (file (magit-annex--file-name-from-key key))
-            (command (dired-read-shell-command "open %s with " () (list file))))
-       (if (and async (not (string-match-p  "&[ \t]*\\'" command)))
-           (setq command (concat command " &")))
-       (dired-do-shell-command command () (list file))))))
-
-(defun magit-annex-open-unused-externally ()
-  "Open an unused file with an external application."
-  (interactive)
-  (magit-annex--open-unused-externally ()))
-
-(defun magit-annex-open-unused-externally-async ()
-  "Open an unused file with an external application.
-
-Like `magit-annex-open-unused-externally' but adds `&' at the end
-of COMMAND to execute it asynchronously"
-  (interactive)
-  (magit-annex--open-unused-externally t))
+            (file (magit-annex--file-name-from-key key)))
+       (cond
+        (in-emacs
+         (find-file file))
+        (magit-annex-unused-open-function
+         (funcall magit-annex-unused-open-function file))
+        (t
+         (require 'dired-aux)
+         (let ((command (dired-read-shell-command "open %s with " ()
+                                                  (list file))))
+           (dired-do-async-shell-command command () (list file)))))))))
 
 (defcustom magit-annex-unused-sections-hook
   '(magit-annex-insert-unused-headers
@@ -530,8 +530,6 @@ of COMMAND to execute it asynchronously"
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
     (define-key map (kbd "RET") #'magit-annex-open-unused)
-    (define-key map "!" #'magit-annex-open-unused-externally)
-    (define-key map "&" #'magit-annex-open-unused-externally-async)
     (define-key map "s" #'magit-annex-addunused)
     (define-key map "k" #'magit-annex-dropunused)
     (define-key map "l" #'magit-annex-log-unused)
