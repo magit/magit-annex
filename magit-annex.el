@@ -107,13 +107,13 @@ For example, if locking a file, limit choices to unlocked files."
   :type 'boolean)
 
 (defcustom magit-annex-unused-open-function nil
-  "Function used by `magit-annex-open-unused'.
+  "Function used by `magit-annex-unused-open'.
 
 This function should take a single required argument, a file
 name.  If you have configured Org mode to open files on your
 system, consider using `org-open-file'.
 
-If nil, `magit-annex-open-unused' will prompt for the name of the
+If nil, `magit-annex-unused-open' will prompt for the name of the
 program used to open the unused file."
   :group 'magit-annex
   :type 'function)
@@ -447,7 +447,7 @@ current line will be used as the default completion value."
 
 ;; Unused mode
 
-(defun magit-annex-addunused ()
+(defun magit-annex-unused-add ()
   "Add annex unused data back into the index."
   (interactive)
   (magit-section-case
@@ -456,7 +456,7 @@ current line will be used as the default completion value."
                           (list (car (magit-section-value it))))))
        (magit-annex-run "addunused" data-nums)))))
 
-(defun magit-annex-dropunused (&optional force)
+(defun magit-annex-unused-drop (&optional force)
   "Drop current unused data.
 With prefix argument FORCE, pass \"--force\" flag to
 `git annex dropunused'."
@@ -473,7 +473,7 @@ With prefix argument FORCE, pass \"--force\" flag to
                                        '("--force" "all")
                                      "all")))))
 
-(defun magit-annex-log-unused ()
+(defun magit-annex-unused-log ()
   "Display log for unused file.
 
 If an unused file is not at point, `magit-log-popup' will be
@@ -496,7 +496,7 @@ called instead.
 
 (declare-function dired-read-shell-command "dired-aux" (prompt arg files))
 
-(defun magit-annex-open-unused (&optional in-emacs)
+(defun magit-annex-unused-open (&optional in-emacs)
   "Open an unused file.
 By default, prompt for a command to open the file.  If
 `magit-annex-unused-open-function' is non-nil, pass the file name
@@ -519,7 +519,7 @@ the file within Emacs."
            (dired-do-async-shell-command command () (list file)))))))))
 
 (defcustom magit-annex-unused-sections-hook
-  '(magit-annex-insert-unused-headers
+  '(magit-annex-unused-insert-headers
     magit-annex-insert-unused-data)
   "Hook run to insert sections into the unused buffer."
   :group 'magit-modes
@@ -529,10 +529,10 @@ the file within Emacs."
 (defvar magit-annex-unused-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "RET") #'magit-annex-open-unused)
-    (define-key map "s" #'magit-annex-addunused)
-    (define-key map "k" #'magit-annex-dropunused)
-    (define-key map "l" #'magit-annex-log-unused)
+    (define-key map (kbd "RET") #'magit-annex-unused-open)
+    (define-key map "s" #'magit-annex-unused-add)
+    (define-key map "k" #'magit-annex-unused-drop)
+    (define-key map "l" #'magit-annex-unused-log)
     map)
   "Keymap for `magit-annex-unused-mode'.")
 
@@ -540,9 +540,9 @@ the file within Emacs."
   "Mode for looking at unused data in annex.
 
 \\<magit-annex-unused-mode-map>\
-Type \\[magit-annex-dropunused] to drop data at point.
-Type \\[magit-annex-addunused] to add the unused data back into the index.
-Type \\[magit-annex-log-unused] to show commit log for the unused file.
+Type \\[magit-annex-unused-drop] to drop data at point.
+Type \\[magit-annex-unused-add] to add the unused data back into the index.
+Type \\[magit-annex-unused-log] to show commit log for the unused file.
 \n\\{magit-annex-unused-mode-map}"
   :group 'magit-modes)
 
@@ -555,14 +555,14 @@ Type \\[magit-annex-log-unused] to show commit log for the unused file.
   (interactive)
   (magit-mode-setup magit-annex-unused-buffer-name-format nil
                     #'magit-annex-unused-mode
-                    #'magit-annex-refresh-unused-buffer))
+                    #'magit-annex-unused-refresh-buffer))
 
-(defun magit-annex-refresh-unused-buffer ()
+(defun magit-annex-unused-refresh-buffer ()
   "Refresh the content of the unused buffer."
   (magit-insert-section (unused)
     (run-hooks 'magit-annex-unused-sections-hook)))
 
-(defun magit-annex-insert-unused-headers ()
+(defun magit-annex-unused-insert-headers ()
   "Insert the headers in the unused buffer."
   (magit-insert-status-headers))
 
@@ -570,10 +570,10 @@ Type \\[magit-annex-log-unused] to show commit log for the unused file.
   "Insert unused data into the current buffer."
   (magit-insert-section (unused)
     (magit-insert-heading "Unused data:")
-    (magit-git-wash #'magit-annex-wash-unused
+    (magit-git-wash #'magit-annex-unused-wash
       "annex" "unused" magit-refresh-args)))
 
-(defun magit-annex-wash-unused (&rest args)
+(defun magit-annex-unused-wash (&rest args)
   "Convert the output of git-annex unused into Magit section."
   (when (not (looking-at "unused .*
 "))
@@ -586,10 +586,10 @@ Type \\[magit-annex-log-unused] to show commit log for the unused file.
         (delete-region (point-min) (point-max))
         (magit-insert "   nothing"))
     (delete-region (point) (match-end 0))
-    (magit-wash-sequence #'magit-annex-wash-unused-line)
+    (magit-wash-sequence #'magit-annex-unused-wash-line)
     (delete-region (point) (point-max))))
 
-(defun magit-annex-wash-unused-line ()
+(defun magit-annex-unused-wash-line ()
   "Make a Magit section from description of unused data."
   (when (looking-at " *\\([0-9]+\\) *\\(.*\\)$")
     (let ((num (match-string 1))
