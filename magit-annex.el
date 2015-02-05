@@ -543,6 +543,7 @@ the file within Emacs."
 Type \\[magit-annex-unused-drop] to drop data at point.
 Type \\[magit-annex-unused-add] to add the unused data back into the index.
 Type \\[magit-annex-unused-log] to show commit log for the unused file.
+Type \\[magit-annex-unused-open] to open the file.
 \n\\{magit-annex-unused-mode-map}"
   :group 'magit-modes)
 
