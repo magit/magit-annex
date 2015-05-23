@@ -233,7 +233,7 @@ Run git-annex in the root of the current repository."
 (defun magit-annex-command-read-args (&optional root)
   ;; Modified from `magit-git-command-read-args'.
   (let ((dir (if (or root current-prefix-arg)
-                 (or (magit-get-top-dir)
+                 (or (magit-toplevel)
                      (user-error "Not inside a Git repository"))
                default-directory)))
     (list (concat "annex " (read-string (format "git-annex subcommand (in %s): "
@@ -637,7 +637,7 @@ With prefix argument, limit the results to files in DIRECTORY."
    (list (and current-prefix-arg
               (let ((dir (read-directory-name "List annex files in: "
                                               nil nil t))
-                    (top (magit-get-top-dir)))
+                    (top (magit-toplevel)))
                 (directory-file-name (file-relative-name dir top))))))
   (magit-mode-setup magit-annex-list-buffer-name-format nil
                     #'magit-annex-list-mode
