@@ -13,18 +13,17 @@
            (let ((default-directory ,dir)) ,@body)
          (delete-directory ,dir t)
          (magit-annex-tests--kill-magit-dir-buffer ,dir)
-         (magit-annex-tests--kill-magit-process-buffer)))))
+         (magit-annex-tests--kill-magit-process-buffer ,dir)))))
 
 (defun magit-annex-tests--kill-magit-dir-buffer (dir)
   (let ((dir-buffer
          (get-buffer
-          (format "*magit: %s*"
-                  (file-name-nondirectory (directory-file-name dir))))))
+          (format "*magit: %s*" dir))))
     (when dir-buffer
       (kill-buffer dir-buffer))))
 
-(defun magit-annex-tests--kill-magit-process-buffer ()
-  (let ((process-buffer (get-buffer "*magit-process*")))
+(defun magit-annex-tests--kill-magit-process-buffer (dir)
+  (let ((process-buffer (get-buffer (format "*magit-process: %s*" dir))))
     (when process-buffer
       (kill-buffer process-buffer))))
 
@@ -45,7 +44,7 @@
        (magit-call-git "init" ".")
        (magit-call-git "annex" "init" "repo1")
        (magit-annex-tests--modify-file "file")
-       (magit-stage-item "file")
+       (magit-stage-file "file")
        (magit-call-git "commit" "-m" "normal commit")
        (magit-call-git "remote" "add" "repo2" repo2))
      (let ((default-directory repo2))
@@ -59,7 +58,8 @@
        (delete-directory repo2 t)
        (magit-annex-tests--kill-magit-dir-buffer repo1)
        (magit-annex-tests--kill-magit-dir-buffer repo2)
-       (magit-annex-tests--kill-magit-process-buffer))))
+       (magit-annex-tests--kill-magit-process-buffer repo1)
+       (magit-annex-tests--kill-magit-process-buffer repo2))))
 
 (defmacro magit-annex-tests--with-temp-bare-repo (&rest body)
   (declare (indent 0) (debug t))
@@ -76,9 +76,10 @@
          (magit-call-git "annex" "init" "test-repo")
          ;; Make a normal commit and push.
          (magit-annex-tests--modify-file "file")
-         (magit-stage-item "file")
+         (magit-stage-file "file")
          (magit-call-git "commit" "-m" "normal commit")
          (magit-call-git "push")
+         (magit-call-git "push" "-u" "origin" "git-annex")
          (unwind-protect
              (progn ,@body)
            (call-process "chmod" nil nil nil "-R" "777" "."))))))
@@ -87,13 +88,12 @@
   (with-temp-file (expand-file-name filename)
     (insert (symbol-name (gensym "content")))))
 
-(defun magit-annex-tests--should-have-item-title (title section-path)
+(defun magit-annex-tests--should-have-section (type info)
   (magit-status default-directory)
-  (should (member title
-                  (mapcar 'magit-section-info
-                          (magit-section-children
-                           (magit-find-section section-path
-                                               magit-root-section))))))
+  (message (buffer-string))
+  (should (--first (equal (magit-section-value it) info)
+                   (magit-section-children
+                    (magit-get-section `((,type) (status)))))))
 
 ;;; Test magit-annex
 
@@ -106,8 +106,7 @@
     (should (not (file-symlink-p "file")))
     (magit-annex-add "file")
     (should (file-symlink-p "file"))
-    (magit-annex-tests--should-have-item-title
-     "file" '(staged))))
+    (magit-annex-tests--should-have-section 'staged "file")))
 
 (ert-deftest magit-annex-add-all-files-to-annex ()
   (magit-annex-tests--with-temp-annex-repo
@@ -118,10 +117,8 @@
       (magit-annex-add-all))
     (should (file-symlink-p "file1"))
     (should (file-symlink-p "file2"))
-    (magit-annex-tests--should-have-item-title
-     "file1" '(staged))
-    (magit-annex-tests--should-have-item-title
-     "file2" '(staged))))
+    (magit-annex-tests--should-have-section 'staged "file1")
+    (magit-annex-tests--should-have-section 'staged "file2")))
 
 
 ;; Updating
@@ -148,9 +145,8 @@
       (magit-annex-tests--modify-file "annex-file")
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
-      (let ((magit-custom-options '("--content")))
-        (magit-annex-sync)
-        (magit-process-wait))
+      (magit-annex-sync '("--content"))
+      (magit-process-wait)
       (should (magit-git-lines "diff" "repo1/master"))
       (should-not (magit-git-lines "diff" "synced/master"))
       (should (magit-annex-present-files)))
@@ -158,31 +154,6 @@
       (magit-annex-merge)
       (magit-process-wait)
       (should (magit-annex-present-files)))))
-
-(ert-deftest magit-annex-push-git-annex ()
-  (magit-annex-tests--with-temp-bare-repo
-    (magit-annex-tests--with-temp-clone default-directory
-      (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-add "annex-file")
-      (magit-call-git "commit" "-m" "annex commit")
-      (let ((magit-set-upstream-on-push 'dontask))
-        (magit-annex-push nil))
-      (magit-process-wait)
-      ;; Only git annex should have been pushed.
-      (should (magit-git-lines "diff" "origin/master")))))
-
-(ert-deftest magit-annex-push-current-and-git-annex ()
-  (magit-annex-tests--with-temp-bare-repo
-    (magit-annex-tests--with-temp-clone default-directory
-      (magit-annex-tests--modify-file "annex-file")
-      (magit-annex-add "annex-file")
-      (magit-call-git "commit" "-m" "annex commit")
-      (let ((magit-set-upstream-on-push 'dontask))
-        (magit-annex-push-both nil))
-      (magit-process-wait)
-      ;; Current branch should also have been pushed, so there should be
-      ;; no differences.
-      (should (not (magit-git-lines "diff" "origin/master"))))))
 
 
 ;; Managing content
@@ -247,9 +218,8 @@
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
-      (let ((magit-custom-options '("--force")))
-        (magit-annex-drop-file "annex-file")
-        (magit-process-wait))
+      (magit-annex-drop-file "annex-file" '("--force"))
+      (magit-process-wait)
       (should-not (magit-annex-present-files)))))
 
 (ert-deftest magit-annex-drop-drop-all ()
@@ -262,9 +232,8 @@
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
-      (let ((magit-custom-options '("--force")))
-        (magit-annex-drop-all)
-        (magit-process-wait))
+      (magit-annex-drop-all '("--force"))
+      (magit-process-wait)
       (should-not (magit-annex-present-files)))))
 
 (ert-deftest magit-annex-move-file ()
@@ -275,9 +244,8 @@
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
-      (let ((magit-custom-options '("--to=repo1")))
-        (magit-annex-move-file "annex-file")
-        (magit-process-wait))
+      (magit-annex-move-file "annex-file" '("--to=repo1"))
+      (magit-process-wait)
       (should-not (magit-annex-present-files)))
     (let ((default-directory repo1))
       (magit-annex-merge)
@@ -294,9 +262,8 @@
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
-      (let ((magit-custom-options '("--to=repo1")))
-        (magit-annex-move-all)
-        (magit-process-wait))
+      (magit-annex-move-all '("--to=repo1"))
+      (magit-process-wait)
       (should-not (magit-annex-present-files)))
     (let ((default-directory repo1))
       (magit-annex-merge)
@@ -311,9 +278,8 @@
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
-      (let ((magit-custom-options '("--to=repo1")))
-        (magit-annex-copy-file "annex-file")
-        (magit-process-wait))
+      (magit-annex-copy-file "annex-file" '("--to=repo1"))
+      (magit-process-wait)
       (should (equal (magit-annex-present-files)
                      '("annex-file"))))
     (let ((default-directory repo1))
@@ -331,9 +297,8 @@
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
       (magit-process-wait)
-      (let ((magit-custom-options '("--to=repo1")))
-        (magit-annex-copy-all)
-        (magit-process-wait))
+      (magit-annex-copy-all '("--to=repo1"))
+      (magit-process-wait)
       (should (equal (magit-annex-present-files)
                      '("annex-file1" "annex-file2"))))
     (let ((default-directory repo1))
@@ -351,7 +316,6 @@
     (magit-process-wait)
     (should (equal (magit-annex-unlocked-files)
                    '("annex-file")))
-    (let ((magit-custom-options '("--force")))
-      (magit-annex-lock-file "annex-file")
-        (magit-process-wait))
+    (magit-annex-lock-file "annex-file" '("--force"))
+    (magit-process-wait)
     (should-not (magit-annex-unlocked-files))))
