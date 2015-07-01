@@ -6,7 +6,7 @@
 ;;         Rémi Vanicat <vanicat@debian.org>
 ;; URL: https://github.com/kyleam/magit-annex
 ;; Keywords: vc tools
-;; Version: 0.10.0
+;; Version: 1.0.0
 ;; Package-Requires: ((cl-lib "0.3") (magit "1.2.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
