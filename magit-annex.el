@@ -218,15 +218,13 @@ information."
   "Execute a git-annex subcommand asynchronously, displaying the output.
 With a prefix argument, run git-annex from repository root."
   (interactive)
-  (let ((args (magit-annex-command-read-args)))
-    (apply #'magit-git-command args)))
+  (apply #'magit-git-command (magit-annex-command-read-args)))
 
 (defun magit-annex-command-topdir ()
   "Execute a git-annex subcommand asynchronously, displaying the output.
 Run git-annex in the root of the current repository."
   (interactive)
-  (let ((args (magit-annex-command-read-args t)))
-    (apply #'magit-git-command args)))
+  (apply #'magit-git-command (magit-annex-command-read-args t)))
 
 (defun magit-annex-command-read-args (&optional root)
   ;; Modified from `magit-git-command-read-args'.
