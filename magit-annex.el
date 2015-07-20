@@ -426,19 +426,19 @@ current line will be used as the default completion value."
 
 (defun magit-annex-files ()
   "Return all annex files."
-  (magit-git-lines "annex" "find" "--include" "*"))
+  (magit-git-items "annex" "find" "--print0" "--include" "*"))
 
 (defun magit-annex-present-files ()
   "Return annex files that are present in current repo."
-  (magit-git-lines "annex" "find"))
+  (magit-git-items "annex" "find" "--print0"))
 
 (defun magit-annex-absent-files ()
   "Return annex files that are absent in current repo."
-  (magit-git-lines "annex" "find" "--not" "--in=here"))
+  (magit-git-items "annex" "find" "--print0" "--not" "--in=here"))
 
 (defun magit-annex-unlocked-files ()
   "Return unlocked annex files."
-  (magit-git-lines "diff-files" "--diff-filter=T" "--name-only"))
+  (magit-git-items "diff-files" "-z" "--diff-filter=T" "--name-only"))
 
 
 ;; Unused mode
