@@ -206,15 +206,13 @@ Before ARGS are passed to git-annex,
 `magit-annex-standard-options' will be prepended.
 
 See `magit-run-git' for more details on the git call."
-  (apply #'magit-run-git "annex"
-         (append magit-annex-standard-options args)))
+  (magit-run-git "annex" magit-annex-standard-options args))
 
 (defun magit-annex-run-async (&rest args)
   "Call git-annex asynchronously with ARGS.
 See `magit-annex-run' and `magit-run-git-async' for more
 information."
-  (apply #'magit-run-git-async "annex"
-         (append magit-annex-standard-options args)))
+  (magit-run-git-async "annex" magit-annex-standard-options args))
 
 (defun magit-annex-command ()
   "Execute a git-annex subcommand asynchronously, displaying the output.
