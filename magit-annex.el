@@ -193,7 +193,7 @@ program used to open the unused file."
   '(progn
      (define-key magit-mode-map "@" 'magit-annex-popup-or-init)
      (magit-define-popup-action 'magit-dispatch-popup
-       ?@ "Annex" 'magit-annex-popup-or-init)))
+       ?@ "Annex" 'magit-annex-popup-or-init ?!)))
 
 
 
