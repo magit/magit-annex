@@ -480,8 +480,7 @@ called instead.
   (magit-section-case
     (unused-data
      (let ((key (cdr (magit-section-value it))))
-       (magit-mode-setup magit-log-buffer-name-format nil
-                         #'magit-log-mode
+       (magit-mode-setup #'magit-log-mode
                          #'magit-log-refresh-buffer
                          'verbose '("HEAD") (list "--stat" "-S" key))))
     (t (magit-log-popup))))
@@ -543,15 +542,11 @@ Type \\[magit-annex-unused-open] to open the file.
 \n\\{magit-annex-unused-mode-map}"
   :group 'magit-modes)
 
-(defvar magit-annex-unused-buffer-name-format "*magit-annex-unused: %a*"
-  "Name format for `magit-annex-unused-mode' buffers.")
-
 ;;;###autoload
 (defun magit-annex-unused ()
   "Show unused annexed data."
   (interactive)
-  (magit-mode-setup magit-annex-unused-buffer-name-format nil
-                    #'magit-annex-unused-mode
+  (magit-mode-setup #'magit-annex-unused-mode
                     #'magit-annex-unused-refresh-buffer))
 
 (defun magit-annex-unused-refresh-buffer ()
@@ -622,9 +617,6 @@ on the file at point.
 \n\\{magit-annex-list-mode-map}"
   :group 'magit-modes)
 
-(defvar magit-annex-list-buffer-name-format "*magit-annex-list: %a*"
-  "Name format for `magit-annex-list-mode' buffers.")
-
 ;;;###autoload
 (defun magit-annex-list-files (&optional directory)
   "List annex files.
@@ -635,8 +627,7 @@ With prefix argument, limit the results to files in DIRECTORY."
                                               nil nil t))
                     (top (magit-toplevel)))
                 (directory-file-name (file-relative-name dir top))))))
-  (magit-mode-setup magit-annex-list-buffer-name-format nil
-                    #'magit-annex-list-mode
+  (magit-mode-setup #'magit-annex-list-mode
                     #'magit-annex-list-refresh-buffer directory))
 
 (defun magit-annex-list-refresh-buffer (&rest ignore)
