@@ -23,7 +23,7 @@
       (kill-buffer dir-buffer))))
 
 (defun magit-annex-tests--kill-magit-process-buffer (dir)
-  (let ((process-buffer (get-buffer (format "*magit-process: %s*" dir))))
+  (let ((process-buffer (magit-process-buffer dir)))
     (when process-buffer
       (kill-buffer process-buffer))))
 
