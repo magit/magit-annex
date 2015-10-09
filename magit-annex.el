@@ -483,7 +483,7 @@ called instead.
        (magit-mode-setup magit-log-buffer-name-format nil
                          #'magit-log-mode
                          #'magit-log-refresh-buffer
-                         'verbose '("HEAD") (list "--stat" "-S" key))))
+                         '("HEAD") (list "--stat" "-S" key) nil)))
     (t (magit-log-popup))))
 
 (defun magit-annex--file-name-from-key (key)
