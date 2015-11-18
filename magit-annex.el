@@ -574,7 +574,7 @@ Type \\[magit-annex-unused-open] to open the file.
 "))
       (progn
         (delete-region (point-min) (point-max))
-        (magit-insert "   nothing"))
+        (insert "   nothing"))
     (delete-region (point) (match-end 0))
     (magit-wash-sequence #'magit-annex-unused-wash-line)
     (delete-region (point) (point-max))))
@@ -586,7 +586,7 @@ Type \\[magit-annex-unused-open] to open the file.
           (key (match-string 2)))
       (delete-region (match-beginning 0) (match-end 0))
       (magit-insert-section it (unused-data (cons num key))
-        (magit-insert (format "   %-3s   %s" num key))
+        (insert (format "   %-3s   %s" num key))
         (forward-line)))))
 
 
@@ -667,7 +667,7 @@ With prefix argument, limit the results to files in DIRECTORY."
           (file (match-string 2)))
       (delete-region (match-beginning 0) (match-end 0))
       (magit-insert-section it (annex-list-file (cons locs file))
-        (magit-insert (format "%s %s" locs file))
+        (insert (format "%s %s" locs file))
         (forward-line)))))
 
 (defun magit-annex-list-file-at-point ()
