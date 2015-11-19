@@ -1,5 +1,10 @@
 # -*- mode: org -*-
 
+* 1.1.0
+
+Magit-annex has been updated for the latest version of Magit and now
+requires version 2.3.0 or later.
+
 * 1.0.0
 
 ** New features
