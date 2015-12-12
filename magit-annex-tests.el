@@ -1,6 +1,8 @@
 ;;; magit-annex-tests.el
 
+(require 'cl)
 (require 'ert)
+
 (require 'magit-annex)
 
 ;;; Utilities (modified from magit-tests.el)
