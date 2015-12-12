@@ -1,83 +1,87 @@
-;;; magit-annex-tests.el
+;;; magit-annex-tests.el --- Tests for Magit-annex
+
+;; Copyright (C) 2014-2015 Kyle Meyer <kyle@kyleam.com>
+;;
+;; License: GPLv3
+
+;;; Code:
 
 (require 'cl)
+(require 'dash)
 (require 'ert)
 
 (require 'magit-annex)
 
-;;; Utilities (modified from magit-tests.el)
+;;; Utilities
 
-(defmacro magit-annex-tests--with-temp-dir (&rest body)
+;; Modified from Magit's magit-with-test-directory.
+(defmacro magit-annex-with-test-directory (&rest body)
   (declare (indent 0) (debug t))
-  (let ((dir (gensym)))
-    `(let ((,dir (file-name-as-directory (make-temp-file "dir" t))))
-       (unwind-protect
-           (let ((default-directory ,dir)) ,@body)
-         (delete-directory ,dir t)
-         (magit-annex-tests--kill-magit-dir-buffer ,dir)
-         (magit-annex-tests--kill-magit-process-buffer ,dir)))))
+  (let ((dir (make-symbol "dir")))
+    `(let ((,dir (file-name-as-directory (make-temp-file "magit-annex-" t)))
+           (process-environment process-environment))
+       (setenv "GIT_AUTHOR_NAME" "A U Thor")
+       (setenv "GIT_AUTHOR_EMAIL" "a.u.thor@example.com")
+       (condition-case err
+           (cl-letf (((symbol-function #'message) (lambda (&rest _))))
+             (let ((default-directory ,dir))
+               ,@body))
+         (error (message "Keeping test directory:\n  %s" ,dir)
+                (signal (car err) (cdr err))))
+       (delete-directory ,dir t))))
 
-(defun magit-annex-tests--kill-magit-dir-buffer (dir)
-  (let ((dir-buffer
-         (get-buffer
-          (format "*magit: %s*" dir))))
-    (when dir-buffer
-      (kill-buffer dir-buffer))))
-
-(defun magit-annex-tests--kill-magit-process-buffer (dir)
-  (let ((process-buffer (magit-process-buffer dir)))
-    (when process-buffer
-      (kill-buffer process-buffer))))
-
-(defmacro magit-annex-tests--with-temp-annex-repo (&rest body)
+(defmacro magit-annex-with-test-repo (&rest body)
   (declare (indent 0) (debug t))
-  `(magit-annex-tests--with-temp-dir
+  `(magit-annex-with-test-directory
      (magit-call-git "init" ".")
      (magit-call-git "annex" "init" "test-repo")
      (unwind-protect
          (progn ,@body)
        (call-process "chmod" nil nil nil "-R" "777" "."))))
 
-(defmacro magit-annex-tests--with-temp-annex-pair (&rest body)
+(defmacro magit-annex-with-test-repo-pair (&rest body)
   (declare (indent 0) (debug t))
-  `(let ((repo1 (file-name-as-directory (make-temp-file "dir" t)))
-         (repo2 (file-name-as-directory (make-temp-file "dir" t))))
-     (let ((default-directory repo1))
-       (magit-call-git "init" ".")
-       (magit-call-git "annex" "init" "repo1")
-       (magit-annex-tests--modify-file "file")
-       (magit-stage-file "file")
-       (magit-call-git "commit" "-m" "normal commit")
-       (magit-call-git "remote" "add" "repo2" repo2))
-     (let ((default-directory repo2))
-       (magit-call-git "clone" "-o" "repo1" repo1 ".")
-       (magit-call-git "annex" "init" "repo2"))
-     (unwind-protect
-         (let ((default-directory repo1)) ,@body)
-       (call-process "chmod" nil nil nil "-R" "777" repo1)
-       (call-process "chmod" nil nil nil "-R" "777" repo2)
-       (delete-directory repo1 t)
-       (delete-directory repo2 t)
-       (magit-annex-tests--kill-magit-dir-buffer repo1)
-       (magit-annex-tests--kill-magit-dir-buffer repo2)
-       (magit-annex-tests--kill-magit-process-buffer repo1)
-       (magit-annex-tests--kill-magit-process-buffer repo2))))
+  `(let ((repo1 (file-name-as-directory (make-temp-file "magit-annex-" t)))
+         (repo2 (file-name-as-directory (make-temp-file "magit-annex-" t)))
+         (process-environment process-environment))
+     (setenv "GIT_AUTHOR_NAME" "A U Thor")
+     (setenv "GIT_AUTHOR_EMAIL" "a.u.thor@example.com")
+     (condition-case err
+         (cl-letf (((symbol-function #'message) (lambda (&rest _))))
+           (let ((default-directory repo1))
+             (magit-call-git "init" ".")
+             (magit-call-git "annex" "init" "repo1")
+             (magit-annex-tests-modify-file "file")
+             (magit-stage-file "file")
+             (magit-call-git "commit" "-m" "normal commit")
+             (magit-call-git "remote" "add" "repo2" repo2))
+           (let ((default-directory repo2))
+             (magit-call-git "clone" "-o" "repo1" repo1 ".")
+             (magit-call-git "annex" "init" "repo2"))
+           (let ((default-directory repo1))
+             ,@body))
+       (error (message "Keeping test directories:\n  %s\n%s" repo1 repo2)
+              (signal (car err) (cdr err))))
+     (call-process "chmod" nil nil nil "-R" "777" repo1)
+     (call-process "chmod" nil nil nil "-R" "777" repo2)
+     (delete-directory repo1 t)
+     (delete-directory repo2 t)))
 
-(defmacro magit-annex-tests--with-temp-bare-repo (&rest body)
+(defmacro magit-annex-tests-with-temp-bare-repo (&rest body)
   (declare (indent 0) (debug t))
-  `(magit-annex-tests--with-temp-dir
-     (magit-call-git "init" "--bare" ".")
+  `(magit-annex-with-test-directory
+     (magit-call-git "init" "-bare" ".")
      ,@body))
 
-(defmacro magit-annex-tests--with-temp-clone (url &rest body)
+(defmacro magit-annex-tests-with-temp-clone (url &rest body)
   (declare (indent 1) (debug t))
   (let ((repo (gensym)))
     `(let ((,repo ,(or url 'default-directory)))
-       (magit-annex-tests--with-temp-dir
+       (magit-annex-with-test-directory
          (magit-call-git "clone" ,repo ".")
          (magit-call-git "annex" "init" "test-repo")
          ;; Make a normal commit and push.
-         (magit-annex-tests--modify-file "file")
+         (magit-annex-tests-modify-file "file")
          (magit-stage-file "file")
          (magit-call-git "commit" "-m" "normal commit")
          (magit-call-git "push")
@@ -86,49 +90,47 @@
              (progn ,@body)
            (call-process "chmod" nil nil nil "-R" "777" "."))))))
 
-(defun magit-annex-tests--modify-file (filename)
+(defun magit-annex-tests-modify-file (filename)
   (with-temp-file (expand-file-name filename)
     (insert (symbol-name (gensym "content")))))
 
-(defun magit-annex-tests--should-have-section (type info)
+(defun magit-annex-tests-should-have-section (type info)
   (magit-status default-directory)
   (message (buffer-string))
   (should (--first (equal (magit-section-value it) info)
                    (magit-section-children
                     (magit-get-section `((,type) (status)))))))
 
-;;; Test magit-annex
-
 
-;; Annexing
+;;; Annexing
 
 (ert-deftest magit-annex-add-file-to-annex ()
-  (magit-annex-tests--with-temp-annex-repo
-    (magit-annex-tests--modify-file "file")
+  (magit-annex-with-test-repo
+    (magit-annex-tests-modify-file "file")
     (should (not (file-symlink-p "file")))
     (magit-annex-add "file")
     (should (file-symlink-p "file"))
-    (magit-annex-tests--should-have-section 'staged "file")))
+    (magit-annex-tests-should-have-section 'staged "file")))
 
 (ert-deftest magit-annex-add-all-files-to-annex ()
-  (magit-annex-tests--with-temp-annex-repo
-    (magit-annex-tests--modify-file "file1")
-    (magit-annex-tests--modify-file "file2")
+  (magit-annex-with-test-repo
+    (magit-annex-tests-modify-file "file1")
+    (magit-annex-tests-modify-file "file2")
     (should (not (file-symlink-p "file1")))
     (let ((magit-annex-add-all-confirm nil))
       (magit-annex-add-all))
     (should (file-symlink-p "file1"))
     (should (file-symlink-p "file2"))
-    (magit-annex-tests--should-have-section 'staged "file1")
-    (magit-annex-tests--should-have-section 'staged "file2")))
+    (magit-annex-tests-should-have-section 'staged "file1")
+    (magit-annex-tests-should-have-section 'staged "file2")))
 
 
-;; Updating
+;;; Updating
 
 (ert-deftest magit-annex-sync ()
-  (magit-annex-tests--with-temp-annex-pair
+  (magit-annex-with-test-repo-pair
     (let ((default-directory repo2))
-      (magit-annex-tests--modify-file "annex-file")
+      (magit-annex-tests-modify-file "annex-file")
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
@@ -142,9 +144,9 @@
       (should-not (magit-annex-present-files)))))
 
 (ert-deftest magit-annex-sync-content ()
-  (magit-annex-tests--with-temp-annex-pair
+  (magit-annex-with-test-repo-pair
     (let ((default-directory repo2))
-      (magit-annex-tests--modify-file "annex-file")
+      (magit-annex-tests-modify-file "annex-file")
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync '("--content"))
@@ -158,12 +160,12 @@
       (should (magit-annex-present-files)))))
 
 
-;; Managing content
+;;; Managing content
 
 (ert-deftest magit-annex-get-all-auto ()
-  (magit-annex-tests--with-temp-annex-pair
+  (magit-annex-with-test-repo-pair
     (let ((default-directory repo2))
-      (magit-annex-tests--modify-file "annex-file")
+      (magit-annex-tests-modify-file "annex-file")
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
@@ -177,9 +179,9 @@
       (should-not (magit-annex-present-files)))))
 
 (ert-deftest magit-annex-get-file ()
-  (magit-annex-tests--with-temp-annex-pair
+  (magit-annex-with-test-repo-pair
     (let ((default-directory repo2))
-      (magit-annex-tests--modify-file "annex-file")
+      (magit-annex-tests-modify-file "annex-file")
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
@@ -194,11 +196,11 @@
                      '("annex-file"))))))
 
 (ert-deftest magit-annex-get-all ()
-  (magit-annex-tests--with-temp-annex-pair
+  (magit-annex-with-test-repo-pair
     (let ((default-directory repo2))
-      (magit-annex-tests--modify-file "annex-file1")
+      (magit-annex-tests-modify-file "annex-file1")
       (magit-annex-add "annex-file1")
-      (magit-annex-tests--modify-file "annex-file2")
+      (magit-annex-tests-modify-file "annex-file2")
       (magit-annex-add "annex-file2")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
@@ -213,9 +215,9 @@
                      '("annex-file1" "annex-file2"))))))
 
 (ert-deftest magit-annex-drop-file ()
-  (magit-annex-tests--with-temp-annex-pair
+  (magit-annex-with-test-repo-pair
     (let ((default-directory repo2))
-      (magit-annex-tests--modify-file "annex-file")
+      (magit-annex-tests-modify-file "annex-file")
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
@@ -225,11 +227,11 @@
       (should-not (magit-annex-present-files)))))
 
 (ert-deftest magit-annex-drop-drop-all ()
-  (magit-annex-tests--with-temp-annex-pair
+  (magit-annex-with-test-repo-pair
     (let ((default-directory repo2))
-      (magit-annex-tests--modify-file "annex-file1")
+      (magit-annex-tests-modify-file "annex-file1")
       (magit-annex-add "annex-file1")
-      (magit-annex-tests--modify-file "annex-file2")
+      (magit-annex-tests-modify-file "annex-file2")
       (magit-annex-add "annex-file2")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
@@ -239,9 +241,9 @@
       (should-not (magit-annex-present-files)))))
 
 (ert-deftest magit-annex-move-file ()
-  (magit-annex-tests--with-temp-annex-pair
+  (magit-annex-with-test-repo-pair
     (let ((default-directory repo2))
-      (magit-annex-tests--modify-file "annex-file")
+      (magit-annex-tests-modify-file "annex-file")
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
@@ -255,11 +257,11 @@
                      '("annex-file"))))))
 
 (ert-deftest magit-annex-move-all ()
-  (magit-annex-tests--with-temp-annex-pair
+  (magit-annex-with-test-repo-pair
     (let ((default-directory repo2))
-      (magit-annex-tests--modify-file "annex-file1")
+      (magit-annex-tests-modify-file "annex-file1")
       (magit-annex-add "annex-file1")
-      (magit-annex-tests--modify-file "annex-file2")
+      (magit-annex-tests-modify-file "annex-file2")
       (magit-annex-add "annex-file2")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
@@ -273,9 +275,9 @@
                      '("annex-file1" "annex-file2"))))))
 
 (ert-deftest magit-annex-copy-file ()
-  (magit-annex-tests--with-temp-annex-pair
+  (magit-annex-with-test-repo-pair
     (let ((default-directory repo2))
-      (magit-annex-tests--modify-file "annex-file")
+      (magit-annex-tests-modify-file "annex-file")
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
@@ -290,11 +292,11 @@
                      '("annex-file"))))))
 
 (ert-deftest magit-annex-copy-all ()
-  (magit-annex-tests--with-temp-annex-pair
+  (magit-annex-with-test-repo-pair
     (let ((default-directory repo2))
-      (magit-annex-tests--modify-file "annex-file1")
+      (magit-annex-tests-modify-file "annex-file1")
       (magit-annex-add "annex-file1")
-      (magit-annex-tests--modify-file "annex-file2")
+      (magit-annex-tests-modify-file "annex-file2")
       (magit-annex-add "annex-file2")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-sync)
@@ -309,8 +311,8 @@
                      '("annex-file1" "annex-file2"))))))
 
 (ert-deftest magit-annex-unlock-lock-file ()
-  (magit-annex-tests--with-temp-annex-repo
-    (magit-annex-tests--modify-file "annex-file")
+  (magit-annex-with-test-repo
+    (magit-annex-tests-modify-file "annex-file")
     (magit-annex-add "annex-file")
     (magit-call-git "commit" "-m" "annex commit")
     (should-not (magit-annex-unlocked-files))
