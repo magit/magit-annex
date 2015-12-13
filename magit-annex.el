@@ -90,20 +90,17 @@
 
 (defcustom magit-annex-add-all-confirm t
   "Whether to confirm before adding all changes to the annex."
-  :group 'magit-annex
   :type 'boolean)
 
 (defcustom magit-annex-standard-options nil
   "Call git-annex with these options.
 These are placed after \"annex\" in the call, whereas values from
 `magit-git-standard-options' are placed after \"git\"."
-  :group 'magit-annex
   :type '(repeat string))
 
 (defcustom magit-annex-limit-file-choices t
   "Limit choices for file commands based on state of repo.
 For example, if locking a file, limit choices to unlocked files."
-  :group 'magit-annex
   :type 'boolean)
 
 (defcustom magit-annex-unused-open-function nil
@@ -115,7 +112,6 @@ system, consider using `org-open-file'.
 
 If nil, `magit-annex-unused-open' will prompt for the name of the
 program used to open the unused file."
-  :group 'magit-annex
   :type 'function)
 
 
