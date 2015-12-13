@@ -101,6 +101,7 @@ These are placed after \"annex\" in the call, whereas values from
 (defcustom magit-annex-limit-file-choices t
   "Limit choices for file commands based on state of repo.
 For example, if locking a file, limit choices to unlocked files."
+  :safe 'booleanp
   :type 'boolean)
 
 (defcustom magit-annex-unused-open-function nil
