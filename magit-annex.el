@@ -112,7 +112,8 @@ system, consider using `org-open-file'.
 
 If nil, `magit-annex-unused-open' will prompt for the name of the
 program used to open the unused file."
-  :type 'function)
+  :type '(choice (const :tag "Read shell command" nil)
+                 (function :tag "Function to open file")))
 
 
 ;;; Popups
