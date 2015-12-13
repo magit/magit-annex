@@ -4,6 +4,10 @@
 
 ** New features
 
+- Commands that prompt for a file have been updated to accept multiple
+  files.  The popup for acting on every file as be replaced with an
+  entry the multiple-file prompt.
+
 - New option magit-annex-confirm-all-files controls whether or not
   empty input in the file prompt, which means to act on all files, has
   to be confirmed by the user.

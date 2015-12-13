@@ -35,12 +35,12 @@
 ;;   @A   Add all untracked and modified files to the annex.
 ;;
 ;; Managing file content:
-;;   @fu   Unlock a file.
-;;   @fl   Lock a file.
-;;   @fg   Get a file.
-;;   @fd   Drop a file.
-;;   @fc   Copy a file.
-;;   @fm   Move a file.
+;;   @fu   Unlock files.
+;;   @fl   Lock files.
+;;   @fg   Get files.
+;;   @fd   Drop files.
+;;   @fc   Copy files.
+;;   @fm   Move files.
 ;;
 ;;   @u    Browse unused files.
 ;;   @l    List annex files.
@@ -100,14 +100,14 @@ For example, if locking a file, limit choices to unlocked files."
   :type 'boolean)
 
 (defcustom magit-annex-confirm-all-files t
-  "Require confirmation of empty input to `magit-annex-*-file' commands.
+  "Require confirmation of empty input to `magit-annex-*-files' commands.
 If this is nil, run the operation on all files without asking
 first."
   :package-version '(magit-annex . "1.2.0")
   :type 'boolean)
 
 (defcustom magit-annex-include-directories t
-  "Whether to list directories in prompts of `magit-annex-*-file' commands.
+  "Whether to list directories in prompts of `magit-annex-*-files' commands.
 Consider disabling this if the prompt is slow to appear in
 repositories that contain many annexed files."
   :package-version '(magit-annex . "1.2.0")
@@ -136,7 +136,7 @@ program used to open the unused file."
   :actions  '((?a "Add" magit-annex-add)
               (?@ "Add" magit-annex-add)
               (?A "Add all" magit-annex-add-all)
-              (?f "Action on file" magit-annex-file-action-popup)
+              (?f "Action on files" magit-annex-file-action-popup)
               (?G "Get all (auto)" magit-annex-get-all-auto)
               (?y "Sync" magit-annex-sync-popup)
               (?m "Merge" magit-annex-merge)
@@ -150,12 +150,12 @@ program used to open the unused file."
   "Popup console for git-annex file commands."
   'magit-annex-popups
   :man-page "git-annex"
-  :actions  '((?g "Get file" magit-annex-get-file)
-              (?d "Drop file" magit-annex-drop-file)
-              (?c "Copy file" magit-annex-copy-file)
-              (?m "Move file" magit-annex-move-file)
-              (?l "Lock file" magit-annex-lock-file)
-              (?u "Unlock file" magit-annex-unlock-file))
+  :actions  '((?g "Get" magit-annex-get-files)
+              (?d "Drop" magit-annex-drop-files)
+              (?c "Copy" magit-annex-copy-files)
+              (?m "Move" magit-annex-move-files)
+              (?l "Lock" magit-annex-lock-files)
+              (?u "Unlock" magit-annex-unlock-files))
   :switches '((?f "Fast" "--fast")
               (?F "Force" "--force")
               (?a "Auto" "--auto"))
@@ -341,7 +341,7 @@ With a prefix argument, prompt for FILE.
   (interactive)
   (magit-annex-run-async "get" "--auto"))
 
-(defun magit-annex-read-file (prompt &optional limit-to)
+(defun magit-annex-read-files (prompt &optional limit-to)
   (let* ((files (pcase limit-to
                   ((guard (not magit-annex-limit-file-choices))
                    (magit-annex-files))
@@ -354,40 +354,40 @@ With a prefix argument, prompt for FILE.
                      (sort (delq nil (mapcar #'file-name-directory files))
                            #'string-lessp))))
          (input (if files
-                    (magit-completing-read
-                     (or prompt "File")
+                    (completing-read-multiple
+                     (or prompt "File,s: ")
                      (cons "*all*" (if dirs (nconc dirs files) files)))
-                  (user-error "No file to act on"))))
+                  (user-error "No files to act on"))))
     (cond
      ((and (not input) (or (not magit-annex-confirm-all-files)
                            (y-or-n-p "Act on all files?")
                            (user-error "Aborting call")))
       nil)
-     ((equal "*all*" input) nil)
+     ((member "*all*" input) nil)
      (t input))))
 
-(defmacro magit-annex-file-action (command &optional limit no-async)
+(defmacro magit-annex-files-action (command &optional limit no-async)
   (declare (indent defun) (debug t))
-  `(defun ,(intern (concat "magit-annex-" command "-file")) (file &optional args)
-     ,(format "%s FILE.\n\n  git annex %s [ARGS] [FILE]"
+  `(defun ,(intern (concat "magit-annex-" command "-files")) (files &optional args)
+     ,(format "%s FILES.\n\n  git annex %s [ARGS] [FILE...]"
               (capitalize command) command)
-     (interactive (list (magit-annex-read-file
-                         ,(format "%s file" (capitalize command))
+     (interactive (list (magit-annex-read-files
+                         ,(format "%s file,s: " (capitalize command))
                          ,limit)
                         (magit-annex-file-action-arguments)))
      (magit-with-toplevel
        (,(if no-async 'magit-annex-run 'magit-annex-run-async)
-        ,command args file))))
+        ,command args files))))
 
-(magit-annex-file-action "get" 'absent)
-(magit-annex-file-action "drop"
+(magit-annex-files-action "get" 'absent)
+(magit-annex-files-action "drop"
   (unless (magit-annex-from-in-options-p) 'present))
-(magit-annex-file-action "copy"
+(magit-annex-files-action "copy"
   (unless (magit-annex-from-in-options-p) 'present))
-(magit-annex-file-action "move"
+(magit-annex-files-action "move"
   (unless (magit-annex-from-in-options-p) 'present))
-(magit-annex-file-action "unlock" 'present t)
-(magit-annex-file-action "lock" 'unlocked t)
+(magit-annex-files-action "unlock" 'present t)
+(magit-annex-files-action "lock" 'unlocked t)
 
 (defun magit-annex-from-in-options-p ()
   (cl-some (lambda (it) (string-match "--from=" it)) magit-current-popup-args))
