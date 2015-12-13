@@ -1,4 +1,4 @@
-;;; magit-annex.el --- Control git-annex from Magit
+;;; magit-annex.el --- Control git-annex from Magit  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2013-2015 Kyle Meyer <kyle@kyleam.com>
 
@@ -563,7 +563,7 @@ Type \\[magit-annex-unused-open] to open the file.
     (magit-git-wash #'magit-annex-unused-wash
       "annex" "unused" magit-refresh-args)))
 
-(defun magit-annex-unused-wash (&rest args)
+(defun magit-annex-unused-wash (&rest _)
   "Convert the output of git-annex unused into Magit section."
   (when (not (looking-at "unused .*
 "))
@@ -627,7 +627,7 @@ With prefix argument, limit the results to files in DIRECTORY."
                 (directory-file-name (file-relative-name dir top))))))
   (magit-mode-setup #'magit-annex-list-mode directory))
 
-(defun magit-annex-list-refresh-buffer (&rest ignore)
+(defun magit-annex-list-refresh-buffer (&rest _)
   "Refresh content of a `magit-annex-list-mode' buffer."
   (magit-insert-section (annex-list-buffer)
     (run-hooks 'magit-annex-list-sections-hook)))
@@ -649,7 +649,7 @@ With prefix argument, limit the results to files in DIRECTORY."
 
 (defconst magit-annex-list-line-re "\\([_X]+\\) \\(.*\\)$")
 
-(defun magit-annex-list-wash (&rest args)
+(defun magit-annex-list-wash (&rest _)
   "Convert the output of `git annex list' into Magit section."
   (when (looking-at "(merging .+)")
     (delete-region (point) (1+ (match-end 0))))
