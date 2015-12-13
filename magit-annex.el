@@ -161,7 +161,8 @@ program used to open the unused file."
               (?a "Auto" "--auto"))
   :options  '((?t "To remote" "--to=" magit-read-remote)
               (?f "From remote" "--from=" magit-read-remote)
-              (?n "Number of copies" "--numcopies=" read-from-minibuffer))
+              (?n "Number of copies" "--numcopies=" read-from-minibuffer)
+              (?j "Number of jobs" "--jobs=" read-from-minibuffer))
   :max-action-columns 4)
 
 (magit-define-popup magit-annex-all-action-popup
