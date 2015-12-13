@@ -136,7 +136,8 @@ program used to open the unused file."
               (?u "Unused" magit-annex-unused)
               (?l "List files" magit-annex-list-files)
               (?: "Annex subcommand (from pwd)" magit-annex-command)
-              (?! "Running" magit-annex-run-popup)))
+              (?! "Running" magit-annex-run-popup))
+  :max-action-columns 3)
 
 (magit-define-popup magit-annex-file-action-popup
   "Popup console for git-annex file commands."
@@ -153,7 +154,8 @@ program used to open the unused file."
               (?a "Auto" "--auto"))
   :options  '((?t "To remote" "--to=" magit-read-remote)
               (?f "From remote" "--from=" magit-read-remote)
-              (?n "Number of copies" "--numcopies=" read-from-minibuffer)))
+              (?n "Number of copies" "--numcopies=" read-from-minibuffer))
+  :max-action-columns 4)
 
 (magit-define-popup magit-annex-all-action-popup
   "Popup console for git-annex content commands for all files."
