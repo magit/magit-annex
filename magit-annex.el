@@ -42,11 +42,6 @@
 ;;   @fc   Copy a file.
 ;;   @fm   Move a file.
 ;;
-;;   @eg   Get all files.
-;;   @ed   Drop all files.
-;;   @ec   Copy all files.
-;;   @em   Move all files.
-;;
 ;;   @u    Browse unused files.
 ;;   @l    List annex files.
 ;;
@@ -104,6 +99,21 @@ For example, if locking a file, limit choices to unlocked files."
   :safe 'booleanp
   :type 'boolean)
 
+(defcustom magit-annex-confirm-all-files t
+  "Require confirmation of empty input to `magit-annex-*-file' commands.
+If this is nil, run the operation on all files without asking
+first."
+  :package-version '(magit-annex . "1.2.0")
+  :type 'boolean)
+
+(defcustom magit-annex-include-directories t
+  "Whether to list directories in prompts of `magit-annex-*-file' commands.
+Consider disabling this if the prompt is slow to appear in
+repositories that contain many annexed files."
+  :package-version '(magit-annex . "1.2.0")
+  :safe 'booleanp
+  :type 'boolean)
+
 (defcustom magit-annex-unused-open-function nil
   "Function used by `magit-annex-unused-open'.
 
@@ -127,7 +137,6 @@ program used to open the unused file."
               (?@ "Add" magit-annex-add)
               (?A "Add all" magit-annex-add-all)
               (?f "Action on file" magit-annex-file-action-popup)
-              (?e "Action on every file" magit-annex-all-action-popup)
               (?G "Get all (auto)" magit-annex-get-all-auto)
               (?y "Sync" magit-annex-sync-popup)
               (?m "Merge" magit-annex-merge)
@@ -332,95 +341,53 @@ With a prefix argument, prompt for FILE.
   (interactive)
   (magit-annex-run-async "get" "--auto"))
 
-(defmacro magit-annex-all-action (command)
-  `(defun ,(intern (concat "magit-annex-" command "-all")) (&optional args)
-     ,(format "Run `git annex %s [ARGS]'." command)
-     (interactive (list (magit-annex-all-action-arguments)))
-     (magit-annex-run-async ,command args)))
+(defun magit-annex-read-file (prompt &optional limit-to)
+  (let* ((files (pcase limit-to
+                  ((guard (not magit-annex-limit-file-choices))
+                   (magit-annex-files))
+                  (`absent (magit-annex-absent-files))
+                  (`present (magit-annex-present-files))
+                  (`unlocked (magit-annex-unlocked-files))
+                  (_ (magit-annex-files))))
+         (dirs (and magit-annex-include-directories
+                    (delete-dups
+                     (sort (delq nil (mapcar #'file-name-directory files))
+                           #'string-lessp))))
+         (input (if files
+                    (magit-completing-read
+                     (or prompt "File")
+                     (cons "*all*" (if dirs (nconc dirs files) files)))
+                  (user-error "No file to act on"))))
+    (cond
+     ((and (not input) (or (not magit-annex-confirm-all-files)
+                           (y-or-n-p "Act on all files?")
+                           (user-error "Aborting call")))
+      nil)
+     ((equal "*all*" input) nil)
+     (t input))))
 
-(magit-annex-all-action "get")
-(magit-annex-all-action "drop")
-(magit-annex-all-action "move")
-(magit-annex-all-action "copy")
-
-(defmacro magit-annex-file-action (command file-read-func)
+(defmacro magit-annex-file-action (command &optional limit no-async)
+  (declare (indent defun) (debug t))
   `(defun ,(intern (concat "magit-annex-" command "-file")) (file &optional args)
-     ,(format "Run `git annex %s [ARGS] FILE'.
-If called interactively, FILE is retrieved with
-`%s'."
-              command (symbol-name file-read-func))
-     (interactive (list (,file-read-func ,(format "File to %s" command))
+     ,(format "%s FILE.\n\n  git annex %s [ARGS] [FILE]"
+              (capitalize command) command)
+     (interactive (list (magit-annex-read-file
+                         ,(format "%s file" (capitalize command))
+                         ,limit)
                         (magit-annex-file-action-arguments)))
-     (setq file (expand-file-name file))
-     (let ((default-directory (file-name-directory file)))
-       (magit-annex-run-async ,command
-                              args
-                              (file-name-nondirectory file)))))
+     (magit-with-toplevel
+       (,(if no-async 'magit-annex-run 'magit-annex-run-async)
+        ,command args file))))
 
-(magit-annex-file-action "get" magit-annex-read-absent-file)
-(magit-annex-file-action "drop" magit-annex-read-present-file-unless-from)
-(magit-annex-file-action "copy" magit-annex-read-present-file-unless-from)
-(magit-annex-file-action "move" magit-annex-read-present-file-unless-from)
-(magit-annex-file-action "unlock" magit-annex-read-present-file)
-(magit-annex-file-action "lock" magit-annex-read-unlocked-file)
-
-(defun magit-annex-read-annex-file (prompt)
-  "Complete read for PROMPT with all annex files.
-See `magit-annex-completing-file-read' for more details."
-  (magit-annex-completing-file-read prompt 'magit-annex-files))
-
-(defun magit-annex-read-present-file (prompt)
-  "Complete read for PROMPT with annex files present in current repo.
-See `magit-annex-completing-file-read' for more details."
-  (magit-annex-completing-file-read prompt 'magit-annex-present-files))
-
-(defun magit-annex-read-present-file-unless-from (prompt)
-  "Complete read for PROMPT with annex files present in current repo.
-If \"--from\" is present in `magit-custom-options', fallback to
-all annex files.  See `magit-annex-completing-file-read' for more
-details."
-  (magit-annex-completing-file-read prompt 'magit-annex-present-files t))
-
-(defun magit-annex-read-absent-file (prompt)
-  "Complete read for PROMPT with annex files absent in current repo.
-See `magit-annex-completing-file-read' for more details."
-  (magit-annex-completing-file-read prompt 'magit-annex-absent-files))
-
-(defun magit-annex-read-unlocked-file (prompt)
-  "Complete read for PROMPT with unlocked files.
-See `magit-annex-completing-file-read' for more details."
-  (magit-annex-completing-file-read prompt 'magit-annex-unlocked-files))
-
-(defun magit-annex-completing-file-read (prompt collector &optional no-from)
-  "Read an annex file name.
-If `magit-annex-limit-file-choices' is non-nil,
-`magit-completing-read' will be called with PROMPT and the result
-of the function COLLECTOR.  Otherwise, `read-file-name' will be
-called with PROMPT.
-
-PROMPT should not contain a colon and trailing space because
-`magit-completing-read' appends these.  If PROMPT is passed to
-`read-file-name', these will be added.
-
-A non-nil value for NO-FROM indicates that all annex files should
-be used, instead of the results from COLLECTOR, if the \"--from\"
-argument is used.  This is appropriate for commands like
-\"drop\", where \"--from\" specifies to operate on a remote,
-making the local state of the annex files irrelevant.
-
-When called from `magit-annex-list-mode', the file for the
-current line will be used as the default completion value."
-  (let ((non-magit-prompt (concat prompt ": "))
-        (file-at-point (magit-annex-list-file-at-point)))
-    (if (not magit-annex-limit-file-choices)
-        (read-file-name non-magit-prompt nil nil t file-at-point)
-      (let* ((collector
-              (if (and no-from (magit-annex-from-in-options-p))
-                  (function magit-annex-files)
-                collector))
-             (collection (funcall collector)))
-        (magit-completing-read prompt collection nil t nil nil
-                               file-at-point)))))
+(magit-annex-file-action "get" 'absent)
+(magit-annex-file-action "drop"
+  (unless (magit-annex-from-in-options-p) 'present))
+(magit-annex-file-action "copy"
+  (unless (magit-annex-from-in-options-p) 'present))
+(magit-annex-file-action "move"
+  (unless (magit-annex-from-in-options-p) 'present))
+(magit-annex-file-action "unlock" 'present t)
+(magit-annex-file-action "lock" 'unlocked t)
 
 (defun magit-annex-from-in-options-p ()
   (cl-some (lambda (it) (string-match "--from=" it)) magit-current-popup-args))

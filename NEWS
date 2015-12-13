@@ -1,5 +1,16 @@
 # -*- mode: org -*-
 
+* 1.2.0 (Unreleased)
+
+** New features
+
+- New option magit-annex-confirm-all-files controls whether or not
+  empty input in the file prompt, which means to act on all files, has
+  to be confirmed by the user.
+
+- New option magit-annex-include-directories determines whether
+  directories are listed in the file prompt.
+
 * 1.1.0
 
 Magit-annex has been updated for the latest version of Magit and now
