@@ -181,7 +181,8 @@ program used to open the unused file."
               (?r "Sync remote" magit-annex-sync-remote))
   :switches '((?c "Content" "--content")
               (?f "Fast" "--fast")
-              (?F "Force" "--force")))
+              (?F "Force" "--force"))
+  :default-action 'magit-annex-sync)
 
 (magit-define-popup magit-annex-run-popup
   "Popup console for running git-annex commands."
