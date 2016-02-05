@@ -1,6 +1,6 @@
 ;;; magit-annex-tests.el --- Tests for Magit-annex
 
-;; Copyright (C) 2014-2015 Kyle Meyer <kyle@kyleam.com>
+;; Copyright (C) 2014-2016 Kyle Meyer <kyle@kyleam.com>
 ;;
 ;; License: GPLv3
 
