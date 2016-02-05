@@ -451,7 +451,7 @@ called instead.
      (let ((key (cdr (magit-section-value it))))
        (magit-mode-setup #'magit-log-mode
                          '("HEAD") (list "--stat" "-S" key) nil)))
-    (t (magit-log-popup))))
+    (t (call-interactively #'magit-log-popup))))
 
 (defun magit-annex--file-name-from-key (key)
   (magit-git-string "annex" "examinekey" key
