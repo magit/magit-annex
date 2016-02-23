@@ -1,6 +1,7 @@
 MAGIT_DIR ?=
 DASH_DIR ?=
-LOAD_PATH = -L $(DASH_DIR) -L $(MAGIT_DIR)
+WITH_EDITOR_DIR ?=
+LOAD_PATH = -L $(DASH_DIR) -L $(WITH_EDITOR_DIR) -L $(MAGIT_DIR)
 BATCH = emacs -Q --batch $(LOAD_PATH)
 
 all: magit-annex.elc magit-annex-autoloads.el
