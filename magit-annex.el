@@ -450,7 +450,9 @@ called instead.
     (unused-data
      (let ((key (cdr (magit-section-value it))))
        (magit-mode-setup #'magit-log-mode
-                         '("HEAD") (list "--stat" "-S" key) nil)))
+                         '("HEAD")
+                         (list "--stat" (concat "-S" key))
+                         nil)))
     (t (call-interactively #'magit-log-popup))))
 
 (defun magit-annex--file-name-from-key (key)
