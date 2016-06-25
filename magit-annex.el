@@ -365,7 +365,12 @@ With a prefix argument, prompt for FILE.
                            (user-error "Aborting call")))
       nil)
      ((member "*all*" input) nil)
-     (t input))))
+     (t
+      (cl-mapcan (lambda (f)
+                   (if (string-match-p "[[.*+\\^$?]" f)
+                       (file-expand-wildcards f)
+                     (list f)))
+                 input)))))
 
 (defmacro magit-annex-files-action (command &optional limit no-async)
   (declare (indent defun) (debug t))

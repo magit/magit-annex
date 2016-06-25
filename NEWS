@@ -1,5 +1,11 @@
 # -*- mode: org -*-
 
+* 1.2.1 (unreleased)
+
+** New features
+
+- The prompt for file actions now supports wildcards.
+
 * 1.2.0
 
 ** New features
