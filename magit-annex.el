@@ -126,6 +126,11 @@ program used to open the unused file."
   :type '(choice (const :tag "Read shell command" nil)
                  (function :tag "Function to open file")))
 
+(defcustom magit-annex-unused-stat-argument t
+  "Enable '--stat' flag in log popup when point is on unused item."
+  :package-version '(magit-annex . "1.3.0")
+  :type 'boolean)
+
 
 ;;; Popups
 
@@ -435,22 +440,31 @@ With prefix argument FORCE, pass \"--force\" flag to
                                        '("--force" "all")
                                      "all")))))
 
-(defun magit-annex-unused-log ()
+(defun magit-annex-unused-log-popup ()
   "Display log for unused file.
 
-If an unused file is not at point, `magit-log-popup' will be
-called instead.
+This is like `magit-log-popup', but, if point is on an unused
+file, the unused file's key is automatically supplied as the
+value for the '-S' flag.  The '--stat' flag is also enabled if
+`magit-annex-unused-stat-argument' is non-nil.
 
-\('git log --stat -S<KEY>')"
+\('git log [--stat] -S<KEY>')"
   (interactive)
-  (magit-section-case
-    (unused-data
-     (let ((key (cdr (magit-section-value it))))
-       (magit-mode-setup #'magit-log-mode
-                         '("HEAD")
-                         (list "--stat" (concat "-S" key))
-                         nil)))
-    (t (call-interactively #'magit-log-popup))))
+  (let ((section (magit-current-section)))
+    (if (not (eq (magit-section-type section) 'unused-data))
+        (call-interactively #'magit-log-popup)
+      (let ((magit-log-arguments
+             `(,(concat "-S" (cdr (magit-section-value section)))
+               ,(and magit-annex-unused-stat-argument "--stat")
+               ,@(cl-remove-if
+                  (lambda (x) (string-prefix-p "-S" x))
+                  (-if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
+                      (with-current-buffer buffer
+                        (magit-popup-import-file-args (nth 1 magit-refresh-args)
+                                                      (nth 2 magit-refresh-args)))
+                    (default-value 'magit-log-arguments)))))
+            (magit-popup-use-prefix-argument 'default))
+        (magit-invoke-popup 'magit-log-popup nil nil)))))
 
 (defun magit-annex--file-name-from-key (key)
   (magit-git-string "annex" "examinekey" key
@@ -494,7 +508,7 @@ the file within Emacs."
     (define-key map (kbd "RET") #'magit-annex-unused-open)
     (define-key map "s" #'magit-annex-unused-add)
     (define-key map "k" #'magit-annex-unused-drop)
-    (define-key map "l" #'magit-annex-unused-log)
+    (define-key map "l" #'magit-annex-unused-log-popup)
     map)
   "Keymap for `magit-annex-unused-mode'.")
 
@@ -504,7 +518,7 @@ the file within Emacs."
 \\<magit-annex-unused-mode-map>\
 Type \\[magit-annex-unused-drop] to drop data at point.
 Type \\[magit-annex-unused-add] to add the unused data back into the index.
-Type \\[magit-annex-unused-log] to show commit log for the unused file.
+Type \\[magit-annex-unused-log-popup] to show commit log for the unused file.
 Type \\[magit-annex-unused-open] to open the file.
 \n\\{magit-annex-unused-mode-map}"
   :group 'magit-modes

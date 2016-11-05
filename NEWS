@@ -6,6 +6,14 @@
 
 - The prompt for file actions now supports wildcards.
 
+** Interface changes
+
+- The command ~magit-annex-unused-log~ has been replaced by
+  ~magit-annex-unused-log-popup~, a command which calls
+  ~magit-log-popup~ but sets the ~-S~ flag to the key of the unused
+  file at point.  The new option ~magit-annex-unused-stat-argument~
+  controls whether the flag ~--stat~ is also added.
+
 * 1.2.0
 
 ** New features
