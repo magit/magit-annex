@@ -185,7 +185,8 @@ program used to open the unused file."
   "Popup console for git annex unused."
   'magit-annex-popups
   :man-page "git-annex-unused"
-  :actions  '((?u "Unused" magit-annex-unused))
+  :actions  '((?u "Unused" magit-annex-unused)
+              (?r "Unused in reflog" magit-annex-unused-reflog))
   :switches '((?f "Fast" "--fast"))
   :options '((?f "From remote" "--from=" magit-read-remote)
              (?r "Refspec" "--used-refspec=" read-from-minibuffer))
@@ -539,6 +540,17 @@ Type \\[magit-annex-unused-open] to open the file.
   "Show unused data.
 \('git annex unused [ARGS]')"
   (interactive (list (magit-annex-unused-arguments)))
+  (magit-mode-setup #'magit-annex-unused-mode args))
+
+;;;###autoload
+(defun magit-annex-unused-reflog (&optional args)
+  "Show unused data.
+\('git annex unused --used-refspec=reflog [ARGS]')"
+  (interactive (list (magit-annex-unused-arguments)))
+  (if (cl-some (lambda (x) (string-prefix-p "--used-refspec=" x))
+               args)
+      (user-error "Flag --used-refspec was given more than once")
+    (setq args (cons "--used-refspec=reflog" args)))
   (magit-mode-setup #'magit-annex-unused-mode args))
 
 (defun magit-annex-unused-refresh-buffer (&rest _)
