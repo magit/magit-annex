@@ -20,6 +20,8 @@
   file at point.  The new option ~magit-annex-unused-stat-argument~
   controls whether the flag ~--stat~ is also added.
 
+- ~magit-annex-unused-sections-hook~ has been removed.
+
 * 1.2.0
 
 ** New features

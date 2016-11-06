@@ -505,14 +505,6 @@ the file within Emacs."
                                                   (list file))))
            (dired-do-async-shell-command command () (list file)))))))))
 
-(defcustom magit-annex-unused-sections-hook
-  '(magit-annex-unused-insert-headers
-    magit-annex-insert-unused-data)
-  "Hook run to insert sections into the unused buffer."
-  :group 'magit-modes
-  :type 'hook)
-
-
 (defvar magit-annex-unused-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
@@ -553,21 +545,16 @@ Type \\[magit-annex-unused-open] to open the file.
     (setq args (cons "--used-refspec=reflog" args)))
   (magit-mode-setup #'magit-annex-unused-mode args))
 
-(defun magit-annex-unused-refresh-buffer (&rest _)
+(defun magit-annex-unused-refresh-buffer (args)
   "Refresh the content of the unused buffer."
   (magit-insert-section (unused)
-    (run-hooks 'magit-annex-unused-sections-hook)))
-
-(defun magit-annex-unused-insert-headers ()
-  "Insert the headers in the unused buffer."
-  (magit-insert-status-headers))
-
-(defun magit-annex-insert-unused-data ()
-  "Insert unused data into the current buffer."
-  (magit-insert-section (unused)
-    (magit-insert-heading "Unused data:")
+    (magit-insert-heading
+      (concat "Unused files"
+              (and args
+                   (concat " (" (mapconcat #'identity args " ") ")"))
+              ":"))
     (magit-git-wash #'magit-annex-unused-wash
-      "annex" "unused" magit-refresh-args)))
+      "annex" "unused" args)))
 
 (defun magit-annex-unused-wash (&rest _)
   "Convert the output of git-annex unused into Magit section."
