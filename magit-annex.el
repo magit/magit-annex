@@ -326,7 +326,7 @@ With a prefix argument, prompt for FILE.
   (interactive)
   (magit-annex-run-async "get" "--auto"))
 
-(defun magit-annex-read-files (prompt &optional limit-to)
+(defun magit-annex-read-files (prompt &optional limit-to default)
   (let* ((files (pcase limit-to
                   ((guard (not magit-annex-limit-file-choices))
                    (magit-annex-files))
@@ -341,7 +341,9 @@ With a prefix argument, prompt for FILE.
          (input (if files
                     (completing-read-multiple
                      (or prompt "File,s: ")
-                     (cons "*all*" (if dirs (nconc dirs files) files)))
+                     (cons "*all*" (if dirs (nconc dirs files) files))
+                     nil nil nil nil
+                     default)
                   (user-error "No files to act on"))))
     (cond
      ((and (not input) (or (not magit-annex-confirm-all-files)
@@ -361,10 +363,16 @@ With a prefix argument, prompt for FILE.
   `(defun ,(intern (concat "magit-annex-" command "-files")) (files &optional args)
      ,(format "%s FILES.\n\n  git annex %s [ARGS] [FILE...]"
               (capitalize command) command)
-     (interactive (list (magit-annex-read-files
-                         ,(format "%s file,s: " (capitalize command))
-                         ,limit)
-                        (magit-annex-file-action-arguments)))
+     (interactive
+      (list (let ((atpoint (magit-annex-list-file-at-point)))
+              (magit-annex-read-files
+               (concat ,(capitalize command)
+                       " file,s"
+                       (and atpoint (format " (%s)" atpoint))
+                       ": ")
+               ,limit
+               atpoint))
+            (magit-annex-file-action-arguments)))
      (magit-with-toplevel
        (,(if no-async 'magit-annex-run 'magit-annex-run-async)
         ,command args files))))
