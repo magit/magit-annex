@@ -499,7 +499,8 @@ Type \\[magit-annex-unused-add] to add the unused data back into the index.
 Type \\[magit-annex-unused-log] to show commit log for the unused file.
 Type \\[magit-annex-unused-open] to open the file.
 \n\\{magit-annex-unused-mode-map}"
-  :group 'magit-modes)
+  :group 'magit-modes
+  (hack-dir-local-variables-non-file-buffer))
 
 ;;;###autoload
 (defun magit-annex-unused ()
@@ -573,7 +574,8 @@ Type \\[magit-annex-unused-open] to open the file.
 Type \\[magit-annex-file-action-popup] to perform git-annex action
 on the file at point.
 \n\\{magit-annex-list-mode-map}"
-  :group 'magit-modes)
+  :group 'magit-modes
+  (hack-dir-local-variables-non-file-buffer))
 
 ;;;###autoload
 (defun magit-annex-list-files (&optional directory)
