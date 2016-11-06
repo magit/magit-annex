@@ -165,22 +165,6 @@ program used to open the unused file."
               (?j "Number of jobs" "--jobs=" read-from-minibuffer))
   :max-action-columns 4)
 
-(magit-define-popup magit-annex-all-action-popup
-  "Popup console for git-annex content commands for all files."
-  'magit-annex-popups
-  :man-page "git-annex"
-  :actions  '((?g "Get" magit-annex-get-all)
-              (?d "Drop" magit-annex-drop-all)
-              (?c "Copy" magit-annex-copy-all)
-              (?m "Move" magit-annex-move-all))
-  :switches '((?f "Fast" "--fast")
-              (?F "Force" "--force")
-              (?a "Auto" "--auto"))
-  :options  '((?t "To remote" "--to=" magit-read-remote)
-              (?f "From remote" "--from=" magit-read-remote)
-              (?n "Number of copies" "--numcopies=" read-from-minibuffer))
-  :default-arguments '("--auto"))
-
 (magit-define-popup magit-annex-sync-popup
   "Popup console for git annex sync."
   'magit-annex-popups
