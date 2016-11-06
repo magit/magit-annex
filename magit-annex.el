@@ -168,7 +168,7 @@ program used to open the unused file."
 (magit-define-popup magit-annex-sync-popup
   "Popup console for git annex sync."
   'magit-annex-popups
-  :man-page "git-annex"
+  :man-page "git-annex-sync"
   :actions  '((?y "Sync" magit-annex-sync)
               (?r "Sync remote" magit-annex-sync-remote))
   :switches '((?c "Content" "--content")
