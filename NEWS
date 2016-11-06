@@ -6,6 +6,12 @@
 
 - The prompt for file actions now supports wildcards.
 
+- The command ~magit-annex-unused~ now supports arguments through the
+  new popup ~magit-annex-unused-popup~.  A new command
+  ~magit-annex-unused-reflog~ has also been added to the popup.
+  ~magit-annex-unused-popup~ has replaced ~magit-annex-unused-popup~
+  in the top-level Magit-annex popup.
+
 ** Interface changes
 
 - The command ~magit-annex-unused-log~ has been replaced by

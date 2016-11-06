@@ -145,7 +145,7 @@ program used to open the unused file."
               (?G "Get all (auto)" magit-annex-get-all-auto)
               (?y "Sync" magit-annex-sync-popup)
               (?m "Merge" magit-annex-merge)
-              (?u "Unused" magit-annex-unused)
+              (?u "Unused" magit-annex-unused-popup)
               (?l "List files" magit-annex-list-files)
               (?: "Annex subcommand (from pwd)" magit-annex-command)
               (?! "Running" magit-annex-run-popup))
@@ -180,6 +180,17 @@ program used to open the unused file."
               (?f "Fast" "--fast")
               (?F "Force" "--force"))
   :default-action 'magit-annex-sync)
+
+(magit-define-popup magit-annex-unused-popup
+  "Popup console for git annex unused."
+  'magit-annex-popups
+  :man-page "git-annex-unused"
+  :actions  '((?u "Unused" magit-annex-unused)
+              (?r "Unused in reflog" magit-annex-unused-reflog))
+  :switches '((?f "Fast" "--fast"))
+  :options '((?f "From remote" "--from=" magit-read-remote)
+             (?r "Refspec" "--used-refspec=" read-from-minibuffer))
+  :default-action 'magit-annex-unused)
 
 (magit-define-popup magit-annex-run-popup
   "Popup console for running git-annex commands."
@@ -525,12 +536,24 @@ Type \\[magit-annex-unused-open] to open the file.
   (hack-dir-local-variables-non-file-buffer))
 
 ;;;###autoload
-(defun magit-annex-unused ()
-  "Show unused annexed data."
-  (interactive)
-  (magit-mode-setup #'magit-annex-unused-mode))
+(defun magit-annex-unused (&optional args)
+  "Show unused data.
+\('git annex unused [ARGS]')"
+  (interactive (list (magit-annex-unused-arguments)))
+  (magit-mode-setup #'magit-annex-unused-mode args))
 
-(defun magit-annex-unused-refresh-buffer ()
+;;;###autoload
+(defun magit-annex-unused-reflog (&optional args)
+  "Show unused data.
+\('git annex unused --used-refspec=reflog [ARGS]')"
+  (interactive (list (magit-annex-unused-arguments)))
+  (if (cl-some (lambda (x) (string-prefix-p "--used-refspec=" x))
+               args)
+      (user-error "Flag --used-refspec was given more than once")
+    (setq args (cons "--used-refspec=reflog" args)))
+  (magit-mode-setup #'magit-annex-unused-mode args))
+
+(defun magit-annex-unused-refresh-buffer (&rest _)
   "Refresh the content of the unused buffer."
   (magit-insert-section (unused)
     (run-hooks 'magit-annex-unused-sections-hook)))
