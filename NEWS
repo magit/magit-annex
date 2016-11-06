@@ -30,10 +30,10 @@ requires version 2.3.0 or later.
 
 ** New features
 
-- New mode `magit-annex-unused-mode' provides an interface for
+- New mode ~magit-annex-unused-mode~ provides an interface for
   browsing and managing unused files.
-- New mode `magit-annex-list-mode' displays the output of 'git annex
-  list'.
+- New mode ~magit-annex-list-mode~ displays the output of
+  ~git annex list~.
 
 ** Interface changes
 
@@ -65,7 +65,7 @@ requires version 2.3.0 or later.
 
 ** New features
 
-- Add `git annex merge`.
-- Add `git annex sync`.
+- Add ~git annex merge~.
+- Add ~git annex sync~.
 - Add command to push git-annex branch (either along with the current
   branch or separately).
