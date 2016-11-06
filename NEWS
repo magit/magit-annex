@@ -12,6 +12,16 @@
   ~magit-annex-unused-popup~ has replaced ~magit-annex-unused-popup~
   in the top-level Magit-annex popup.
 
+- The command ~magit-annex-list-files~ now supports the ~--allrepos~
+  flag through the new popup ~magit-annex-list-popup~.  By default,
+  ~@l~ calls ~magit-annex-list-files~ directly, but a prefix argument
+  invokes the popup.
+
+- New command ~magit-annex-list-dir-files~ has been added as an action
+  in ~magit-annex-list-popup~.  This functionality was previously
+  available when a prefix argument was given to
+  ~magit-annex-list-files~.
+
 ** Interface changes
 
 - The command ~magit-annex-unused-log~ has been replaced by

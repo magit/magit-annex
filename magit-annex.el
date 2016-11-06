@@ -146,7 +146,7 @@ program used to open the unused file."
               (?y "Sync" magit-annex-sync-popup)
               (?m "Merge" magit-annex-merge)
               (?u "Unused" magit-annex-unused-popup)
-              (?l "List files" magit-annex-list-files)
+              (?l "List files" magit-annex-list-popup)
               (?: "Annex subcommand (from pwd)" magit-annex-command)
               (?! "Running" magit-annex-run-popup))
   :max-action-columns 3)
@@ -191,6 +191,16 @@ program used to open the unused file."
   :options '((?f "From remote" "--from=" magit-read-remote)
              (?r "Refspec" "--used-refspec=" read-from-minibuffer))
   :default-action 'magit-annex-unused)
+
+(magit-define-popup magit-annex-list-popup
+  "Popup console for git annex list."
+  'magit-annex-popups
+  :man-page "git-annex-list"
+  :actions  '((?l "List files" magit-annex-list-files)
+              (?d "List files in directory" magit-annex-list-dir-files))
+  :switches '((?a "All repos" "--allrepos"))
+  :default-action 'magit-annex-list-files
+  :use-prefix 'popup)
 
 (magit-define-popup magit-annex-run-popup
   "Popup console for running git-annex commands."
@@ -610,16 +620,23 @@ on the file at point.
   (hack-dir-local-variables-non-file-buffer))
 
 ;;;###autoload
-(defun magit-annex-list-files (&optional directory)
+(defun magit-annex-list-files (&optional args)
   "List annex files.
-With prefix argument, limit the results to files in DIRECTORY."
+\('git annex list [ARGS]')"
+  (interactive (magit-annex-list-arguments))
+  (magit-mode-setup #'magit-annex-list-mode nil args))
+
+;;;###autoload
+(defun magit-annex-list-dir-files (directory &optional args)
+  "List annex files in DIRECTORY.
+\('git annex list [ARGS] DIRECTORY')"
   (interactive
-   (list (and current-prefix-arg
-              (let ((dir (read-directory-name "List annex files in: "
-                                              nil nil t))
-                    (top (magit-toplevel)))
-                (directory-file-name (file-relative-name dir top))))))
-  (magit-mode-setup #'magit-annex-list-mode directory))
+   (list (directory-file-name
+          (file-relative-name (read-directory-name "List annex files in: "
+                                                   nil nil t)
+                              (magit-toplevel)))
+         (magit-annex-list-arguments)))
+  (magit-mode-setup #'magit-annex-list-mode directory args))
 
 (defun magit-annex-list-refresh-buffer (&rest _)
   "Refresh content of a `magit-annex-list-mode' buffer."
