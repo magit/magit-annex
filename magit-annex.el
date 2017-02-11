@@ -166,8 +166,8 @@ program used to open the unused file."
               (?a "Auto" "--auto"))
   :options  '((?t "To remote" "--to=" magit-read-remote)
               (?f "From remote" "--from=" magit-read-remote)
-              (?n "Number of copies" "--numcopies=" read-from-minibuffer)
-              (?j "Number of jobs" "--jobs=" read-from-minibuffer))
+              (?n "Number of copies" "--numcopies=")
+              (?j "Number of jobs" "--jobs="))
   :max-action-columns 4)
 
 (magit-define-popup magit-annex-sync-popup
@@ -189,7 +189,7 @@ program used to open the unused file."
               (?r "Unused in reflog" magit-annex-unused-reflog))
   :switches '((?f "Fast" "--fast"))
   :options '((?f "From remote" "--from=" magit-read-remote)
-             (?r "Refspec" "--used-refspec=" read-from-minibuffer))
+             (?r "Refspec" "--used-refspec="))
   :default-action 'magit-annex-unused)
 
 (magit-define-popup magit-annex-list-popup
