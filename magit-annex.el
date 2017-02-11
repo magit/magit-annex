@@ -178,7 +178,8 @@ program used to open the unused file."
               (?r "Sync remote" magit-annex-sync-remote))
   :switches '((?c "Content" "--content")
               (?f "Fast" "--fast")
-              (?F "Force" "--force"))
+              (?F "Force" "--force")
+              (?n "Don't commit local changes" "--no-commit"))
   :default-action 'magit-annex-sync)
 
 (magit-define-popup magit-annex-unused-popup
