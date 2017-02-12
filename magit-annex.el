@@ -180,6 +180,7 @@ program used to open the unused file."
               (?f "Fast" "--fast")
               (?F "Force" "--force")
               (?n "Don't commit local changes" "--no-commit"))
+  :options  '((?j "Number of jobs" "--jobs="))
   :default-action 'magit-annex-sync)
 
 (magit-define-popup magit-annex-unused-popup
