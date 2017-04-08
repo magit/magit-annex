@@ -302,9 +302,11 @@ With a prefix argument, prompt for FILE.
     (--when-let (magit-current-section)
       (pcase (list (magit-diff-type) (magit-diff-scope))
         (`(untracked file)
-         (magit-annex-run "add" (magit-section-value it)))
+         (magit-annex-run "add" (directory-file-name
+                                 (magit-section-value it))))
         (`(untracked files)
-         (magit-annex-run "add" (magit-region-values)))
+         (magit-annex-run "add" (mapcar #'directory-file-name
+                                        (magit-region-values))))
         (`(untracked list)
          (magit-annex-run "add" (magit-untracked-files)))
         (`(unstaged file)
