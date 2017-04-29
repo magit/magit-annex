@@ -237,28 +237,19 @@ See `magit-annex-run' and `magit-run-git-async' for more
 information."
   (magit-run-git-async "annex" magit-annex-standard-options args))
 
-(defun magit-annex-command ()
-  "Execute a git-annex subcommand asynchronously, displaying the output.
-With a prefix argument, run git-annex from repository root."
-  (interactive)
-  (apply #'magit-git-command (magit-annex-command-read-args)))
+(defun magit-annex-command (command)
+  "Execute COMMAND asynchonously, displaying output.
+This is like `magit-git-command', but \"git annex \" rather than
+\"git \" is used as the initial input."
+  (interactive (list (magit-read-shell-command nil "git annex ")))
+  (magit-git-command command))
 
-(defun magit-annex-command-topdir ()
-  "Execute a git-annex subcommand asynchronously, displaying the output.
-Run git-annex in the root of the current repository."
-  (interactive)
-  (apply #'magit-git-command (magit-annex-command-read-args t)))
-
-(defun magit-annex-command-read-args (&optional root)
-  ;; Modified from `magit-git-command-read-args'.
-  (let ((dir (if (or root current-prefix-arg)
-                 (or (magit-toplevel)
-                     (user-error "Not inside a Git repository"))
-               default-directory)))
-    (list (concat "annex " (read-string (format "git-annex subcommand (in %s): "
-                                                (abbreviate-file-name dir))
-                                        nil 'magit-git-command-history))
-          dir)))
+(defun magit-annex-command-topdir (command)
+  "Execute COMMAND asynchronously from top directory, displaying output.
+This is like `magit-git-command-topdir', but \"git annex \"
+rather than \"git \" is used as the initial input."
+  (interactive (list (magit-read-shell-command t "git annex ")))
+  (magit-git-command-topdir command))
 
 
 ;;; Initialization
