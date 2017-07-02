@@ -1,4 +1,6 @@
 
+-include config.mk
+
 MAGIT_DIR ?= /dev/null
 DASH_DIR ?= /dev/null
 WITH_EDITOR_DIR ?= /dev/null
