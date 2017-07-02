@@ -90,7 +90,7 @@
 (defcustom magit-annex-standard-options nil
   "Call git-annex with these options.
 These are placed after \"annex\" in the call, whereas values from
-`magit-git-standard-options' are placed after \"git\"."
+`magit-git-global-arguments' are placed after \"git\"."
   :type '(repeat string))
 
 (defcustom magit-annex-limit-file-choices t
