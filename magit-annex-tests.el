@@ -20,8 +20,8 @@
   (let ((dir (make-symbol "dir")))
     `(let ((,dir (file-name-as-directory (make-temp-file "magit-annex-" t)))
            (process-environment process-environment))
-       (setenv "GIT_AUTHOR_NAME" "A U Thor")
-       (setenv "GIT_AUTHOR_EMAIL" "a.u.thor@example.com")
+       (push "GIT_AUTHOR_NAME=A U Thor" process-environment)
+       (push "GIT_AUTHOR_EMAIL=a.u.thor@example.com" process-environment)
        (condition-case err
            (cl-letf (((symbol-function #'message) (lambda (&rest _))))
              (let ((default-directory ,dir))
@@ -44,8 +44,8 @@
   `(let ((repo1 (file-name-as-directory (make-temp-file "magit-annex-" t)))
          (repo2 (file-name-as-directory (make-temp-file "magit-annex-" t)))
          (process-environment process-environment))
-     (setenv "GIT_AUTHOR_NAME" "A U Thor")
-     (setenv "GIT_AUTHOR_EMAIL" "a.u.thor@example.com")
+     (push "GIT_AUTHOR_NAME=A U Thor" process-environment)
+     (push "GIT_AUTHOR_EMAIL=a.u.thor@example.com" process-environment)
      (condition-case err
          (cl-letf (((symbol-function #'message) (lambda (&rest _))))
            (let ((default-directory repo1))
