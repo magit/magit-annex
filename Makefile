@@ -7,7 +7,8 @@ GHUB_DIR ?= /dev/null
 DASH_DIR ?= /dev/null
 WITH_EDITOR_DIR ?= /dev/null
 
-LOAD_PATH = -L $(DASH_DIR) -L $(WITH_EDITOR_DIR) -L $(GHUB_DIR) -L $(MAGIT_POPUP_DIR) -L $(MAGIT_DIR)
+LOAD_PATH = -L $(DASH_DIR) -L $(WITH_EDITOR_DIR) -L $(GHUB_DIR) \
+	    -L $(MAGIT_POPUP_DIR) -L $(MAGIT_DIR)
 BATCH = emacs -Q --batch $(LOAD_PATH)
 
 all: magit-annex.elc magit-annex-autoloads.el
