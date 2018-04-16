@@ -388,15 +388,19 @@ With a prefix argument, prompt for FILE.
      ,(format "%s FILES.\n\n  git annex %s [ARGS] [FILE...]"
               (capitalize command) command)
      (interactive
-      (list (let ((atpoint (cdr (magit-section-when annex-list-file))))
-              (magit-annex-read-files
-               (concat ,(capitalize command)
-                       " file,s"
-                       (and atpoint (format " (%s)" atpoint))
-                       ": ")
-               ,limit
-               atpoint))
-            (magit-annex-file-action-arguments)))
+      (list
+       (let ((default (--when-let (or (mapcar #'cdr (magit-region-values 'annex-list-file))
+                                      (-some-> (cdr (magit-section-when annex-list-file))
+                                               (list)))
+                        (mapconcat #'identity it ","))))
+         (magit-annex-read-files
+          (concat ,(capitalize command)
+                  " file,s"
+                  (and default (format " (%s)" default))
+                  ": ")
+          ,limit
+          default))
+       (magit-annex-file-action-arguments)))
      (magit-with-toplevel
        (,(if no-async 'magit-annex-run 'magit-annex-run-async)
         ,command args files))))
