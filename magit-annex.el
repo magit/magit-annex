@@ -388,7 +388,7 @@ With a prefix argument, prompt for FILE.
      ,(format "%s FILES.\n\n  git annex %s [ARGS] [FILE...]"
               (capitalize command) command)
      (interactive
-      (list (let ((atpoint (magit-annex-list-file-at-point)))
+      (list (let ((atpoint (cdr (magit-section-when annex-list-file))))
               (magit-annex-read-files
                (concat ,(capitalize command)
                        " file,s"
@@ -678,9 +678,6 @@ on the file at point.
       (magit-insert-section (annex-list-file (cons locs file))
         (insert (format "%s %s" locs file))
         (forward-line)))))
-
-(defun magit-annex-list-file-at-point ()
-  (cdr (magit-section-when annex-list-file)))
 
 (provide 'magit-annex)
 
