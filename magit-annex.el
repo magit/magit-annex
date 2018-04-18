@@ -616,7 +616,7 @@ Type \\[magit-annex-unused-open] to open the file.
 
 \\<magit-annex-list-mode-map>\
 Type \\[magit-annex-file-action-popup] to perform git-annex action
-on the file at point.
+on the files selected by the region (if active) or the file at point.
 \n\\{magit-annex-list-mode-map}"
   :group 'magit-modes
   (hack-dir-local-variables-non-file-buffer))
