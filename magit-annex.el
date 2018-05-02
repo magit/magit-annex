@@ -167,10 +167,13 @@ program used to open the unused file."
               (?l "Lock" magit-annex-lock-files)
               (?u "Unlock" magit-annex-unlock-files) nil nil
               (?U "Undo" magit-annex-undo-files))
-  :switches '((?f "Fast" "--fast")
+  :switches '("Switches"
+              (?f "Fast" "--fast")
               (?F "Force" "--force")
+              "Switches for get, drop, copy, and move"
               (?a "Auto" "--auto"))
-  :options  '((?t "To remote" "--to=" magit-read-remote)
+  :options  '("Options for get, drop, copy, and move"
+              (?t "To remote" "--to=" magit-read-remote)
               (?f "From remote" "--from=" magit-read-remote)
               (?n "Number of copies" "--numcopies=")
               (?j "Number of jobs" "--jobs="))
