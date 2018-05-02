@@ -37,6 +37,8 @@
 ;; Managing file content:
 ;;   @fu   Unlock files.
 ;;   @fl   Lock files.
+;;   @fU   Undo files.
+;;
 ;;   @fg   Get files.
 ;;   @fd   Drop files.
 ;;   @fc   Copy files.
@@ -163,7 +165,8 @@ program used to open the unused file."
               (?c "Copy" magit-annex-copy-files)
               (?m "Move" magit-annex-move-files)
               (?l "Lock" magit-annex-lock-files)
-              (?u "Unlock" magit-annex-unlock-files))
+              (?u "Unlock" magit-annex-unlock-files) nil nil
+              (?U "Undo" magit-annex-undo-files))
   :switches '((?f "Fast" "--fast")
               (?F "Force" "--force")
               (?a "Auto" "--auto"))
@@ -414,6 +417,8 @@ With a prefix argument, prompt for FILE.
   (unless (magit-annex-from-in-options-p) 'present))
 (magit-annex-files-action "unlock" 'present t)
 (magit-annex-files-action "lock" 'unlocked t)
+
+(magit-annex-files-action "undo" nil t)
 
 (defun magit-annex-from-in-options-p ()
   (cl-some (lambda (it) (string-match "--from=" it)) magit-current-popup-args))

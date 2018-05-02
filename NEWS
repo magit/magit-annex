@@ -8,6 +8,9 @@ Magit-annex NEWS -- history of user-visible changes   -*- mode: org; -*-
   consider files selected by the region when choosing a default for
   completion.
 
+- ~git annex undo~ is now exposed via ~magit-annex-undo-files~, a new
+  command available in ~magit-annex-file-action-popup~.
+
 * 1.5.0
 
 Magit-annex has been updated for the latest version of Magit and now
