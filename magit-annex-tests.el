@@ -23,7 +23,7 @@
        (push "GIT_AUTHOR_NAME=A U Thor" process-environment)
        (push "GIT_AUTHOR_EMAIL=a.u.thor@example.com" process-environment)
        (condition-case err
-           (cl-letf (((symbol-function #'message) (lambda (&rest _))))
+           (cl-letf (((symbol-function #'message) #'format))
              (let ((default-directory ,dir))
                ,@body))
          (error (message "Keeping test directory:\n  %s" ,dir)
@@ -47,7 +47,7 @@
      (push "GIT_AUTHOR_NAME=A U Thor" process-environment)
      (push "GIT_AUTHOR_EMAIL=a.u.thor@example.com" process-environment)
      (condition-case err
-         (cl-letf (((symbol-function #'message) (lambda (&rest _))))
+         (cl-letf (((symbol-function #'message) #'format))
            (let ((default-directory repo1))
              (magit-call-git "init" ".")
              (magit-call-git "annex" "init" "repo1")
