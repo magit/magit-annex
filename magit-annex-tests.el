@@ -67,12 +67,6 @@
      (delete-directory repo1 t)
      (delete-directory repo2 t)))
 
-(defmacro magit-annex-tests-with-temp-bare-repo (&rest body)
-  (declare (indent 0) (debug t))
-  `(magit-annex-with-test-directory
-     (magit-call-git "init" "-bare" ".")
-     ,@body))
-
 (defmacro magit-annex-tests-with-temp-clone (url &rest body)
   (declare (indent 1) (debug t))
   (let ((repo (gensym)))
