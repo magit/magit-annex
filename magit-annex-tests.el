@@ -102,9 +102,9 @@
 (defun magit-annex-tests-should-have-section (type info)
   (magit-status default-directory)
   (message (buffer-string))
-  (should (--first (equal (magit-section-value it) info)
-                   (magit-section-children
-                    (magit-get-section `((,type) (status)))))))
+  (should (--first (equal (oref it value) info)
+                   (oref (magit-get-section `((,type) (status)))
+                         children))))
 
 
 ;;; Annexing
