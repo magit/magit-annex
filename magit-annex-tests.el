@@ -60,7 +60,7 @@
              (magit-call-git "annex" "init" "repo2"))
            (let ((default-directory repo1))
              ,@body))
-       (error (message "Keeping test directories:\n  %s\n%s" repo1 repo2)
+       (error (message "Keeping test directories:\n  %s\n  %s" repo1 repo2)
               (signal (car err) (cdr err))))
      (call-process "chmod" nil nil nil "-R" "777" repo1)
      (call-process "chmod" nil nil nil "-R" "777" repo2)
