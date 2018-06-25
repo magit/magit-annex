@@ -14,6 +14,11 @@
 
 ;;; Utilities
 
+(defun magit-annex-tests-kill-buffers (directory)
+  (let ((default-directory directory))
+    (dolist (buf (-remove #'buffer-base-buffer (magit-mode-get-buffers)))
+      (kill-buffer buf))))
+
 ;; Modified from Magit's magit-with-test-directory.
 (defmacro magit-annex-with-test-directory (&rest body)
   (declare (indent 0) (debug t))
@@ -26,8 +31,9 @@
            (cl-letf (((symbol-function #'message) #'format))
              (let ((default-directory ,dir))
                ,@body))
-         (error (message "Keeping test directory:\n  %s" ,dir)
+         (error (message "Keeping test directory and buffers:\n  %s" ,dir)
                 (signal (car err) (cdr err))))
+       (magit-annex-tests-kill-buffers ,dir)
        (delete-directory ,dir t))))
 
 (defmacro magit-annex-with-test-repo (&rest body)
@@ -60,8 +66,12 @@
              (magit-call-git "annex" "init" "repo2"))
            (let ((default-directory repo1))
              ,@body))
-       (error (message "Keeping test directories:\n  %s\n  %s" repo1 repo2)
-              (signal (car err) (cdr err))))
+       (error
+        (message "Keeping test directories and buffers:\n  %s\n  %s"
+                 repo1 repo2)
+        (signal (car err) (cdr err))))
+     (magit-annex-tests-kill-buffers repo1)
+     (magit-annex-tests-kill-buffers repo2)
      (call-process "chmod" nil nil nil "-R" "777" repo1)
      (call-process "chmod" nil nil nil "-R" "777" repo2)
      (delete-directory repo1 t)
