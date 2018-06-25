@@ -67,23 +67,6 @@
      (delete-directory repo1 t)
      (delete-directory repo2 t)))
 
-(defmacro magit-annex-tests-with-temp-clone (url &rest body)
-  (declare (indent 1) (debug t))
-  (let ((repo (gensym)))
-    `(let ((,repo ,(or url 'default-directory)))
-       (magit-annex-with-test-directory
-         (magit-call-git "clone" ,repo ".")
-         (magit-call-git "annex" "init" "test-repo")
-         ;; Make a normal commit and push.
-         (magit-annex-tests-modify-file "file")
-         (magit-stage-file "file")
-         (magit-call-git "commit" "-m" "normal commit")
-         (magit-call-git "push")
-         (magit-call-git "push" "-u" "origin" "git-annex")
-         (unwind-protect
-             (progn ,@body)
-           (call-process "chmod" nil nil nil "-R" "777" "."))))))
-
 (defun magit-annex-tests-wait ()
   (while (and magit-this-process
               (eq (process-status magit-this-process) 'run))
