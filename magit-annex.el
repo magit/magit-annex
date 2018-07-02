@@ -44,6 +44,15 @@
 ;;   @fc   Copy files.
 ;;   @fm   Move files.
 ;;
+;;    The above commands, which operate on paths, are also useful
+;;    outside of Magit buffers, especially in Dired buffers.  To make
+;;    these commands easily accessible in Dired, you can add a binding
+;;    for `magit-annex-file-action-popup'.  If you use git-annex.el,
+;;    you can put the popup under the same binding (@f) with
+;;
+;;     (define-key git-annex-dired-map "f"
+;;       #'magit-annex-file-action-popup)
+;;
 ;;   @u    Browse unused files.
 ;;   @l    List annex files.
 ;;
@@ -387,6 +396,14 @@ With a prefix argument, prompt for FILE.
                      (list f)))
                  input)))))
 
+(defun magit-annex--dired-relist (files)
+  ;; Modified from git-annex.el
+  (let ((here (point)))
+    (unwind-protect
+        (dolist (file files)
+          (dired-relist-file (expand-file-name file)))
+      (goto-char here))))
+
 (defmacro magit-annex-files-action (command &optional limit no-async)
   (declare (indent defun) (debug t))
   `(defun ,(intern (concat "magit-annex-" command "-files"))
@@ -399,7 +416,9 @@ With a prefix argument, prompt for FILE.
                (--when-let
                    (or (mapcar #'cdr (magit-region-values 'annex-list-file))
                        (-some-> (cdr (magit-section-when annex-list-file))
-                                (list)))
+                                (list))
+                       (and (derived-mode-p 'dired-mode)
+                            (dired-get-marked-files t)))
                  (mapconcat #'identity it ","))))
          (magit-annex-read-files
           (concat ,(capitalize command)
@@ -410,7 +429,18 @@ With a prefix argument, prompt for FILE.
           default))
        (magit-annex-file-action-arguments)))
      (,(if no-async 'magit-annex-run 'magit-annex-run-async)
-      ,command args files)))
+      ,command args files)
+     (when (derived-mode-p 'dired-mode)
+       (if ,no-async
+           (magit-annex--dired-relist files)
+         (set-process-sentinel
+          magit-this-process
+          (lambda (process event)
+            (magit-process-sentinel process event)
+            (when (eq (process-status process) 'exit)
+              (magit-annex--dired-relist files)))))
+       (let ((magit-display-buffer-noselect t))
+         (magit-process-buffer)))))
 
 (magit-annex-files-action "get" 'absent)
 (magit-annex-files-action "drop"
