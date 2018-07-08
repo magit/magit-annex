@@ -415,11 +415,11 @@ With a prefix argument, prompt for FILE.
 
 (magit-annex-files-action "get" 'absent)
 (magit-annex-files-action "drop"
-  (unless (magit-annex-from-in-options-p) 'present))
+  (and (not (magit-annex-from-in-options-p)) 'present))
 (magit-annex-files-action "copy"
-  (unless (magit-annex-from-in-options-p) 'present))
+  (and (not (magit-annex-from-in-options-p)) 'present))
 (magit-annex-files-action "move"
-  (unless (magit-annex-from-in-options-p) 'present))
+  (and (not (magit-annex-from-in-options-p)) 'present))
 (magit-annex-files-action "unlock" 'present t)
 (magit-annex-files-action "lock" 'unlocked t)
 
