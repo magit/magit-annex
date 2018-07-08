@@ -389,15 +389,18 @@ With a prefix argument, prompt for FILE.
 
 (defmacro magit-annex-files-action (command &optional limit no-async)
   (declare (indent defun) (debug t))
-  `(defun ,(intern (concat "magit-annex-" command "-files")) (files &optional args)
+  `(defun ,(intern (concat "magit-annex-" command "-files"))
+       (files &optional args)
      ,(format "%s FILES.\n\n  git annex %s [ARGS] [FILE...]"
               (capitalize command) command)
      (interactive
       (list
-       (let ((default (--when-let (or (mapcar #'cdr (magit-region-values 'annex-list-file))
-                                      (-some-> (cdr (magit-section-when annex-list-file))
-                                               (list)))
-                        (mapconcat #'identity it ","))))
+       (let ((default
+               (--when-let
+                   (or (mapcar #'cdr (magit-region-values 'annex-list-file))
+                       (-some-> (cdr (magit-section-when annex-list-file))
+                                (list)))
+                 (mapconcat #'identity it ","))))
          (magit-annex-read-files
           (concat ,(capitalize command)
                   " file,s"
