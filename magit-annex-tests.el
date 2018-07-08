@@ -19,6 +19,11 @@
     (dolist (buf (-remove #'buffer-base-buffer (magit-mode-get-buffers)))
       (kill-buffer buf))))
 
+(defun magit-annex-tests-wait ()
+  (while (and magit-this-process
+              (eq (process-status magit-this-process) 'run))
+    (sleep-for 0.005)))
+
 ;; Modified from Magit's magit-with-test-directory.
 (defmacro magit-annex-with-test-directory (&rest body)
   (declare (indent 0) (debug t))
@@ -76,11 +81,6 @@
      (call-process "chmod" nil nil nil "-R" "777" repo2)
      (delete-directory repo1 t)
      (delete-directory repo2 t)))
-
-(defun magit-annex-tests-wait ()
-  (while (and magit-this-process
-              (eq (process-status magit-this-process) 'run))
-    (sleep-for 0.005)))
 
 (defun magit-annex-tests-modify-file (filename)
   (with-temp-file (expand-file-name filename)
