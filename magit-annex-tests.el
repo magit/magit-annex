@@ -24,6 +24,14 @@
               (eq (process-status magit-this-process) 'run))
     (sleep-for 0.005)))
 
+(defun magit-annex-tests-kill-process ()
+  (when magit-this-process
+    (process-put magit-this-process 'inhibit-refresh t)
+    (when (process-live-p magit-this-process)
+      (kill-process magit-this-process)
+      (while magit-this-process
+        (sit-for 0.005)))))
+
 ;; Modified from Magit's magit-with-test-directory.
 (defmacro magit-annex-with-test-directory (&rest body)
   (declare (indent 0) (debug t))
@@ -38,6 +46,7 @@
                ,@body))
          (error (message "Keeping test directory and buffers:\n  %s" ,dir)
                 (signal (car err) (cdr err))))
+       (magit-annex-tests-kill-process)
        (magit-annex-tests-kill-buffers ,dir)
        (delete-directory ,dir t))))
 
@@ -75,6 +84,7 @@
         (message "Keeping test directories and buffers:\n  %s\n  %s"
                  repo1 repo2)
         (signal (car err) (cdr err))))
+     (magit-annex-tests-kill-process)
      (magit-annex-tests-kill-buffers repo1)
      (magit-annex-tests-kill-buffers repo2)
      (call-process "chmod" nil nil nil "-R" "777" repo1)
