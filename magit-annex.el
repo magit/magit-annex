@@ -409,9 +409,8 @@ With a prefix argument, prompt for FILE.
           ,limit
           default))
        (magit-annex-file-action-arguments)))
-     (magit-with-toplevel
-       (,(if no-async 'magit-annex-run 'magit-annex-run-async)
-        ,command args files))))
+     (,(if no-async 'magit-annex-run 'magit-annex-run-async)
+      ,command args files)))
 
 (magit-annex-files-action "get" 'absent)
 (magit-annex-files-action "drop"
