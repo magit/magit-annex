@@ -11,6 +11,18 @@ Magit-annex NEWS -- history of user-visible changes   -*- mode: org; -*-
 - ~git annex undo~ is now exposed via ~magit-annex-undo-files~, a new
   command available in ~magit-annex-file-action-popup~.
 
+** Interface changes
+
+- ~magit-annex-list-popup~ now invokes the popup rather than the
+  default action when called without a prefix.
+
+  You can restore the previous behavior with
+
+  #+begin_src emacs-lisp
+  (setq magit-annex-list-popup
+        (plist-put magit-annex-list-popup :use-prefix 'popup))
+  #+end_src
+
 * 1.5.0
 
 Magit-annex has been updated for the latest version of Magit and now

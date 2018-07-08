@@ -210,8 +210,7 @@ program used to open the unused file."
   :actions  '((?l "List files" magit-annex-list-files)
               (?d "List files in directory" magit-annex-list-dir-files))
   :switches '((?a "All repos" "--allrepos"))
-  :default-action 'magit-annex-list-files
-  :use-prefix 'popup)
+  :default-action 'magit-annex-list-files)
 
 (magit-define-popup magit-annex-run-popup
   "Popup console for running git-annex commands."
