@@ -16,7 +16,7 @@ install:
   - $CURL -O https://github.com/npostavs/emacs-travis/releases/download/bins/emacs-bin-${EMACS_VERSION}.tar.gz
   - tar -xaf emacs-bin-${EMACS_VERSION}.tar.gz -C /
   - export EMACS=/tmp/emacs/bin/emacs
-  - git clone https://github.com/magit/magit.git
+  - git clone --quiet https://github.com/magit/magit.git
   - cd magit
   - $CURL -O ${GHRAW}/magnars/dash.el/master/dash.el
   - $CURL -O ${GHRAW}/magit/ghub/master/ghub.el
