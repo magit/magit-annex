@@ -197,6 +197,25 @@
       (should (equal (magit-annex-present-files)
                      '("annex-file"))))))
 
+(ert-deftest magit-annex-get-files-subdir ()
+  (magit-annex-with-test-repo-pair
+    (let ((default-directory repo2))
+      (make-directory "subdir")
+      (magit-annex-tests-modify-file "subdir/annex-file")
+      (magit-annex-add "subdir/annex-file")
+      (magit-call-git "commit" "-m" "subdir annex commit")
+      (magit-annex-sync)
+      (magit-annex-tests-wait))
+    (let ((default-directory repo1))
+      (magit-annex-merge)
+      (magit-annex-tests-wait)
+      (should-not (magit-annex-present-files))
+      (let ((default-directory (concat repo1 "subdir")))
+        (magit-annex-get-files '("annex-file")))
+      (magit-annex-tests-wait)
+      (should (equal (magit-annex-present-files)
+                     '("subdir/annex-file"))))))
+
 (ert-deftest magit-annex-drop-files ()
   (magit-annex-with-test-repo-pair
     (let ((default-directory repo2))
