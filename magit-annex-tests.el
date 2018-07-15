@@ -241,6 +241,7 @@
       (should-not (magit-annex-present-files)))
     (let ((default-directory repo1))
       (magit-annex-merge)
+      (magit-annex-tests-wait)
       (should (equal (magit-annex-present-files)
                      '("annex-file"))))))
 
@@ -258,6 +259,7 @@
                      '("annex-file"))))
     (let ((default-directory repo1))
       (magit-annex-merge)
+      (magit-annex-tests-wait)
       (should (equal (magit-annex-present-files)
                      '("annex-file"))))))
 
