@@ -268,11 +268,9 @@
     (magit-call-git "commit" "-m" "annex commit")
     (should-not (magit-annex-unlocked-files))
     (magit-annex-unlock-files '("annex-file"))
-    (magit-annex-tests-wait)
     (should (equal (magit-annex-unlocked-files)
                    '("annex-file")))
     (magit-annex-lock-files '("annex-file") '("--force"))
-    (magit-annex-tests-wait)
     (should-not (magit-annex-unlocked-files))))
 
 (ert-deftest magit-annex-undo-files ()
