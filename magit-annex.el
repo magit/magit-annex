@@ -98,14 +98,14 @@
   "Whether to confirm before adding all changes to the annex."
   :type 'boolean)
 
+(define-obsolete-variable-alias 'magit-annex-standard-options
+  'magit-annex-global-arguments "1.4.0")
+
 (defcustom magit-annex-global-arguments nil
   "Arguments that are added to every git-annex call.
 These are placed after \"annex\" in the call, whereas values from
 `magit-git-global-arguments' are placed after \"git\"."
   :type '(repeat string))
-
-(define-obsolete-variable-alias 'magit-annex-standard-options
-  'magit-annex-global-arguments "1.4.0")
 
 (defcustom magit-annex-limit-file-choices t
   "Limit choices for file commands based on state of repo.
