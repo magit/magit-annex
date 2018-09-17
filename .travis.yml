@@ -14,6 +14,7 @@ install:
   - $CURL -O https://downloads.kitenet.net/git-annex/linux/current/git-annex-standalone-amd64.tar.gz
   - tar -xaf git-annex-standalone-amd64.tar.gz
   - export PATH="$PWD/git-annex.linux${PATH:+:}$PATH"
+  - export LOCPATH=
   - $CURL -O https://github.com/npostavs/emacs-travis/releases/download/bins/emacs-bin-${EMACS_VERSION}.tar.gz
   - tar -xaf emacs-bin-${EMACS_VERSION}.tar.gz -C /
   - export EMACS=/tmp/emacs/bin/emacs
