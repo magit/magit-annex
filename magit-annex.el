@@ -530,8 +530,7 @@ value for the '-S' flag.  The '--stat' flag is also enabled if
         (magit-invoke-popup 'magit-log-popup nil nil)))))
 
 (defun magit-annex--file-name-from-key (key)
-  (magit-git-string "annex" "examinekey" key
-                    "--format=.git/annex/objects/${hashdirmixed}${key}/${key}"))
+  (magit-git-string "annex" "contentlocation" key))
 
 (declare-function dired-read-shell-command "dired-aux" (prompt arg files))
 
