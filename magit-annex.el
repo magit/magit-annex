@@ -231,9 +231,11 @@ program used to open the unused file."
 ;;;###autoload
 (eval-after-load 'magit
   '(progn
-     (define-key magit-mode-map "@" 'magit-annex-popup-or-init)
-     (magit-define-popup-action 'magit-dispatch-popup
-       ?@ "Annex" 'magit-annex-popup-or-init ?!)))
+     (require 'magit-popup)
+     (when (boundp 'magit-dispatch-popup)
+       (define-key magit-mode-map "@" 'magit-annex-popup-or-init)
+       (magit-define-popup-action 'magit-dispatch-popup
+         ?@ "Annex" 'magit-annex-popup-or-init ?!))))
 
 
 
