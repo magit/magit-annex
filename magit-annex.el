@@ -7,7 +7,7 @@
 ;; URL: https://github.com/magit/magit-annex
 ;; Keywords: vc tools
 ;; Version: 1.6.0
-;; Package-Requires: ((cl-lib "0.3") (magit "2.12.0"))
+;; Package-Requires: ((cl-lib "0.3") (magit "2.90.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -417,7 +417,7 @@ With a prefix argument, prompt for FILE.
        (let ((default
                (--when-let
                    (or (mapcar #'cdr (magit-region-values 'annex-list-file))
-                       (-some-> (cdr (magit-section-when annex-list-file))
+                       (-some-> (cdr (magit-section-value-if 'annex-list-file))
                                 (list))
                        (and (derived-mode-p 'dired-mode)
                             (dired-get-marked-files t)))
