@@ -414,17 +414,17 @@ With a prefix argument, prompt for FILE.
               (capitalize command) command)
      (interactive
       (list
-       (let ((files (or (mapcar #'cdr (magit-region-values 'annex-list-file))
-                        (when-let ((file (cdr (magit-section-value-if
-                                               'annex-list-file))))
-                          (list file))
-                        (and (derived-mode-p 'dired-mode)
-                             (dired-get-marked-files t)))))
+       (let* ((files (or (mapcar #'cdr (magit-region-values 'annex-list-file))
+                         (when-let ((file (cdr (magit-section-value-if
+                                                'annex-list-file))))
+                           (list file))
+                         (and (derived-mode-p 'dired-mode)
+                              (dired-get-marked-files t))))
+              (default (mapconcat #'identity files ",")))
          (magit-annex-read-files
           (concat ,(capitalize command)
                   " file,s"
-                  (and files
-                       (format " (%s)" (mapconcat #'identity files ",")))
+                  (and files (format " (%s)" default))
                   ": ")
           ,limit
           default))
