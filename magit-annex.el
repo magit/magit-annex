@@ -514,21 +514,23 @@ value for the '-S' flag.  The '--stat' flag is also enabled if
 
 \('git log [--stat] -S<KEY>')"
   (interactive)
-  (let ((section (magit-current-section)))
-    (if (not (eq (oref section type) 'unused-data))
-        (call-interactively #'magit-log-popup)
-      (let ((magit-log-arguments
-             `(,(concat "-S" (cdr (oref section value)))
-               ,(and magit-annex-unused-stat-argument "--stat")
-               ,@(cl-remove-if
-                  (lambda (x) (string-prefix-p "-S" x))
-                  (-if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
-                      (with-current-buffer buffer
-                        (magit-popup-import-file-args (nth 1 magit-refresh-args)
-                                                      (nth 2 magit-refresh-args)))
-                    (default-value 'magit-log-arguments)))))
-            (magit-popup-use-prefix-argument 'default))
-        (magit-invoke-popup 'magit-log-popup nil nil)))))
+  (if (fboundp 'magit-log-popup)
+      (let ((section (magit-current-section)))
+        (if (not (eq (oref section type) 'unused-data))
+            (call-interactively #'magit-log-popup)
+          (let ((magit-log-arguments
+                 `(,(concat "-S" (cdr (oref section value)))
+                   ,(and magit-annex-unused-stat-argument "--stat")
+                   ,@(cl-remove-if
+                      (lambda (x) (string-prefix-p "-S" x))
+                      (-if-let (buffer (magit-mode-get-buffer 'magit-log-mode))
+                          (with-current-buffer buffer
+                            (magit-popup-import-file-args (nth 1 magit-refresh-args)
+                                                          (nth 2 magit-refresh-args)))
+                        (default-value 'magit-log-arguments)))))
+                (magit-popup-use-prefix-argument 'default))
+            (magit-invoke-popup 'magit-log-popup nil nil))))
+    (error "This command hasn't been ported to use Transient yet")))
 
 (defun magit-annex--file-name-from-key (key)
   (magit-git-string "annex" "contentlocation" key))
