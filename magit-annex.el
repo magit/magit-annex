@@ -146,7 +146,44 @@ program used to open the unused file."
   :type 'boolean)
 
 
-;;; Popups
+;;; Transients
+;;;; Infix Arguments
+
+(define-infix-argument magit-annex:--jobs ()
+  :description "Number of jobs"
+  :class 'transient-option
+  :key "-j"
+  :shortarg "-J"
+  :argument "--jobs="
+  :reader 'transient-read-number-N+)
+
+(define-infix-argument magit-annex:--fast ()
+  :description "Fast variant of command"
+  :class 'transient-option
+  :key "-f"
+  :argument "--fast")
+
+(define-infix-argument magit-annex:--force ()
+  :description "Force unsafe actions"
+  :class 'transient-option
+  :key "-F"
+  :argument "--force")
+
+(define-infix-argument magit-annex:--from ()
+  :description "From remote"
+  :class 'transient-option
+  :key "=f"
+  :argument "--from="
+  :reader 'magit-read-remote)
+
+(define-infix-argument magit-annex:--to ()
+  :description "To remote"
+  :class 'transient-option
+  :key "=t"
+  :argument "--to="
+  :reader 'magit-read-remote)
+
+;;;; Prefix commands
 
 (magit-define-popup magit-annex-popup
   "Popup console for git-annex commands."
