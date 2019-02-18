@@ -406,58 +406,90 @@ With a prefix argument, prompt for FILE.
           (dired-relist-file (expand-file-name file)))
       (goto-char here))))
 
-(defmacro magit-annex-files-action (command &optional limit no-async)
-  (declare (indent defun) (debug t))
-  `(defun ,(intern (concat "magit-annex-" command "-files"))
-       (files &optional args)
-     ,(format "%s FILES.\n\n  git annex %s [ARGS] [FILE...]"
-              (capitalize command) command)
-     (interactive
-      (list
-       (let* ((files (or (mapcar #'cdr (magit-region-values 'annex-list-file))
-                         (when-let ((file (cdr (magit-section-value-if
-                                                'annex-list-file))))
-                           (list file))
-                         (and (derived-mode-p 'dired-mode)
-                              (dired-get-marked-files t))))
-              (default (mapconcat #'identity files ",")))
-         (magit-annex-read-files
-          (concat ,(capitalize command)
-                  " file,s"
-                  (and files (format " (%s)" default))
-                  ": ")
-          ,limit
-          default))
-       (magit-annex-file-action-arguments)))
-     (,(if no-async 'magit-annex-run 'magit-annex-run-async)
-      ,command args files)
-     (when (derived-mode-p 'dired-mode)
-       (if ,no-async
-           (magit-annex--dired-relist files)
-         (set-process-sentinel
-          magit-this-process
-          (lambda (process event)
-            (magit-process-sentinel process event)
-            (when (eq (process-status process) 'exit)
-              (magit-annex--dired-relist files)))))
+(defun magit-annex--dired-relist-async (files)
+  (when (derived-mode-p 'dired-mode)
+       (set-process-sentinel
+        magit-this-process
+        (lambda (process event)
+          (magit-process-sentinel process event)
+          (when (eq (process-status process) 'exit)
+            (magit-annex--dired-relist files))))
        (let ((magit-display-buffer-noselect t))
-         (magit-process-buffer)))))
+         (magit-process-buffer))))
 
-(magit-annex-files-action "get" 'absent)
-(magit-annex-files-action "drop"
-  (and (not (magit-annex-from-in-options-p)) 'present))
-(magit-annex-files-action "copy"
-  (and (not (magit-annex-from-in-options-p)) 'present))
-(magit-annex-files-action "move"
-  (and (not (magit-annex-from-in-options-p)) 'present))
-(magit-annex-files-action "unlock" 'present t)
-(magit-annex-files-action "lock" 'unlocked t)
+(defun magit-annex--file-arguments (&optional limit-to unless-from)
+  "Return interactive arguments for file-based commands.
+LIMIT-TO is interpreted by `magit-annex-read-files'.  If
+UNLESS-FROM is non-nil, pass LIMIT-TO only if the command
+arguments don't include --from."
+  (let* ((args (magit-annex-file-action-arguments))
+         (files (or (mapcar #'cdr (magit-region-values 'annex-list-file))
+                    (when-let ((file (cdr (magit-section-value-if
+                                           'annex-list-file))))
+                      (list file))
+                    (and (derived-mode-p 'dired-mode)
+                         (dired-get-marked-files t))))
+         (default (mapconcat #'identity files ",")))
+    (list
+     (magit-annex-read-files
+      (concat "File,s"
+              (and files (format " (%s)" default))
+              ": ")
+      (and (or (not unless-from)
+               (cl-notany (lambda (it) (string-match-p "--from=" it))
+                          args))
+           limit-to)
+      default)
+     args)))
 
-(magit-annex-files-action "undo" nil t)
+(defun magit-annex-get-files (files &optional args)
+  "Get annex files.
+\('git annex get [ARGS] -- FILES)"
+  (interactive (magit-annex--file-arguments 'absent))
+  (magit-annex-run-async "get" args "--" files)
+  (magit-annex--dired-relist-async files))
 
-(defun magit-annex-from-in-options-p ()
-  (cl-some (lambda (it) (string-match-p "--from=" it))
-           magit-current-popup-args))
+(defun magit-annex-drop-files (files &optional args)
+  "Drop annex files.
+\('git annex drop [ARGS] -- FILES)"
+  (interactive (magit-annex--file-arguments 'present t))
+  (magit-annex-run-async "drop" args "--" files)
+  (magit-annex--dired-relist-async files))
+
+(defun magit-annex-copy-files (files &optional args)
+  "Copy annex files.
+\('git annex copy [ARGS] -- FILES)"
+  (interactive (magit-annex--file-arguments 'present t))
+  (magit-annex-run-async "copy" args "--" files)
+  (magit-annex--dired-relist-async files))
+
+(defun magit-annex-move-files (files &optional args)
+  "Move annex files.
+\('git annex move [ARGS] -- FILES)"
+  (interactive (magit-annex--file-arguments 'present t))
+  (magit-annex-run-async "move" args "--" files)
+  (magit-annex--dired-relist-async files))
+
+(defun magit-annex-unlock-files (files &optional args)
+  "Unlock annex files.
+\('git annex unlock [ARGS] -- FILES)"
+  (interactive (magit-annex--file-arguments 'present))
+  (magit-annex-run "unlock" args "--" files)
+  (magit-annex--dired-relist files))
+
+(defun magit-annex-lock-files (files &optional args)
+  "Lock annex files.
+\('git annex lock [ARGS] -- FILES)"
+  (interactive (magit-annex--file-arguments 'unlocked))
+  (magit-annex-run "lock" args "--" files)
+  (magit-annex--dired-relist files))
+
+(defun magit-annex-undo-files (files &optional args)
+  "Undo annex files.
+\('git annex undo [ARGS] -- FILES)"
+  (interactive (magit-annex--file-arguments))
+  (magit-annex-run "undo" args "--" files)
+  (magit-annex--dired-relist files))
 
 (defun magit-annex-files ()
   "Return all annex files."
