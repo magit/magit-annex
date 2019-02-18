@@ -621,7 +621,7 @@ Type \\[magit-annex-unused-open] to open the file.
   (magit-mode-setup #'magit-annex-unused-mode args))
 
 ;;;###autoload
-(defun magit-annex-unused-reflog (&optional args)
+(defun magit-annex-unused-in-reflog (&optional args)
   "Show unused data.
 \('git annex unused --used-refspec=reflog [ARGS]')"
   (interactive (list (magit-annex-unused-arguments)))
