@@ -270,9 +270,9 @@ program used to open the unused file."
 ;;;###autoload
 (eval-after-load 'magit
   '(progn
-     (define-key magit-mode-map "@" 'magit-annex-popup-or-init)
+     (define-key magit-mode-map "@" 'magit-annex-dispatch-or-init)
      (transient-append-suffix 'magit-dispatch "%"
-       '("@" "Annex" magit-annex-popup-or-init))))
+       '("@" "Annex" magit-annex-dispatch-or-init))))
 
 
 ;;; Process calls
@@ -310,8 +310,8 @@ rather than \"git \" is used as the initial input."
 ;;; Initialization
 
 ;;;###autoload
-(defun magit-annex-popup-or-init ()
-  "Call Magit-annex popup or offer to initialize non-annex repo."
+(defun magit-annex-dispatch-or-init ()
+  "Call `magit-annex-dispatch' or offer to initialize non-annex repo."
   (interactive)
   (cond
    ((magit-annex-inside-annexdir-p)
