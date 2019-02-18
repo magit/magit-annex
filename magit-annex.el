@@ -257,7 +257,7 @@ information."
   (magit-run-git-async "annex" magit-annex-global-arguments args))
 
 (defun magit-annex-command (command)
-  "Execute COMMAND asynchonously, displaying output.
+  "Execute COMMAND asynchronously, displaying output.
 This is like `magit-git-command', but \"git annex \" rather than
 \"git \" is used as the initial input."
   (interactive (list (magit-read-shell-command nil "git annex ")))
