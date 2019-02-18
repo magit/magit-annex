@@ -361,6 +361,22 @@ With a prefix argument, prompt for FILE.
 
 ;;; Managing content
 
+(defun magit-annex-files ()
+  "Return all annex files."
+  (magit-git-items "annex" "find" "--print0" "--include" "*"))
+
+(defun magit-annex-present-files ()
+  "Return annex files that are present in current repo."
+  (magit-git-items "annex" "find" "--print0"))
+
+(defun magit-annex-absent-files ()
+  "Return annex files that are absent in current repo."
+  (magit-git-items "annex" "find" "--print0" "--not" "--in=here"))
+
+(defun magit-annex-unlocked-files ()
+  "Return unlocked annex files."
+  (magit-git-items "diff-files" "-z" "--diff-filter=T" "--name-only"))
+
 (defun magit-annex-get-all-auto ()
   "Run `git annex get --auto'."
   (interactive)
@@ -490,22 +506,6 @@ arguments don't include --from."
   (interactive (magit-annex--file-arguments))
   (magit-annex-run "undo" args "--" files)
   (magit-annex--dired-relist files))
-
-(defun magit-annex-files ()
-  "Return all annex files."
-  (magit-git-items "annex" "find" "--print0" "--include" "*"))
-
-(defun magit-annex-present-files ()
-  "Return annex files that are present in current repo."
-  (magit-git-items "annex" "find" "--print0"))
-
-(defun magit-annex-absent-files ()
-  "Return annex files that are absent in current repo."
-  (magit-git-items "annex" "find" "--print0" "--not" "--in=here"))
-
-(defun magit-annex-unlocked-files ()
-  "Return unlocked annex files."
-  (magit-git-items "diff-files" "-z" "--diff-filter=T" "--name-only"))
 
 
 ;;; Unused mode
