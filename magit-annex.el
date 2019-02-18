@@ -476,7 +476,7 @@ With a prefix argument, prompt for FILE.
   (magit-git-items "diff-files" "-z" "--diff-filter=T" "--name-only"))
 
 
-;; Unused mode
+;;; Unused mode
 
 (defun magit-annex-unused-add ()
   "Add annex unused data back into the index."
