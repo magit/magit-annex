@@ -84,7 +84,7 @@
 
 (require 'cl-lib)
 (require 'magit)
-(require 'magit-popup)
+(require 'transient)
 
 
 ;;; Variables
@@ -185,95 +185,94 @@ program used to open the unused file."
 
 ;;;; Prefix commands
 
-(magit-define-popup magit-annex-popup
+;;;###autoload (autoload 'magit-annex-dispatch "magit-annex" nil t)
+(define-transient-command magit-annex-dispatch ()
   "Popup console for git-annex commands."
-  'magit-popups
   :man-page "git-annex"
-  :actions  '((?a "Add" magit-annex-add)
-              (?@ "Add" magit-annex-add)
-              (?A "Add all" magit-annex-add-all)
-              (?f "Action on files" magit-annex-file-action-popup)
-              (?G "Get all (auto)" magit-annex-get-all-auto)
-              (?y "Sync" magit-annex-sync-popup)
-              (?m "Merge" magit-annex-merge)
-              (?u "Unused" magit-annex-unused-popup)
-              (?l "List files" magit-annex-list-popup)
-              (?: "Annex subcommand (from pwd)" magit-annex-command)
-              (?! "Running" magit-annex-run-popup))
-  :max-action-columns 3)
+  ["Actions"
+   [("a" "Add" magit-annex-add)
+    ("@" "Add" magit-annex-add)
+    ("A" "Add all" magit-annex-add-all)]
+   [("G" "Get all (auto)" magit-annex-get-all-auto)
+    ("m" "Merge annex branches" magit-annex-merge)
+    (":" "Annex subcommand (from pwd)" magit-annex-command)]]
+  ["Transient commands"
+   [("f" "Action on files" magit-annex-file-action)
+    ("y" "Sync" magit-annex-sync)
+    ("!" "Running" magit-annex-run-command)]
+   [("u" "Unused" magit-annex-unused)
+    ("l" "List files" magit-annex-list)]])
 
-(magit-define-popup magit-annex-file-action-popup
+(define-transient-command magit-annex-file-action ()
   "Popup console for git-annex file commands."
-  'magit-annex-popups
   :man-page "git-annex"
-  :actions  '((?g "Get" magit-annex-get-files)
-              (?d "Drop" magit-annex-drop-files)
-              (?c "Copy" magit-annex-copy-files)
-              (?m "Move" magit-annex-move-files)
-              (?l "Lock" magit-annex-lock-files)
-              (?u "Unlock" magit-annex-unlock-files) nil nil
-              (?U "Undo" magit-annex-undo-files))
-  :switches '("Switches"
-              (?f "Fast" "--fast")
-              (?F "Force" "--force")
-              "Switches for get, drop, copy, and move"
-              (?a "Auto" "--auto"))
-  :options  '("Options for get, drop, copy, and move"
-              (?t "To remote" "--to=" magit-read-remote)
-              (?f "From remote" "--from=" magit-read-remote)
-              (?n "Number of copies" "--numcopies=")
-              (?j "Number of jobs" "--jobs="))
-  :max-action-columns 4)
+  ["Arguments"
+   (magit-annex:--fast)
+   (magit-annex:--force)]
+  ["Arguments for get, drop, copy, and move"
+   ("-a" "Auto" "--auto")
+   (magit-annex:--from)
+   ("-n" "Number of copies" "--numcopies=" transient-read-number-N+)
+   (magit-annex:--jobs)]
+  ["Arguments for copy and move"
+   (magit-annex:--to)]
+  ["Arguments for get, drop, copy, and move"
+   ("=f" "From remote" "--from=" magit-read-remote)]
+  ["Actions"
+   [("g" "Get" magit-annex-get-files)
+    ("d" "Drop" magit-annex-drop-files)
+    ("c" "Copy" magit-annex-copy-files)
+    ("m" "Move" magit-annex-move-files)]
+   [("l" "Lock" magit-annex-lock-files)
+    ("u" "Unlock" magit-annex-unlock-files)
+    ("U" "Undo" magit-annex-undo-files)]])
 
-(magit-define-popup magit-annex-sync-popup
+(define-transient-command magit-annex-sync ()
   "Popup console for git annex sync."
-  'magit-annex-popups
   :man-page "git-annex-sync"
-  :actions  '((?y "Sync" magit-annex-sync-all)
-              (?r "Sync remote" magit-annex-sync-remote))
-  :switches '((?c "Content" "--content")
-              (?f "Fast" "--fast")
-              (?F "Force" "--force")
-              (?n "Don't commit local changes" "--no-commit"))
-  :options  '((?j "Number of jobs" "--jobs="))
-  :default-action 'magit-annex-sync-all)
+  ["Arguments"
+   (magit-annex:--fast)
+   (magit-annex:--force)
+   ("-c" "Content" "--content")
+   ("-n" "Don't commit local changes" "--no-commit")
+   (magit-annex:--jobs)]
+  ["Actions"
+   ("y" "Sync" magit-annex-sync-all)
+   ("r" "Sync a remote" magit-annex-sync-remote)])
 
-(magit-define-popup magit-annex-unused-popup
+(define-transient-command magit-annex-unused ()
   "Popup console for git annex unused."
-  'magit-annex-popups
   :man-page "git-annex-unused"
-  :actions  '((?u "Unused" magit-annex-unused)
-              (?r "Unused in reflog" magit-annex-unused-reflog))
-  :switches '((?f "Fast" "--fast"))
-  :options '((?f "From remote" "--from=" magit-read-remote)
-             (?r "Refspec" "--used-refspec="))
-  :default-action 'magit-annex-unused)
+  ["Arguments"
+   (magit-annex:--fast)
+   (magit-annex:--from)
+   ("-r" "Refspec" "--used-refspec=")]
+  ["Actions"
+   ("u" "Unused" magit-annex-unused-in-refs)
+   ("r" "Unused in reflog" magit-annex-unused-in-reflog)])
 
-(magit-define-popup magit-annex-list-popup
+(define-transient-command magit-annex-list ()
   "Popup console for git annex list."
-  'magit-annex-popups
   :man-page "git-annex-list"
-  :actions  '((?l "List files" magit-annex-list-files)
-              (?d "List files in directory" magit-annex-list-dir-files))
-  :switches '((?a "All repos" "--allrepos"))
-  :default-action 'magit-annex-list-files)
+  ["Arguments"
+   ("-a" "All repos" "--allrepos")]
+  ["Actions"
+   ("l" "List files" magit-annex-list-files)
+   ("d" "List files in directory" magit-annex-list-dir-files)])
 
-(magit-define-popup magit-annex-run-popup
+(define-transient-command magit-annex-run-command ()
   "Popup console for running git-annex commands."
-  'magit-annex-popups
   :man-page "git-annex"
-  :actions '((?! "Annex subcommand (from root)" magit-annex-command-topdir)
-             (?: "Annex subcommand (from pwd)" magit-annex-command)))
+  ["Actions"
+   ("!" "Annex subcommand (from root)" magit-annex-command-topdir)
+   (":" "Annex subcommand (from pwd)" magit-annex-command)])
 
 ;;;###autoload
 (eval-after-load 'magit
   '(progn
-     (require 'magit-popup)
-     (when (boundp 'magit-dispatch-popup)
-       (define-key magit-mode-map "@" 'magit-annex-popup-or-init)
-       (magit-define-popup-action 'magit-dispatch-popup
-         ?@ "Annex" 'magit-annex-popup-or-init ?!))))
-
+     (define-key magit-mode-map "@" 'magit-annex-popup-or-init)
+     (transient-append-suffix 'magit-dispatch "%"
+       '("@" "Annex" magit-annex-popup-or-init))))
 
 
 ;;; Process calls
@@ -316,7 +315,7 @@ rather than \"git \" is used as the initial input."
   (interactive)
   (cond
    ((magit-annex-inside-annexdir-p)
-    (magit-annex-popup))
+    (magit-annex-dispatch))
    ((y-or-n-p (format "No git-annex repository in %s.  Initialize one? "
                       default-directory))
     (call-interactively 'magit-annex-init))))
@@ -375,6 +374,9 @@ With a prefix argument, prompt for FILE.
 
 
 ;;; Updating
+
+(defun magit-annex-sync-arguments ()
+  (transient-args 'magit-annex-sync))
 
 (defun magit-annex-sync-all (&optional args)
   "Sync git-annex.
@@ -469,6 +471,9 @@ With a prefix argument, prompt for FILE.
             (magit-annex--dired-relist files))))
        (let ((magit-display-buffer-noselect t))
          (magit-process-buffer))))
+
+(defun magit-annex-file-action-arguments ()
+  (transient-args 'magit-annex-file-action))
 
 (defun magit-annex--file-arguments (&optional limit-to unless-from)
   "Return interactive arguments for file-based commands.
@@ -650,6 +655,9 @@ Type \\[magit-annex-unused-open] to open the file.
   :group 'magit-modes
   (hack-dir-local-variables-non-file-buffer))
 
+(defun magit-annex-unused-arguments ()
+  (transient-args 'magit-annex-unused))
+
 ;;;###autoload
 (defun magit-annex-unused-in-refs (&optional args)
   "Show annex files not used in any branches or tags.
@@ -720,7 +728,7 @@ branches or tags.
 (defvar magit-annex-list-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "f" #'magit-annex-file-action-popup)
+    (define-key map "f" #'magit-annex-file-action)
     map)
   "Keymap for `magit-annex-list-mode'.")
 
@@ -728,11 +736,14 @@ branches or tags.
   "Mode for viewing on `git annex list' output.
 
 \\<magit-annex-list-mode-map>\
-Type \\[magit-annex-file-action-popup] to perform git-annex action
+Type \\[magit-annex-file-action] to perform git-annex action
 on the files selected by the region (if active) or the file at point.
 \n\\{magit-annex-list-mode-map}"
   :group 'magit-modes
   (hack-dir-local-variables-non-file-buffer))
+
+(defun magit-annex-list-arguments ()
+  (transient-args 'magit-annex-list))
 
 ;;;###autoload
 (defun magit-annex-list-files (&optional args)
