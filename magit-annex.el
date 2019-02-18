@@ -187,7 +187,7 @@ program used to open the unused file."
 
 ;;;###autoload (autoload 'magit-annex-dispatch "magit-annex" nil t)
 (define-transient-command magit-annex-dispatch ()
-  "Popup console for git-annex commands."
+  "Invoke a git-annex command."
   :man-page "git-annex"
   ["Actions"
    [("a" "Add" magit-annex-add)
@@ -204,7 +204,7 @@ program used to open the unused file."
     ("l" "List files" magit-annex-list)]])
 
 (define-transient-command magit-annex-file-action ()
-  "Popup console for git-annex file commands."
+  "Invoke a git-annex file command."
   :man-page "git-annex"
   ["Arguments"
    (magit-annex:--fast)
@@ -228,7 +228,7 @@ program used to open the unused file."
     ("U" "Undo" magit-annex-undo-files)]])
 
 (define-transient-command magit-annex-sync ()
-  "Popup console for git annex sync."
+  "Invoke 'git annex sync'."
   :man-page "git-annex-sync"
   ["Arguments"
    (magit-annex:--fast)
@@ -241,7 +241,7 @@ program used to open the unused file."
    ("r" "Sync a remote" magit-annex-sync-remote)])
 
 (define-transient-command magit-annex-unused ()
-  "Popup console for git annex unused."
+  "Invoke 'git annex unused'."
   :man-page "git-annex-unused"
   ["Arguments"
    (magit-annex:--fast)
@@ -252,7 +252,7 @@ program used to open the unused file."
    ("r" "Unused in reflog" magit-annex-unused-in-reflog)])
 
 (define-transient-command magit-annex-list ()
-  "Popup console for git annex list."
+  "Invoke 'git annex list'."
   :man-page "git-annex-list"
   ["Arguments"
    ("-a" "All repos" "--allrepos")]
@@ -261,7 +261,7 @@ program used to open the unused file."
    ("d" "List files in directory" magit-annex-list-dir-files)])
 
 (define-transient-command magit-annex-run-command ()
-  "Popup console for running git-annex commands."
+  "Run an arbitrary git-annex command."
   :man-page "git-annex"
   ["Actions"
    ("!" "Annex subcommand (from root)" magit-annex-command-topdir)
