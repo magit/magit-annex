@@ -614,7 +614,7 @@ Type \\[magit-annex-unused-open] to open the file.
   (hack-dir-local-variables-non-file-buffer))
 
 ;;;###autoload
-(defun magit-annex-unused (&optional args)
+(defun magit-annex-unused-in-refs (&optional args)
   "Show unused data.
 \('git annex unused [ARGS]')"
   (interactive (list (magit-annex-unused-arguments)))
