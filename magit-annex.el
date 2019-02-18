@@ -47,11 +47,11 @@
 ;;    The above commands, which operate on paths, are also useful
 ;;    outside of Magit buffers, especially in Dired buffers.  To make
 ;;    these commands easily accessible in Dired, you can add a binding
-;;    for `magit-annex-file-action-popup'.  If you use git-annex.el,
-;;    you can put the popup under the same binding (@f) with
+;;    for `magit-annex-file-action'.  If you use git-annex.el, you can
+;;    put the popup under the same binding (@f) with
 ;;
 ;;     (define-key git-annex-dired-map "f"
-;;       #'magit-annex-file-action-popup)
+;;       #'magit-annex-file-action)
 ;;
 ;;   @u    Browse unused files.
 ;;   @l    List annex files.
