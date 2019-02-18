@@ -150,7 +150,7 @@ program used to open the unused file."
 ;;;; Infix Arguments
 
 (define-infix-argument magit-annex:--jobs ()
-  :description "Number of jobs"
+  :description "Number of concurrent jobs"
   :class 'transient-option
   :key "-j"
   :shortarg "-J"
@@ -212,7 +212,7 @@ program used to open the unused file."
   ["Arguments for get, drop, copy, and move"
    ("-a" "Auto" "--auto")
    (magit-annex:--from)
-   ("-n" "Number of copies" "--numcopies=" transient-read-number-N+)
+   ("-n" "Desired number of copies" "--numcopies=" transient-read-number-N+)
    (magit-annex:--jobs)]
   ["Arguments for copy and move"
    (magit-annex:--to)]
@@ -233,11 +233,11 @@ program used to open the unused file."
   ["Arguments"
    (magit-annex:--fast)
    (magit-annex:--force)
-   ("-c" "Content" "--content")
+   ("-c" "Transfer content" "--content")
    ("-n" "Don't commit local changes" "--no-commit")
    (magit-annex:--jobs)]
   ["Actions"
-   ("y" "Sync" magit-annex-sync-all)
+   ("y" "Sync all remotes" magit-annex-sync-all)
    ("r" "Sync a remote" magit-annex-sync-remote)])
 
 (define-transient-command magit-annex-unused ()
