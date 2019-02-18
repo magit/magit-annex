@@ -1,5 +1,26 @@
 Magit-annex NEWS -- history of user-visible changes   -*- mode: org; -*-
 
+* master (unrelease)
+
+Magit-annex has been updated for the latest version of Magit and now
+requires version 2.91.0 or later.
+
+** Interface changes
+
+- To be compatible with the latest Magit, popups have been rewritten
+  as transient commands.
+
+  A few key bindings for options now start with ~-~ rather than ~=~
+  because, unlike magit-popup.el, transient.el doesn't require that
+  options start with ~=~.  You can restore the previous bindings with
+
+  #+begin_src emacs-lisp
+  (transient-suffix-put 'magit-annex-sync "-j" :key "=j")
+  (transient-suffix-put 'magit-annex-file-action "-j" :key "=j")
+  (transient-suffix-put 'magit-annex-file-action "-n" :key "=n")
+  (transient-suffix-put 'magit-annex-unused "-r" :key "=r")
+  #+end_src
+
 * 1.7.0
 
 Magit-annex has been updated for the latest version of Magit and now
