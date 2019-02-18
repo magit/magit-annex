@@ -192,14 +192,14 @@ program used to open the unused file."
   "Popup console for git annex sync."
   'magit-annex-popups
   :man-page "git-annex-sync"
-  :actions  '((?y "Sync" magit-annex-sync)
+  :actions  '((?y "Sync" magit-annex-sync-all)
               (?r "Sync remote" magit-annex-sync-remote))
   :switches '((?c "Content" "--content")
               (?f "Fast" "--fast")
               (?F "Force" "--force")
               (?n "Don't commit local changes" "--no-commit"))
   :options  '((?j "Number of jobs" "--jobs="))
-  :default-action 'magit-annex-sync)
+  :default-action 'magit-annex-sync-all)
 
 (magit-define-popup magit-annex-unused-popup
   "Popup console for git annex unused."
@@ -339,7 +339,7 @@ With a prefix argument, prompt for FILE.
 
 ;;; Updating
 
-(defun magit-annex-sync (&optional args)
+(defun magit-annex-sync-all (&optional args)
   "Sync git-annex.
 \('git annex sync [ARGS]')"
   (interactive (list (magit-annex-sync-arguments)))

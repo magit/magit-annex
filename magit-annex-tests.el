@@ -140,7 +140,7 @@
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-tests-wait
-        (magit-annex-sync))
+        (magit-annex-sync-all))
       (should (magit-git-lines "diff" "repo1/master"))
       (should-not (magit-git-lines "diff" "synced/master"))
       (should (magit-annex-present-files)))
@@ -156,7 +156,7 @@
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-tests-wait
-        (magit-annex-sync '("--content")))
+        (magit-annex-sync-all '("--content")))
       (should (magit-git-lines "diff" "repo1/master"))
       (should-not (magit-git-lines "diff" "synced/master"))
       (should (magit-annex-present-files)))
@@ -175,7 +175,7 @@
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-tests-wait
-        (magit-annex-sync)))
+        (magit-annex-sync-all)))
     (let ((default-directory repo1))
       (magit-annex-tests-wait
         (magit-annex-merge))
@@ -191,7 +191,7 @@
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-tests-wait
-        (magit-annex-sync)))
+        (magit-annex-sync-all)))
     (let ((default-directory repo1))
       (magit-annex-tests-wait
         (magit-annex-merge))
@@ -209,7 +209,7 @@
       (magit-annex-add "subdir/annex-file")
       (magit-call-git "commit" "-m" "subdir annex commit")
       (magit-annex-tests-wait
-        (magit-annex-sync)))
+        (magit-annex-sync-all)))
     (let ((default-directory repo1))
       (magit-annex-tests-wait
         (magit-annex-merge))
@@ -227,7 +227,7 @@
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-tests-wait
-        (magit-annex-sync))
+        (magit-annex-sync-all))
       (magit-annex-tests-wait
         (magit-annex-drop-files '("annex-file") '("--force")))
       (should-not (magit-annex-present-files)))))
@@ -239,7 +239,7 @@
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-tests-wait
-        (magit-annex-sync))
+        (magit-annex-sync-all))
       (magit-annex-tests-wait
         (magit-annex-move-files '("annex-file") '("--to=repo1")))
       (should-not (magit-annex-present-files)))
@@ -256,7 +256,7 @@
       (magit-annex-add "annex-file")
       (magit-call-git "commit" "-m" "annex commit")
       (magit-annex-tests-wait
-        (magit-annex-sync))
+        (magit-annex-sync-all))
       (magit-annex-tests-wait
         (magit-annex-copy-files '("annex-file") '("--to=repo1")))
       (should (equal (magit-annex-present-files)
