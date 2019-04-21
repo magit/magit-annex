@@ -22,9 +22,9 @@ requires version 2.91.0 or later.
   #+end_src
 
 - ~magit-annex-unused-log~ now immediately displays the log instead of
-  opening the log popup and bound to ~C-c C-l~ in
-  ~magit-annex-unused-mode-map~ rather than shadowing the binding of
-  ~magit-log~.
+  opening the log popup and is bound to ~C-c C-l~ in
+  ~magit-annex-unused-mode-map~ rather than shadowing the default
+  binding of ~magit-log~.
 
 * 1.7.0
 

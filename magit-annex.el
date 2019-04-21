@@ -713,7 +713,7 @@ branches or tags.
     (let ((num (match-string 1))
           (key (match-string 2)))
       (delete-region (match-beginning 0) (match-end 0))
-      (magit-insert-section (unused-data (cons num key))
+      (magit-insert-section (unused-data key)
         (insert (format "   %-3s   %s" num key))
         (forward-line)))))
 
