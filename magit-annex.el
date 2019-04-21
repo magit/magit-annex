@@ -593,7 +593,7 @@ enabled if `magit-annex-unused-stat-argument' is non-nil.
        (when (and magit-annex-unused-stat-argument
                   (not (member "--stat" args)))
          (push "--stat" args))
-       (magit-git-log
+       (magit-log-setup-buffer
         (list (or (magit-get-current-branch) "HEAD"))
         (cons (concat "-S" (cdr (oref it value)))
               (cl-remove-if (lambda (x) (string-prefix-p "-S" x))
@@ -661,7 +661,7 @@ These files are not pointed by the tips of the repositories
 branches or tags.
 \('git annex unused [ARGS]')"
   (interactive (list (magit-annex-unused-arguments)))
-  (magit-mode-setup #'magit-annex-unused-mode args))
+  (magit-annex-unused-setup-buffer args))
 
 ;;;###autoload
 (defun magit-annex-unused-in-reflog (&optional args)
@@ -672,18 +672,24 @@ branches or tags.
                args)
       (user-error "Flag --used-refspec was given more than once")
     (setq args (cons "--used-refspec=reflog" args)))
-  (magit-mode-setup #'magit-annex-unused-mode args))
+  (magit-annex-unused-setup-buffer args))
 
-(defun magit-annex-unused-refresh-buffer (args)
+(defun magit-annex-unused-setup-buffer (args)
+  (magit-setup-buffer #'magit-annex-unused-mode nil
+    (magit-buffer-arguments args)))
+
+(defun magit-annex-unused-refresh-buffer ()
   "Refresh the content of the unused buffer."
   (magit-insert-section (unused)
     (magit-insert-heading
       (concat "Unused files"
-              (and args
-                   (concat " (" (mapconcat #'identity args " ") ")"))
+              (and magit-buffer-arguments
+                   (concat " ("
+                           (mapconcat #'identity magit-buffer-arguments " ")
+                           ")"))
               ":"))
     (magit-git-wash #'magit-annex-unused-wash
-      "annex" "unused" args)))
+      "annex" "unused" magit-buffer-arguments)))
 
 (defun magit-annex-unused-wash (&rest _)
   "Convert the output of git-annex unused into Magit section."
@@ -728,6 +734,8 @@ branches or tags.
     map)
   "Keymap for `magit-annex-list-mode'.")
 
+(defvar-local magit-annex-buffer-directory nil)
+
 (define-derived-mode magit-annex-list-mode magit-mode "Magit-annex List"
   "Mode for viewing on `git annex list' output.
 
@@ -746,7 +754,7 @@ on the files selected by the region (if active) or the file at point.
   "List annex files.
 \('git annex list [ARGS]')"
   (interactive (magit-annex-list-arguments))
-  (magit-mode-setup #'magit-annex-list-mode nil args))
+  (magit-annex-list-setup-buffer nil args))
 
 ;;;###autoload
 (defun magit-annex-list-dir-files (directory &optional args)
@@ -758,9 +766,14 @@ on the files selected by the region (if active) or the file at point.
                                                    nil nil t)
                               (magit-toplevel)))
          (magit-annex-list-arguments)))
-  (magit-mode-setup #'magit-annex-list-mode directory args))
+  (magit-annex-list-setup-buffer directory args))
 
-(defun magit-annex-list-refresh-buffer (&rest _)
+(defun magit-annex-list-setup-buffer (directory args)
+  (magit-setup-buffer #'magit-annex-list-mode nil
+    (magit-annex-buffer-directory directory)
+    (magit-buffer-arguments args)))
+
+(defun magit-annex-list-refresh-buffer ()
   "Refresh content of a `magit-annex-list-mode' buffer."
   (magit-insert-section (annex-list-buffer)
     (run-hooks 'magit-annex-list-sections-hook)))
@@ -771,14 +784,14 @@ on the files selected by the region (if active) or the file at point.
 
 (defun magit-annex-list-insert-files ()
   "Insert output of `git annex list'."
-  (let* ((subdir (car magit-refresh-args))
+  (let* ((subdir magit-annex-buffer-directory)
          (heading (if subdir
                       (format "Annex files in %s:" subdir)
                     "Annex files:")))
     (magit-insert-section (annex-list-buffer)
       (magit-insert-heading heading)
       (magit-git-wash #'magit-annex-list-wash
-        "annex" "list" magit-refresh-args))))
+        "annex" "list" magit-annex-buffer-directory magit-buffer-arguments))))
 
 (defconst magit-annex-list-line-re "\\([_X]+\\) \\(.*\\)$")
 
