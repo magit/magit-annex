@@ -21,6 +21,11 @@ requires version 2.91.0 or later.
   (transient-suffix-put 'magit-annex-unused "-r" :key "=r")
   #+end_src
 
+- ~magit-annex-unused-log~ now immediately displays the log instead of
+  opening the log popup and bound to ~C-c C-l~ in
+  ~magit-annex-unused-mode-map~ rather than shadowing the binding of
+  ~magit-log~.
+
 * 1.7.0
 
 Magit-annex has been updated for the latest version of Magit and now

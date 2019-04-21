@@ -581,26 +581,27 @@ With prefix argument FORCE, pass \"--force\" flag to
 (defun magit-annex-unused-log ()
   "Display log for unused file.
 
-This is like `magit-log', but, if point is on an unused file, the
-unused file's key is automatically supplied as the value for the
-'-S' flag.  The '--stat' flag is also enabled if
-`magit-annex-unused-stat-argument' is non-nil.  Note that when
-this command is active (i.e., point is on an unused file)
-`magit-use-sticky-arguments' is temporarily disabled.
+Show a log where the key for the unused file at point is supplied
+as the value for the '-S' flag.  The '--stat' flag is also
+enabled if `magit-annex-unused-stat-argument' is non-nil.
 
 \('git log [--stat] -S<KEY>')"
   (interactive)
-  (let ((section (magit-current-section)))
-    (if (eq (oref section type) 'unused-data)
-        (let* ((magit-use-sticky-arguments nil)
-               (magit-log-arguments
-                `(,(concat "-S" (cdr (oref section value)))
-                  ,(and magit-annex-unused-stat-argument "--stat")
-                  ,@(cl-remove-if
-                     (lambda (x) (string-prefix-p "-S" x))
-                     (default-value 'magit-log-arguments)))))
-          (magit-log))
-      (call-interactively #'magit-log))))
+  (magit-section-case
+    (unused-data
+     (let ((args (car (magit-log-arguments))))
+       (magit-git-log
+        (list (or (magit-get-current-branch) "HEAD"))
+        `(,(concat "-S" (cdr (oref it value)))
+          ,(and magit-annex-unused-stat-argument
+                (not (member "--stat" args))
+                "--stat")
+          ,@(cl-remove-if
+             (lambda (x) (string-prefix-p "-S" x))
+             args))
+        nil)))
+    (t
+     (user-error "No unused file at point"))))
 
 (defun magit-annex--file-name-from-key (key)
   (magit-git-string "annex" "contentlocation" key))
@@ -635,7 +636,7 @@ the file within Emacs."
     (define-key map (kbd "RET") #'magit-annex-unused-open)
     (define-key map "s" #'magit-annex-unused-add)
     (define-key map "k" #'magit-annex-unused-drop)
-    (define-key map "l" #'magit-annex-unused-log)
+    (define-key map (kbd "C-c C-l") #'magit-annex-unused-log)
     map)
   "Keymap for `magit-annex-unused-mode'.")
 
