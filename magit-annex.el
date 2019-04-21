@@ -590,15 +590,14 @@ enabled if `magit-annex-unused-stat-argument' is non-nil.
   (magit-section-case
     (unused-data
      (let ((args (car (magit-log-arguments))))
+       (when (and magit-annex-unused-stat-argument
+                  (not (member "--stat" args)))
+         (push "--stat" args))
        (magit-git-log
         (list (or (magit-get-current-branch) "HEAD"))
-        `(,(concat "-S" (cdr (oref it value)))
-          ,(and magit-annex-unused-stat-argument
-                (not (member "--stat" args))
-                "--stat")
-          ,@(cl-remove-if
-             (lambda (x) (string-prefix-p "-S" x))
-             args))
+        (cons (concat "-S" (cdr (oref it value)))
+              (cl-remove-if (lambda (x) (string-prefix-p "-S" x))
+                            args))
         nil)))
     (t
      (user-error "No unused file at point"))))
