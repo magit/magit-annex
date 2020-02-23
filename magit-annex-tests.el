@@ -34,7 +34,7 @@
            (let ((start (float-time)))
              (while (and magit-this-process ,wait)
                (when (< 30 (time-to-seconds
-                            (subtract-time (float-time) start)))
+                            (time-subtract (float-time) start)))
                  (error "Process shouldn't take this long"))
                (sleep-for 0.005))))))))
 
