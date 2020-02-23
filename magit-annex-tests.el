@@ -101,7 +101,7 @@
     (insert (symbol-name (gensym "content")))))
 
 (defun magit-annex-tests-should-have-section (type info)
-  (magit-status default-directory)
+  (magit-status-setup-buffer default-directory)
   (message (buffer-string))
   (should (--first (equal (oref it value) info)
                    (oref (magit-get-section `((,type) (status)))
