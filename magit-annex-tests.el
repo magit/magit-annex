@@ -6,7 +6,7 @@
 
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
 (require 'dash)
 (require 'ert)
 
@@ -21,7 +21,7 @@
 
 (defmacro magit-annex-tests-wait (&rest body)
   (declare (indent 0) (debug t))
-  (let ((wait (gensym "magit-annex-tests-wait")))
+  (let ((wait (cl-gensym "magit-annex-tests-wait")))
     `(prog1 ,(macroexp-progn body)
        (let ((,wait t))
          (when magit-this-process
@@ -98,7 +98,7 @@
 
 (defun magit-annex-tests-modify-file (filename)
   (with-temp-file (expand-file-name filename)
-    (insert (symbol-name (gensym "content")))))
+    (insert (symbol-name (cl-gensym "content")))))
 
 (defun magit-annex-tests-should-have-section (type info)
   (magit-status-setup-buffer default-directory)
