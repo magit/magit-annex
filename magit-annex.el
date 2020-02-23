@@ -417,7 +417,16 @@ With a prefix argument, prompt for FILE.
 
 (defun magit-annex-unlocked-files ()
   "Return unlocked annex files."
-  (magit-git-items "diff-files" "-z" "--diff-filter=T" "--name-only"))
+  (with-temp-buffer
+    (let ((exit (magit-process-file
+                 magit-git-executable nil t nil
+                 "annex" "find" "--print0" "--unlocked")))
+      (if (zerop exit)
+          (split-string (buffer-string) "\0" t)
+        ;; `find --unlocked' isn't available until git-annex
+        ;; 7.20191009.  Fall back to the old approach that is
+        ;; compatible with v5 repos only.
+        (magit-git-items "diff-files" "-z" "--diff-filter=T" "--name-only")))))
 
 (defun magit-annex-get-all-auto ()
   "Run `git annex get --auto'."
