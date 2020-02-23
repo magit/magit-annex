@@ -337,6 +337,9 @@ rather than \"git \" is used as the initial input."
   "Add the item at point to annex.
 With a prefix argument, prompt for FILE.
 \('git annex add')"
+  ;; NEEDSWORK: Use of `magit-annex-unlocked-files' doesn't make sense
+  ;; for v6+ repos.
+  ;;
   ;; Modified from `magit-stage'.
   (interactive
    (when current-prefix-arg
