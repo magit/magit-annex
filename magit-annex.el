@@ -607,7 +607,7 @@ enabled if `magit-annex-unused-stat-argument' is non-nil.
          (push "--stat" args))
        (magit-log-setup-buffer
         (list (or (magit-get-current-branch) "HEAD"))
-        (cons (concat "-S" (cdr (oref it value)))
+        (cons (concat "-S" (oref it value))
               (cl-remove-if (lambda (x) (string-prefix-p "-S" x))
                             args))
         nil)))
