@@ -605,7 +605,17 @@ enabled if `magit-annex-unused-stat-argument' is non-nil.
        (when (and magit-annex-unused-stat-argument
                   (not (member "--stat" args)))
          (push "--stat" args))
-       (magit-log-setup-buffer
+       (funcall
+        (cond
+         ;; `magit-git-log' was renamed to `magit-log-setup-buffer' in
+         ;; v2.90.1-480-g249ce0eec.  This is a temporary compatibility
+         ;; kludge for Guix, whose current version of Magit is from a
+         ;; bit before that (v2.90.1-460-gc761d28d4).
+         ((fboundp 'magit-log-setup-buffer)
+          #'magit-log-setup-buffer)
+         ((fboundp 'magit-git-log)
+          #'magit-git-log)
+         (t (error "bug: should never get here")))
         (list (or (magit-get-current-branch) "HEAD"))
         (cons (concat "-S" (oref it value))
               (cl-remove-if (lambda (x) (string-prefix-p "-S" x))
