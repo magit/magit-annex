@@ -503,10 +503,11 @@ arguments don't include --from."
                       (list file))
                     (and (derived-mode-p 'dired-mode)
                          (dired-get-marked-files t))))
-         (default (mapconcat #'identity files ",")))
+         (default (mapconcat #'identity files "|"))
+         (crm-separator "[ 	]*|[ 	]*"))
     (list
      (magit-annex-read-files
-      (concat "File,s"
+      (concat "File|s"
               (and files (format " (%s)" default))
               ": ")
       (and (or (not unless-from)
