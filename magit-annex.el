@@ -617,7 +617,7 @@ enabled if `magit-annex-unused-stat-argument' is non-nil.
           #'magit-git-log)
          (t (error "bug: should never get here")))
         (list (or (magit-get-current-branch) "HEAD"))
-        (cons (concat "-S" (oref it value))
+        (cons (concat "-S" (cdr (oref it value)))
               (cl-remove-if (lambda (x) (string-prefix-p "-S" x))
                             args))
         nil)))
@@ -735,7 +735,7 @@ branches or tags.
     (let ((num (match-string 1))
           (key (match-string 2)))
       (delete-region (match-beginning 0) (match-end 0))
-      (magit-insert-section (unused-data key)
+      (magit-insert-section (unused-data (cons num key))
         (insert (format "   %-3s   %s" num key))
         (forward-line)))))
 
