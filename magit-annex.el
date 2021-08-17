@@ -271,7 +271,7 @@ program used to open the unused file."
 (eval-after-load 'magit
   '(progn
      (define-key magit-mode-map "@" 'magit-annex-dispatch-or-init)
-     (transient-append-suffix 'magit-dispatch "%"
+     (transient-append-suffix 'magit-dispatch '(0 -1 -1)
        '("@" "Annex" magit-annex-dispatch-or-init))))
 
 
