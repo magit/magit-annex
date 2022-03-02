@@ -216,8 +216,6 @@ program used to open the unused file."
    (magit-annex:--jobs)]
   ["Arguments for copy and move"
    (magit-annex:--to)]
-  ["Arguments for get, drop, copy, and move"
-   ("=f" "From remote" "--from=" magit-read-remote)]
   ["Actions"
    [("g" "Get" magit-annex-get-files)
     ("d" "Drop" magit-annex-drop-files)
