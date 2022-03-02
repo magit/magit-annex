@@ -187,7 +187,7 @@ program used to open the unused file."
 
 ;;;###autoload (autoload 'magit-annex-dispatch "magit-annex" nil t)
 (transient-define-prefix magit-annex-dispatch ()
-  "Invoke a git-annex command."
+  "Invoke a git-annex command or offer to initialize non-annex repo."
   :man-page "git-annex"
   ["Actions"
    [("a" "Add" magit-annex-add)
@@ -201,7 +201,14 @@ program used to open the unused file."
     ("y" "Sync" magit-annex-sync)
     ("!" "Running" magit-annex-run-command)]
    [("u" "Unused" magit-annex-unused)
-    ("l" "List files" magit-annex-list)]])
+    ("l" "List files" magit-annex-list)]]
+  (interactive)
+  (cond
+   ((magit-annex-inside-annexdir-p)
+    (transient-setup 'magit-annex-dispatch))
+   ((y-or-n-p (format "No git-annex repository in %s.  Initialize one? "
+                      default-directory))
+    (call-interactively 'magit-annex-init))))
 
 (transient-define-prefix magit-annex-file-action ()
   "Invoke a git-annex file command."
@@ -268,9 +275,9 @@ program used to open the unused file."
 ;;;###autoload
 (eval-after-load 'magit
   '(progn
-     (define-key magit-mode-map "@" 'magit-annex-dispatch-or-init)
+     (define-key magit-mode-map "@" 'magit-annex-dispatch)
      (transient-append-suffix 'magit-dispatch '(0 -1 -1)
-       '("@" "Annex" magit-annex-dispatch-or-init))))
+       '("@" "Annex" magit-annex-dispatch))))
 
 
 ;;; Process calls
@@ -306,17 +313,6 @@ rather than \"git \" is used as the initial input."
 
 
 ;;; Initialization
-
-;;;###autoload
-(defun magit-annex-dispatch-or-init ()
-  "Call `magit-annex-dispatch' or offer to initialize non-annex repo."
-  (interactive)
-  (cond
-   ((magit-annex-inside-annexdir-p)
-    (magit-annex-dispatch))
-   ((y-or-n-p (format "No git-annex repository in %s.  Initialize one? "
-                      default-directory))
-    (call-interactively 'magit-annex-init))))
 
 ;;;###autoload
 (defun magit-annex-init (&optional description)
