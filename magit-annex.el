@@ -508,49 +508,49 @@ arguments don't include --from."
 
 (defun magit-annex-get-files (files &optional args)
   "Get annex files.
-\('git annex get [ARGS] -- FILES)"
+\('git annex get [ARGS] -- FILES')"
   (interactive (magit-annex--file-arguments 'absent))
   (magit-annex-run-async "get" args "--" files)
   (magit-annex--dired-relist-async files))
 
 (defun magit-annex-drop-files (files &optional args)
   "Drop annex files.
-\('git annex drop [ARGS] -- FILES)"
+\('git annex drop [ARGS] -- FILES')"
   (interactive (magit-annex--file-arguments 'present t))
   (magit-annex-run-async "drop" args "--" files)
   (magit-annex--dired-relist-async files))
 
 (defun magit-annex-copy-files (files &optional args)
   "Copy annex files.
-\('git annex copy [ARGS] -- FILES)"
+\('git annex copy [ARGS] -- FILES')"
   (interactive (magit-annex--file-arguments 'present t))
   (magit-annex-run-async "copy" args "--" files)
   (magit-annex--dired-relist-async files))
 
 (defun magit-annex-move-files (files &optional args)
   "Move annex files.
-\('git annex move [ARGS] -- FILES)"
+\('git annex move [ARGS] -- FILES')"
   (interactive (magit-annex--file-arguments 'present t))
   (magit-annex-run-async "move" args "--" files)
   (magit-annex--dired-relist-async files))
 
 (defun magit-annex-unlock-files (files &optional args)
   "Unlock annex files.
-\('git annex unlock [ARGS] -- FILES)"
+\('git annex unlock [ARGS] -- FILES')"
   (interactive (magit-annex--file-arguments 'present))
   (magit-annex-run "unlock" args "--" files)
   (magit-annex--dired-relist files))
 
 (defun magit-annex-lock-files (files &optional args)
   "Lock annex files.
-\('git annex lock [ARGS] -- FILES)"
+\('git annex lock [ARGS] -- FILES')"
   (interactive (magit-annex--file-arguments 'unlocked))
   (magit-annex-run "lock" args "--" files)
   (magit-annex--dired-relist files))
 
 (defun magit-annex-undo-files (files &optional args)
   "Undo annex files.
-\('git annex undo [ARGS] -- FILES)"
+\('git annex undo [ARGS] -- FILES')"
   (interactive (magit-annex--file-arguments))
   (magit-annex-run "undo" args "--" files)
   (magit-annex--dired-relist files))
