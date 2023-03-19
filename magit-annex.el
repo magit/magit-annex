@@ -322,7 +322,7 @@ rather than \"git \" is used as the initial input."
   (magit-annex-run "init" description))
 
 (defun magit-annex-inside-annexdir-p ()
-  (file-exists-p (concat (magit-git-dir) "annex")))
+  (file-exists-p (expand-file-name "annex" (magit-git-dir))))
 
 
 ;;; Annexing
