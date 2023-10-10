@@ -29,4 +29,7 @@ clean:
 %-autoloads.el: %.el
 	@$(BATCH) --eval \
 	"(let ((make-backup-files nil)) \
-	  (update-file-autoloads \"$(CURDIR)/$<\" t \"$(CURDIR)/$@\"))"
+	   (if (fboundp 'loaddefs-generate) \
+	       (loaddefs-generate default-directory \"$@\" \
+				  (list \"magit-annex-tests.el\")) \
+	     (update-file-autoloads \"$(CURDIR)/$<\" t \"$(CURDIR)/$@\")))"
