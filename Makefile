@@ -28,5 +28,5 @@ clean:
 
 %-autoloads.el: %.el
 	@$(BATCH) --eval \
-	"(let (make-backup-files) \
+	"(let ((make-backup-files nil)) \
 	  (update-file-autoloads \"$(CURDIR)/$<\" t \"$(CURDIR)/$@\"))"
