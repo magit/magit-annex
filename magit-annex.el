@@ -673,8 +673,6 @@ Type \\[magit-annex-unused-open] to open the file.
 ;;;###autoload
 (defun magit-annex-unused-in-refs (&optional args)
   "Show annex files not used in any branches or tags.
-These files are not pointed by the tips of the repositories
-branches or tags.
 \('git annex unused [ARGS]')"
   (interactive (list (magit-annex-unused-arguments)))
   (magit-annex-unused-setup-buffer args))
