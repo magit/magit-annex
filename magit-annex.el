@@ -6,7 +6,7 @@
 ;;         Rémi Vanicat <vanicat@debian.org>
 ;; URL: https://github.com/magit/magit-annex
 ;; Keywords: vc tools
-;; Version: 1.8.1
+;; Version: 1.9.0
 ;; Package-Requires: ((emacs "26.1") (magit "4.0.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
