@@ -342,18 +342,18 @@ With a prefix argument, prompt for FILE.
                                          (magit-untracked-files))))))
   (if file
       (magit-annex-run "add" file)
-    (--when-let (magit-current-section)
+    (when-let ((section (magit-current-section)))
       (pcase (list (magit-diff-type) (magit-diff-scope))
         (`(untracked file)
          (magit-annex-run "add" (directory-file-name
-                                 (oref it value))))
+                                 (oref section value))))
         (`(untracked files)
          (magit-annex-run "add" (mapcar #'directory-file-name
                                         (magit-region-values))))
         (`(untracked list)
          (magit-annex-run "add" (magit-untracked-files)))
         (`(unstaged file)
-         (magit-annex-run "add" (oref it value)))
+         (magit-annex-run "add" (oref section value)))
         (`(unstaged files)
          (magit-annex-run "add" (magit-region-values)))
         (`(unstaged list)

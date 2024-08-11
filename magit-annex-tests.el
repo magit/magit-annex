@@ -7,8 +7,8 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'dash)
 (require 'ert)
+(require 'seq)
 
 (require 'magit-annex)
 
@@ -16,8 +16,9 @@
 
 (defun magit-annex-tests-kill-buffers (directory)
   (let ((default-directory directory))
-    (dolist (buf (-remove #'buffer-base-buffer (magit-mode-get-buffers)))
-      (kill-buffer buf))))
+    (dolist (buf (magit-mode-get-buffers))
+      (unless (buffer-base-buffer buf)
+        (kill-buffer buf)))))
 
 (defmacro magit-annex-tests-wait (&rest body)
   (declare (indent 0) (debug t))
@@ -103,9 +104,11 @@
 (defun magit-annex-tests-should-have-section (type info)
   (magit-status-setup-buffer default-directory)
   (message (buffer-string))
-  (should (--first (equal (oref it value) info)
-                   (oref (magit-get-section `((,type) (status)))
-                         children))))
+  (should
+   (seq-find
+    (lambda (s) (equal (oref s value) info))
+    (oref (magit-get-section `((,type) (status)))
+          children))))
 
 
 ;;; Annexing
