@@ -1,5 +1,10 @@
 Magit-annex NEWS -- history of user-visible changes   -*- mode: org; -*-
 
+* master (unreleased)
+
+Magit-annex has been updated for the latest version of Magit and now
+requires version 4.0.0 or later.
+
 * 1.8.0
 
 Magit-annex has been updated for the latest version of Magit and now
