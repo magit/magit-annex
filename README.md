@@ -1,7 +1,7 @@
 [![License GPL 3][badge-license]](https://www.gnu.org/licenses/gpl-3.0.txt)
 [![MELPA](https://melpa.org/packages/magit-annex-badge.svg)](https://melpa.org/#/magit-annex)
 
-Magit-annex is a Magit interface to [git-annex][].  See git-annex's
+Magit-annex is a Magit interface to git-annex.  See git-annex's
 [homepage][] for more information about git-annex.  The [commentary][]
 in magit-annex.el provides an overview.
 
