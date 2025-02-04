@@ -4,11 +4,11 @@
 MAGIT_DIR ?= /dev/null
 TRANSIENT_DIR ?= /dev/null
 COMPAT_DIR ?= /dev/null
-DASH_DIR ?= /dev/null
+LLAMA_DIR ?= /dev/null
 WITH_EDITOR_DIR ?= /dev/null
 EMACSBIN ?= emacs
 
-LOAD_PATH = -L $(COMPAT_DIR) -L $(DASH_DIR) -L $(WITH_EDITOR_DIR) \
+LOAD_PATH = -L $(COMPAT_DIR) -L $(LLAMA_DIR) -L $(WITH_EDITOR_DIR) \
 	    -L $(TRANSIENT_DIR) -L $(MAGIT_DIR)
 BATCH = $(EMACSBIN) -Q --batch $(LOAD_PATH)
 
