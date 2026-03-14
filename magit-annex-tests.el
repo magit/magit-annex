@@ -78,7 +78,7 @@
              (magit-call-git "init" ".")
              (magit-call-git "annex" "init" "repo1")
              (magit-annex-tests-modify-file "file")
-             (magit-stage-file "file")
+             (magit-stage-files (list "file"))
              (magit-call-git "commit" "-m" "normal commit")
              (magit-call-git "remote" "add" "repo2" repo2))
            (let ((default-directory repo2))
