@@ -1,6 +1,6 @@
 ;;; magit-annex.el --- Control git-annex from Magit  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2014-2024 all Magit-annex contributors
+;; Copyright (C) 2014-2026 all Magit-annex contributors
 
 ;; Author: Kyle Meyer <kyle@kyleam.com>
 ;;         Rémi Vanicat <vanicat@debian.org>

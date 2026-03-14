@@ -1,6 +1,6 @@
 ;;; magit-annex-tests.el --- Tests for Magit-annex
 
-;; Copyright (C) 2014-2024 all Magit-annex contributors
+;; Copyright (C) 2014-2026 all Magit-annex contributors
 ;;
 ;; License: GPLv3
 
