@@ -1,4 +1,4 @@
-;;; magit-annex-tests.el --- Tests for Magit-annex
+;;; magit-annex-tests.el --- Tests for Magit-annex  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2014-2026 all Magit-annex contributors
 ;;
