@@ -342,7 +342,7 @@ With a prefix argument, prompt for FILE.
                                          (magit-untracked-files))))))
   (if file
       (magit-annex-run "add" file)
-    (when-let ((section (magit-current-section)))
+    (when-let* ((section (magit-current-section)))
       (pcase (list (magit-diff-type) (magit-diff-scope))
         (`(untracked file)
          (magit-annex-run "add" (directory-file-name
@@ -488,7 +488,7 @@ UNLESS-FROM is non-nil, pass LIMIT-TO only if the command
 arguments don't include --from."
   (let* ((args (magit-annex-file-action-arguments))
          (files (or (mapcar #'cdr (magit-region-values 'annex-list-file))
-                    (when-let ((file (cdr (magit-section-value-if
+                    (and-let* ((file (cdr (magit-section-value-if
                                            'annex-list-file))))
                       (list file))
                     (and (derived-mode-p 'dired-mode)
