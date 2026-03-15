@@ -645,6 +645,8 @@ the file within Emacs."
     map)
   "Keymap for `magit-annex-unused-mode'.")
 
+(defvar-local magit-annex-unused-buffer-args nil)
+
 (define-derived-mode magit-annex-unused-mode magit-mode "Magit-annex Unused"
   "Mode for looking at unused data in annex.
 
@@ -680,20 +682,21 @@ Type \\[magit-annex-unused-open] to open the file.
 
 (defun magit-annex-unused-setup-buffer (args)
   (magit-setup-buffer #'magit-annex-unused-mode nil
-    (magit-buffer-arguments args)))
+    (magit-annex-unused-buffer-args args)))
 
 (defun magit-annex-unused-refresh-buffer ()
   "Refresh the content of the unused buffer."
   (magit-insert-section (unused)
     (magit-insert-heading
-      (concat "Unused files"
-              (and magit-buffer-arguments
-                   (concat " ("
-                           (mapconcat #'identity magit-buffer-arguments " ")
-                           ")"))
-              ":"))
+      (concat
+       "Unused files"
+       (and magit-annex-unused-buffer-args
+            (concat " ("
+                    (mapconcat #'identity magit-annex-unused-buffer-args " ")
+                    ")"))
+       ":"))
     (magit-git-wash #'magit-annex-unused-wash
-      "annex" "unused" magit-buffer-arguments)))
+      "annex" "unused" magit-annex-unused-buffer-args)))
 
 (defun magit-annex-unused-wash (&rest _)
   "Convert the output of git-annex unused into Magit section."
@@ -739,6 +742,7 @@ Type \\[magit-annex-unused-open] to open the file.
   "Keymap for `magit-annex-list-mode'.")
 
 (defvar-local magit-annex-buffer-directory nil)
+(defvar-local magit-annex-list-buffer-args nil)
 
 (define-derived-mode magit-annex-list-mode magit-mode "Magit-annex List"
   "Mode for viewing on `git annex list' output.
@@ -775,7 +779,7 @@ on the files selected by the region (if active) or the file at point.
 (defun magit-annex-list-setup-buffer (directory args)
   (magit-setup-buffer #'magit-annex-list-mode nil
     (magit-annex-buffer-directory directory)
-    (magit-buffer-arguments args)))
+    (magit-annex-list-buffer-args args)))
 
 (defun magit-annex-list-refresh-buffer ()
   "Refresh content of a `magit-annex-list-mode' buffer."
@@ -795,7 +799,9 @@ on the files selected by the region (if active) or the file at point.
     (magit-insert-section (annex-list-buffer)
       (magit-insert-heading heading)
       (magit-git-wash #'magit-annex-list-wash
-        "annex" "list" magit-annex-buffer-directory magit-buffer-arguments))))
+        "annex" "list"
+        magit-annex-buffer-directory
+        magit-annex-list-buffer-args))))
 
 (defconst magit-annex-list-line-re "\\([_X]+\\) \\(.*\\)$")
 
